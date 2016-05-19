@@ -50,28 +50,34 @@ public class NatsToSparkConnector extends Receiver<String> {
 
 	protected Properties			properties = null;
 	protected Collection<String>	subjects = null;
+	protected String 				queue;
 
 	protected NatsToSparkConnector(Properties properties, StorageLevel storageLevel, String... subjects) {
 		super(storageLevel);
 		this.properties = properties;
 		this.subjects = Utilities.transformIntoAList(subjects);
+		setQueue();
 		logger.debug("CREATE SparkToNatsConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
 
 	protected NatsToSparkConnector(StorageLevel storageLevel, String... subjects) {
 		super(storageLevel);
 		this.subjects = Utilities.transformIntoAList(subjects);
+		setQueue();
 		logger.debug("CREATE SparkToNatsConnector {} with Storage Level {} and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
 	protected NatsToSparkConnector(Properties properties, StorageLevel storageLevel) {
 		super(storageLevel);
 		this.properties = properties;
+		setQueue();
 		logger.debug("CREATE SparkToNatsConnector {} with Properties '{}' and Storage Level {}.", this, properties, storageLevel);
 	}
 
 	public NatsToSparkConnector(StorageLevel storageLevel) {
 		super(storageLevel);
+		setQueue();
+		logger.debug("CREATE SparkToNatsConnector {}.", this, properties, storageLevel);
 	}
 
 	/**
@@ -117,6 +123,10 @@ public class NatsToSparkConnector extends Receiver<String> {
 		return new NatsToSparkConnector(storageLevel);
 	}
 
+	protected void setQueue() {
+		queue = "Q" + System.identityHashCode(this) ;
+	}
+
 	@Override
 	public void onStart() {
 		//Start the thread that receives data over a connection
@@ -144,10 +154,10 @@ public class NatsToSparkConnector extends Receiver<String> {
 		// Make connection and initialize streams			  
 		final ConnectionFactory connectionFactory = new ConnectionFactory(getProperties());
 		final Connection connection = connectionFactory.createConnection();
-		logger.info("A NATS from '{}' to Spark Connection has been created for {}.", connection.getConnectedUrl(), this);
+		logger.info("A NATS from '{}' to Spark Connection has been created for {}, based on '{}' Queue.", connection.getConnectedUrl(), this, queue);
 		
 		for (String subject: getSubjects()) {
-			final Subscription sub = connection.subscribe(subject, "group", m -> {
+			final Subscription sub = connection.subscribe(subject, queue, m -> {
 				String s = new String(m.getData());
 				if (logger.isTraceEnabled()) {
 					logger.trace("Received on {}: {}.", m.getSubject(), s);
