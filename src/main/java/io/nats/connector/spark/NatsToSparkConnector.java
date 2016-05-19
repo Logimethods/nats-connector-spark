@@ -13,6 +13,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.receiver.Receiver;
 import org.slf4j.Logger;
@@ -32,8 +33,7 @@ import io.nats.client.Subscription;
  * An usage of this class would look like this.
  * <pre>
  * JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(2000));
- * final JavaReceiverInputDStream&lt;String&gt; messages = ssc.receiverStream(
- *    new NatsToSparkConnector(null, 0, "Subject", "Group", StorageLevel.MEMORY_ONLY()));
+ * final JavaReceiverInputDStream&lt;String&gt; messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY(), DEFAULT_SUBJECT));
  * </pre>
  * @see <a href="http://spark.apache.org/docs/1.6.1/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
@@ -44,43 +44,77 @@ public class NatsToSparkConnector extends Receiver<String> {
 	 */
 	private static final long serialVersionUID = 1L;
 
-
 	public static final String NATS_SUBJECTS = "nats.io.connector.nats2spark.subjects";
-
 
 	static final Logger logger = LoggerFactory.getLogger(NatsToSparkConnector.class);
 
-	protected Properties			properties		  = null;
-	protected Collection<String>	subjects;
-/*	String host = null;
-	int port = -1;	 
-	String subject;
-	String qgroup;
-	String url;
-*/			
-	public NatsToSparkConnector(Properties properties, StorageLevel storageLevel, String... subjects) {
+	protected Properties			properties = null;
+	protected Collection<String>	subjects = null;
+
+	protected NatsToSparkConnector(Properties properties, StorageLevel storageLevel, String... subjects) {
 		super(storageLevel);
 		this.properties = properties;
 		this.subjects = Utilities.transformIntoAList(subjects);
 		logger.debug("CREATE SparkToNatsConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
-
-/*		host = host_;
-		port = port_;
-		subject = _subject;
-		qgroup = _qgroup;
-		url = ConnectionFactory.DEFAULT_URL;
-		if (host != null){
-			url = url.replace("localhost", host);
-		}
-		if (port > 0){
-			String strPort = Integer.toString(port);
-			url = url.replace("4222", strPort);
-		}*/
 	}
 
+	protected NatsToSparkConnector(StorageLevel storageLevel, String... subjects) {
+		super(storageLevel);
+		this.subjects = Utilities.transformIntoAList(subjects);
+		logger.debug("CREATE SparkToNatsConnector {} with Storage Level {} and NATS Subjects '{}'.", this, properties, subjects);
+	}
 
-	public NatsToSparkConnector(StorageLevel _storageLevel) {
-		super(_storageLevel);
+	protected NatsToSparkConnector(Properties properties, StorageLevel storageLevel) {
+		super(storageLevel);
+		this.properties = properties;
+		logger.debug("CREATE SparkToNatsConnector {} with Properties '{}' and Storage Level {}.", this, properties, storageLevel);
+	}
+
+	public NatsToSparkConnector(StorageLevel storageLevel) {
+		super(storageLevel);
+	}
+
+	/**
+	 * Will push into Spark Strings (messages) provided by NATS.
+	 *
+	 * @param properties Defines the properties of the connection to NATS.
+	 * @param storageLevel Defines the StorageLevel used by Spark.
+	 * @param subjects The list of NATS subjects to publish to.
+	 */
+	public static NatsToSparkConnector receiveFromNats(Properties properties, StorageLevel storageLevel, String... subjects) {
+		return new NatsToSparkConnector(properties, storageLevel, subjects);
+	}
+
+	/**
+	 * Will push into Spark Strings (messages) provided by NATS.
+	 * The settings of the NATS connection can be defined thanks to the System Properties.
+	 *
+	 * @param storageLevel Defines the StorageLevel used by Spark.
+	 * @param subjects The list of NATS subjects to publish to.
+	 */
+	public static NatsToSparkConnector receiveFromNats(StorageLevel storageLevel, String... subjects) {
+		return new NatsToSparkConnector(storageLevel, subjects);
+	}
+
+	/**
+	 * Will push into Spark Strings (messages) provided by NATS.
+	 * The list of the NATS subjects (separated by ',') needs to be provided by the nats.io.connector.spark.subjects property.
+	 *
+	 * @param properties Defines the properties of the connection to NATS.
+	 * @param storageLevel Defines the StorageLevel used by Spark.
+	 */
+	public static NatsToSparkConnector receiveFromNats(Properties properties, StorageLevel storageLevel) {
+		return new NatsToSparkConnector(properties, storageLevel);
+	}
+
+	/**
+	 * Will push into Spark Strings (messages) provided by NATS.
+	 * The settings of the NATS connection can be defined thanks to the System Properties.
+	 *
+	 * @param storageLevel Defines the StorageLevel used by Spark.
+	 */
+	public static NatsToSparkConnector receiveFromNats(StorageLevel storageLevel) {
+		return new NatsToSparkConnector(storageLevel);
 	}
 
 	@Override
@@ -103,37 +137,34 @@ public class NatsToSparkConnector extends Receiver<String> {
 		// is designed to stop by itself if CTRL-C is Caught.
 	}
 
-	/** Create a socket connection and receive data until receiver is stopped **/
-	protected void receive() {
+	/** Create a socket connection and receive data until receiver is stopped 
+	 * @throws Exception **/
+	protected void receive() throws Exception {
 
-		try {
-			// Make connection and initialize streams			  
-			final ConnectionFactory connectionFactory = new ConnectionFactory(getProperties());
-			final Connection connection = connectionFactory.createConnection();
-			logger.info("A NATS Connection to '{}' has been created for {}", connection.getConnectedUrl(), this);
+		// Make connection and initialize streams			  
+		final ConnectionFactory connectionFactory = new ConnectionFactory(getProperties());
+		final Connection connection = connectionFactory.createConnection();
+		logger.info("A NATS from '{}' to Spark Connection has been created for {}.", connection.getConnectedUrl(), this);
+		
+		for (String subject: getSubjects()) {
+			final Subscription sub = connection.subscribe(subject, "group", m -> {
+				String s = new String(m.getData());
+				if (logger.isTraceEnabled()) {
+					logger.trace("Received on {}: {}.", m.getSubject(), s);
+				}
+				store(s);
+			});
+			logger.info("Listening on {}.", subject);
 			
-			for (String subject: getSubjects()) {
-				final Subscription sub = connection.subscribe(subject, "group", m -> {
-					String s = new String(m.getData());
-					if (logger.isTraceEnabled()) {
-						logger.trace("Received on {}: {}.", m.getSubject(), s);
-					}
-					store(s);
-				});
-				logger.info("Listening on {}.", subject);
-				
-				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-					logger.info("Caught CTRL-C, shutting down gracefully...");
-					try {
-						sub.unsubscribe();
-					} catch (IOException e) {
-						logger.error("Problem while unsubscribing " + e.toString());
-					}
-					connection.close();
-				}));
-			}
-		} catch (Exception e) {
-			logger.error(e.getLocalizedMessage());
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+				logger.info("Caught CTRL-C, shutting down gracefully...");
+				try {
+					sub.unsubscribe();
+				} catch (IOException e) {
+					logger.error("Problem while unsubscribing " + e.toString());
+				}
+				connection.close();
+			}));
 		}
 	}
 

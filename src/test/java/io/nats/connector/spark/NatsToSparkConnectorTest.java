@@ -52,9 +52,6 @@ public class NatsToSparkConnectorTest {
 
 		logger = LoggerFactory.getLogger(NatsToSparkConnectorTest.class);       
 
-		SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]");
-		sc = new JavaSparkContext(sparkConf);
-
 		UnitTestUtilities.startDefaultServer();
 	}
 
@@ -64,7 +61,6 @@ public class NatsToSparkConnectorTest {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		UnitTestUtilities.stopDefaultServer();
-		sc.stop();
 	}
 
 	/**
@@ -74,6 +70,9 @@ public class NatsToSparkConnectorTest {
 	public void setUp() throws Exception {
 		assertTrue(logger.isDebugEnabled());
 		assertTrue(LoggerFactory.getLogger(NatsToSparkConnector.class).isTraceEnabled());
+		
+		SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]");
+		sc = new JavaSparkContext(sparkConf);
 	}
 
 	/**
@@ -81,31 +80,92 @@ public class NatsToSparkConnectorTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-	}
-
-//	@Test
-	public void dummyTest() {
-		System.out.println("TTTTEEESSSSTTT");
+		sc.stop();
 	}
 	
 	/**
-	 * Test method for {@link io.nats.connector.spark.NatsToSparkConnector#NatsToSparkConnector(java.lang.String, int, java.lang.String, java.lang.String)}.
+	 * Test method for {@link io.nats.connector.spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String, java.lang.String)}.
 	 * @throws InterruptedException 
 	 */
-	@Test
-	public void testNatsToSparkConnector() throws InterruptedException {
-		final int nbOfMessages = 5;
+//	@Test
+	public void testNatsToSparkConnectorWithPropertiesAndSubjects() throws InterruptedException {
+		
+		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
+
+		final Properties properties = new Properties();
+		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(properties, StorageLevel.MEMORY_ONLY(), DEFAULT_SUBJECT));
+
+		validateTheReceptionOfMessages(ssc, messages);
+	}
+	
+//	@Test
+	public void testNatsToSparkConnectorWithPropertiesAndMultipleSubjects() throws InterruptedException {
+		
+		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
+
+		final Properties properties = new Properties();
+		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(properties, StorageLevel.MEMORY_ONLY(), DEFAULT_SUBJECT, "EXTRA_SUBJECT"));
+
+		validateTheReceptionOfMessages(ssc, messages);
+	}
+	
+	/**
+	 * Test method for {@link io.nats.connector.spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
+	 * @throws InterruptedException 
+	 */
+//	@Test
+	public void testNatsToSparkConnectorWithProperties() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final Properties properties = new Properties();
 		properties.setProperty(NatsToSparkConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
-		final NatsToSparkConnector natsToSparkConnector = new NatsToSparkConnector(properties, StorageLevel.MEMORY_ONLY(), DEFAULT_SUBJECT);
-		logger.info("NatsToSparkConnector created: {}.", natsToSparkConnector);
-		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(natsToSparkConnector);
+		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(properties, StorageLevel.MEMORY_ONLY()));
 
+		validateTheReceptionOfMessages(ssc, messages);
+	}
+	
+	/**
+	 * Test method for {@link io.nats.connector.spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
+	 * @throws Exception 
+	 */
+	@Test
+	public void testNatsToSparkConnectorWITHOUTProperties() throws Exception {
+		
+		try {
+			NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).receive();
+		} catch (Exception e) {
+			if (e.getMessage().contains("NatsToSparkConnector needs at least one NATS Subject"))
+				return;
+			else
+				throw e;
+		}	
+
+		fail("An Exception(\"NatsToSparkConnector needs at least one Subject\") should have been raised.");
+	}
+	
+	@Test
+	public void testNatsToSparkConnectorWithSystemProperties() throws InterruptedException {
+		
+		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
+
+		System.setProperty(NatsToSparkConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
+
+		try {
+			final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()));
+
+			validateTheReceptionOfMessages(ssc, messages);
+		} finally {
+			System.clearProperty(NatsToSparkConnector.NATS_SUBJECTS);
+		}		
+	}
+	
+
+	private void validateTheReceptionOfMessages(JavaStreamingContext ssc,
+			final JavaReceiverInputDStream<String> messages) throws InterruptedException {
 		ExecutorService executor = Executors.newFixedThreadPool(6);
 
+		final int nbOfMessages = 5;
 		NatsPublisher np = new NatsPublisher("np", DEFAULT_SUBJECT,  nbOfMessages);
 		
 		messages.print();
@@ -132,21 +192,15 @@ public class NatsToSparkConnectorTest {
 			}			
 		});
 		
-		ssc.start();
-		
-		Thread.sleep(800);
-		
+		ssc.start();		
+		Thread.sleep(1000);		
 		// start the publisher
 		executor.execute(np);
-
-		np.waitUntilReady();
-		
+		np.waitUntilReady();		
 		Thread.sleep(500);
-
-		ssc.close();
-		
-		assertTrue("Not a single RDD did received messages.", atLeastSomeData);
-		
+		ssc.close();		
+		Thread.sleep(500);
+		assertTrue("Not a single RDD did received messages.", atLeastSomeData);		
 		assertNull("'" + payload + " should be '" + NatsPublisher.NATS_PAYLOAD + "'", payload);
 	}
 
