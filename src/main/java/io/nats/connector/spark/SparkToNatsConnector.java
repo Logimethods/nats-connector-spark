@@ -77,6 +77,36 @@ public class SparkToNatsConnector implements Serializable {
 		logger.debug("CREATE SparkToNatsConnector {} with NATS Subjects '{}'.", this, subjects);
 	}
 
+	/**
+	 * Will publish the Strings provided (by Spark) into NATS.
+	 *
+	 * @param properties Defines the properties of the connection to NATS.
+	 * @param subjects The list of NATS subjects to publish to.
+	 */
+	public static VoidFunction<String> publishToNats(Properties properties, String... subjects) {
+		return new SparkToNatsConnector(properties, subjects).publishToNats;
+	}
+
+	/**
+	 * Will publish the Strings provided (by Spark) into NATS.
+	 * The list of the NATS subjects (separated by ',') needs to be provided by the nats.io.connector.spark.subjects property.
+	 *
+	 * @param properties Defines the properties of the connection to NATS.
+	 */
+	public static VoidFunction<String> publishToNats(Properties properties) {
+		return new SparkToNatsConnector(properties).publishToNats;
+	}
+
+	/**
+	 * Will publish the Strings provided (by Spark) into NATS.
+	 * The settings of the NATS connection can be defined thanks to the System Properties.
+	 *
+	 * @param subjects The list of NATS subjects to publish to.
+	 */
+	public static VoidFunction<String> publishToNats(String... subjects) {
+		return new SparkToNatsConnector(subjects).publishToNats;
+	}
+
 	protected Properties getProperties(){
 		if (properties == null) {
 			properties = new Properties(System.getProperties());
@@ -135,35 +165,5 @@ public class SparkToNatsConnector implements Serializable {
 			}
 		}
 	};
-
-	/**
-	 * Will publish the Strings provided (by Spark) into NATS.
-	 *
-	 * @param properties Defines the properties of the connection to NATS.
-	 * @param subjects The list of NATS subjects to publish to.
-	 */
-	public static VoidFunction<String> publishToNats(Properties properties, String... subjects) {
-		return new SparkToNatsConnector(properties, subjects).publishToNats;
-	}
-
-	/**
-	 * Will publish the Strings provided (by Spark) into NATS.
-	 * The list of the NATS subjects (separated by ',') needs to be provided by the nats.io.connector.spark.subjects property.
-	 *
-	 * @param properties Defines the properties of the connection to NATS.
-	 */
-	public static VoidFunction<String> publishToNats(Properties properties) {
-		return new SparkToNatsConnector(properties).publishToNats;
-	}
-
-	/**
-	 * Will publish the Strings provided (by Spark) into NATS.
-	 * The settings of the NATS connection can be defined thanks to the System properties.
-	 *
-	 * @param subjects The list of NATS subjects to publish to.
-	 */
-	public static VoidFunction<String> publishToNats(String... subjects) {
-		return new SparkToNatsConnector(subjects).publishToNats;
-	}
 
 }
