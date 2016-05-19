@@ -87,7 +87,7 @@ public class NatsToSparkConnectorTest {
 	 * Test method for {@link io.nats.connector.spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String, java.lang.String)}.
 	 * @throws InterruptedException 
 	 */
-//	@Test
+	@Test
 	public void testNatsToSparkConnectorWithPropertiesAndSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
@@ -98,7 +98,7 @@ public class NatsToSparkConnectorTest {
 		validateTheReceptionOfMessages(ssc, messages);
 	}
 	
-//	@Test
+	@Test
 	public void testNatsToSparkConnectorWithPropertiesAndMultipleSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
@@ -113,7 +113,7 @@ public class NatsToSparkConnectorTest {
 	 * Test method for {@link io.nats.connector.spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
 	 * @throws InterruptedException 
 	 */
-//	@Test
+	@Test
 	public void testNatsToSparkConnectorWithProperties() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
