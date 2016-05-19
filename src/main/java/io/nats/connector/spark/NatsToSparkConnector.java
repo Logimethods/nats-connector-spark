@@ -8,6 +8,8 @@
 package io.nats.connector.spark;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -37,19 +39,32 @@ import io.nats.client.Subscription;
  */
 public class NatsToSparkConnector extends Receiver<String> {
 
-	private static final long serialVersionUID = 6989127121049901119L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+
+	public static final String NATS_SUBJECTS = "nats.io.connector.nats2spark.subjects";
+
 
 	static final Logger logger = LoggerFactory.getLogger(NatsToSparkConnector.class);
 
-	String host = null;
+	protected Properties			properties		  = null;
+	protected Collection<String>	subjects;
+/*	String host = null;
 	int port = -1;	 
 	String subject;
 	String qgroup;
 	String url;
-			
-	public NatsToSparkConnector(String host_ , int port_, String _subject, String _qgroup, StorageLevel _storageLevel) {
-		super(_storageLevel);
-		host = host_;
+*/			
+	public NatsToSparkConnector(Properties properties, StorageLevel storageLevel, String... subjects) {
+		super(storageLevel);
+		this.properties = properties;
+		this.subjects = Utilities.transformIntoAList(subjects);
+		logger.debug("CREATE SparkToNatsConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
+
+/*		host = host_;
 		port = port_;
 		subject = _subject;
 		qgroup = _qgroup;
@@ -60,7 +75,7 @@ public class NatsToSparkConnector extends Receiver<String> {
 		if (port > 0){
 			String strPort = Integer.toString(port);
 			url = url.replace("4222", strPort);
-		}
+		}*/
 	}
 
 
@@ -93,30 +108,53 @@ public class NatsToSparkConnector extends Receiver<String> {
 
 		try {
 			// Make connection and initialize streams			  
-			ConnectionFactory cf = new ConnectionFactory(url);
-			final Connection nc = cf.createConnection();
-			AtomicInteger count = new AtomicInteger();
-			final Subscription sub = nc.subscribe(subject, qgroup, m -> {
-				String s = new String(m.getData());
-				if (logger.isTraceEnabled()) { 
-					logger.trace("{} Received on {}: {}.", count.incrementAndGet(), m.getSubject(), s);
-				}
-				store(s);
-			});
-
-			logger.info("Listening on {}.", subject);
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				logger.info("Caught CTRL-C, shutting down gracefully...");
-				try {
-					sub.unsubscribe();
-				} catch (IOException e) {
-					logger.error("Problem while unsubscribing " + e.toString());
-				}
-				nc.close();
-			}));
-		} catch (IOException | TimeoutException e) {
+			final ConnectionFactory connectionFactory = new ConnectionFactory(getProperties());
+			final Connection connection = connectionFactory.createConnection();
+			logger.info("A NATS Connection to '{}' has been created for {}", connection.getConnectedUrl(), this);
+			
+			for (String subject: getSubjects()) {
+				final Subscription sub = connection.subscribe(subject, "group", m -> {
+					String s = new String(m.getData());
+					if (logger.isTraceEnabled()) {
+						logger.trace("Received on {}: {}.", m.getSubject(), s);
+					}
+					store(s);
+				});
+				logger.info("Listening on {}.", subject);
+				
+				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+					logger.info("Caught CTRL-C, shutting down gracefully...");
+					try {
+						sub.unsubscribe();
+					} catch (IOException e) {
+						logger.error("Problem while unsubscribing " + e.toString());
+					}
+					connection.close();
+				}));
+			}
+		} catch (Exception e) {
 			logger.error(e.getLocalizedMessage());
 		}
 	}
+
+	protected Properties getProperties(){
+		if (properties == null) {
+			properties = new Properties(System.getProperties());
+		}
+		return properties;
+	}
+
+	protected Collection<String> getSubjects() throws Exception {
+		if ((subjects ==  null) || (subjects.size() == 0)) {
+			final String subjectsStr = getProperties().getProperty(NATS_SUBJECTS);
+			if (subjectsStr == null) {
+				throw new Exception("NatsToSparkConnector needs at least one NATS Subject.");
+			}
+			final String[] subjectsArray = subjectsStr.split(",");
+			subjects = Utilities.transformIntoAList(subjectsArray);
+			logger.debug("Subject provided by the Properties: '{}'", subjects);
+		}
+		return subjects;
+	}    		
 }
 

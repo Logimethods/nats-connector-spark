@@ -28,9 +28,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 public class SparkToNatsConnectorTest {
 
-	private static final String DEFAULT_SUBJECT = "spark";
+	protected static final String DEFAULT_SUBJECT = "spark2natsSubject";
 	protected static JavaSparkContext sc;
 	static Logger logger = null;
 

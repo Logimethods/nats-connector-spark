@@ -29,7 +29,7 @@ import io.nats.client.Message;
  */
 public class SparkToNatsConnector implements Serializable {
 
-	public static final String NATS_SUBJECTS = "nats.io.connector.spark.subjects";
+	public static final String NATS_SUBJECTS = "nats.io.connector.spark2nats.subjects";
 
 	/**
 	 * 
@@ -55,7 +55,7 @@ public class SparkToNatsConnector implements Serializable {
 	protected SparkToNatsConnector(Properties properties, String... subjects) {
 		super();
 		this.properties = properties;
-		this.subjects = transformIntoAList(subjects);
+		this.subjects = Utilities.transformIntoAList(subjects);
 		logger.debug("CREATE SparkToNatsConnector {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
@@ -73,7 +73,7 @@ public class SparkToNatsConnector implements Serializable {
 	 */
 	protected SparkToNatsConnector(String... subjects) {
 		super();
-		this.subjects = transformIntoAList(subjects);
+		this.subjects = Utilities.transformIntoAList(subjects);
 		logger.debug("CREATE SparkToNatsConnector {} with NATS Subjects '{}'.", this, subjects);
 	}
 
@@ -91,23 +91,11 @@ public class SparkToNatsConnector implements Serializable {
 				throw new Exception("SparkToNatsConnector needs at least one NATS Subject.");
 			}
 			final String[] subjectsArray = subjectsStr.split(",");
-			subjects = transformIntoAList(subjectsArray);
+			subjects = Utilities.transformIntoAList(subjectsArray);
 			logger.debug("Subject provided by the Properties: '{}'", subjects);
 		}
 		return subjects;
 	}    		
-
-	/**
-	 * @param subjects
-	 * @return
-	 */
-	protected List<String> transformIntoAList(String... subjects) {
-		ArrayList<String> list = new ArrayList<String>(subjects.length);
-		for (String subject: subjects){
-			list.add(subject.trim());
-		}
-		return list;
-	}
 
 	protected ConnectionFactory getConnectionFactory() throws Exception {
 		if (connectionFactory == null) {

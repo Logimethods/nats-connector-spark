@@ -34,9 +34,14 @@ public class NatsPublisher extends TestClient implements Runnable
 			logger.debug("NATS Publisher ({}):  Starting", id);
 
 			io.nats.client.Connection c = new ConnectionFactory().createConnection();
+			
+			logger.debug("A NATS Connection to '{}' has been created.", c.getConnectedUrl());
+			
+			setReady();
 
 			for (int i = 0; i < testCount; i++) {
 				c.publish(subject, NATS_PAYLOAD.getBytes());
+				logger.trace("Publish '{}' to '{}'.", NATS_PAYLOAD, subject);
 				tallyMessage();
 			}
 			c.flush();

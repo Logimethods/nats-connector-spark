@@ -9,6 +9,7 @@ package io.nats.connector.spark;
 
 import static org.junit.Assert.*;
 
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -32,6 +33,7 @@ import io.nats.connector.spark.NatsToSparkConnector;
 
 public class NatsToSparkConnectorTest {
 
+	protected static final String DEFAULT_SUBJECT = "nats2sparkSubject";
 	protected static JavaSparkContext sc;
 	static Logger logger = null;
 	static Boolean rightNumber = true;
@@ -46,8 +48,7 @@ public class NatsToSparkConnectorTest {
 		// Enable tracing for debugging as necessary.
 		System.setProperty("org.slf4j.simpleLogger.log.io.nats.connector.spark.NatsToSparkConnector", "trace");
 		System.setProperty("org.slf4j.simpleLogger.log.io.nats.connector.spark.NatsToSparkConnectorTest", "debug");
-		System.setProperty("org.slf4j.simpleLogger.log.io.nats.connector.spark.TestClient", "debug");
-		System.setProperty("org.slf4j.simpleLogger.log.io.nats.connector.spark.NatsPublisher", "debug");
+		System.setProperty("org.slf4j.simpleLogger.log.io.nats.connector.spark.TestClient", "trace");
 
 		logger = LoggerFactory.getLogger(NatsToSparkConnectorTest.class);       
 
@@ -82,6 +83,11 @@ public class NatsToSparkConnectorTest {
 	public void tearDown() throws Exception {
 	}
 
+//	@Test
+	public void dummyTest() {
+		System.out.println("TTTTEEESSSSTTT");
+	}
+	
 	/**
 	 * Test method for {@link io.nats.connector.spark.NatsToSparkConnector#NatsToSparkConnector(java.lang.String, int, java.lang.String, java.lang.String)}.
 	 * @throws InterruptedException 
@@ -92,12 +98,15 @@ public class NatsToSparkConnectorTest {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
-		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(
-				new NatsToSparkConnector(null, 0, "Subject", "Group", StorageLevel.MEMORY_ONLY()));
+		final Properties properties = new Properties();
+		properties.setProperty(NatsToSparkConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
+		final NatsToSparkConnector natsToSparkConnector = new NatsToSparkConnector(properties, StorageLevel.MEMORY_ONLY(), DEFAULT_SUBJECT);
+		logger.info("NatsToSparkConnector created: {}.", natsToSparkConnector);
+		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(natsToSparkConnector);
 
 		ExecutorService executor = Executors.newFixedThreadPool(6);
 
-		NatsPublisher np = new NatsPublisher("np", "Subject",  nbOfMessages);
+		NatsPublisher np = new NatsPublisher("np", DEFAULT_SUBJECT,  nbOfMessages);
 		
 		messages.print();
 		
@@ -125,11 +134,13 @@ public class NatsToSparkConnectorTest {
 		
 		ssc.start();
 		
-		Thread.sleep(500);
+		Thread.sleep(800);
 		
 		// start the publisher
 		executor.execute(np);
 
+		np.waitUntilReady();
+		
 		Thread.sleep(500);
 
 		ssc.close();
