@@ -12,6 +12,7 @@ import static org.junit.Assert.*;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
@@ -19,6 +20,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.Duration;
+import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.junit.After;
@@ -33,8 +35,11 @@ import io.nats.connector.spark.NatsToSparkConnector;
 
 public class NatsToSparkConnectorTest {
 
-	protected static final String DEFAULT_SUBJECT = "nats2sparkSubject";
+	protected static String DEFAULT_SUBJECT_ROOT = "nats2sparkSubject";
+	protected static int DEFAULT_SUBJECT_INR = 0;
+	protected static String DEFAULT_SUBJECT;
 	protected static JavaSparkContext sc;
+	protected static AtomicInteger TOTAL_COUNT = new AtomicInteger();;
 	static Logger logger = null;
 	static Boolean rightNumber = true;
 	static Boolean atLeastSomeData = false;
@@ -70,6 +75,12 @@ public class NatsToSparkConnectorTest {
 	public void setUp() throws Exception {
 		assertTrue(logger.isDebugEnabled());
 		assertTrue(LoggerFactory.getLogger(NatsToSparkConnector.class).isTraceEnabled());
+		
+		DEFAULT_SUBJECT = DEFAULT_SUBJECT_ROOT + (DEFAULT_SUBJECT_INR++);
+		TOTAL_COUNT.set(0);
+		
+		rightNumber = true;
+		atLeastSomeData = false;
 		
 		SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]");
 		sc = new JavaSparkContext(sparkConf);
@@ -162,7 +173,9 @@ public class NatsToSparkConnectorTest {
 	
 
 	private void validateTheReceptionOfMessages(JavaStreamingContext ssc,
-			final JavaReceiverInputDStream<String> messages) throws InterruptedException {
+			JavaReceiverInputDStream<String> stream) throws InterruptedException {
+		JavaDStream<String> messages = stream.repartition(3);
+
 		ExecutorService executor = Executors.newFixedThreadPool(6);
 
 		final int nbOfMessages = 5;
@@ -180,12 +193,15 @@ public class NatsToSparkConnectorTest {
 				final long count = rdd.count();
 				if ((count != 0) && (count != nbOfMessages)) {
 					rightNumber = false;
+					logger.error("The number of messages received should have been {} instead of {}.", nbOfMessages, count);
 				}
+				
+				TOTAL_COUNT.getAndAdd((int) count);
 				
 				atLeastSomeData = atLeastSomeData || (count > 0);
 				
 				for (String str :rdd.collect()) {
-					if (! NatsPublisher.NATS_PAYLOAD.equals(str)) {
+					if (! str.startsWith(NatsPublisher.NATS_PAYLOAD)) {
 							payload = str;
 						}
 				}
@@ -200,8 +216,10 @@ public class NatsToSparkConnectorTest {
 		Thread.sleep(500);
 		ssc.close();		
 		Thread.sleep(500);
-		assertTrue("Not a single RDD did received messages.", atLeastSomeData);		
-		assertNull("'" + payload + " should be '" + NatsPublisher.NATS_PAYLOAD + "'", payload);
+		assertTrue("Not a single RDD did received messages.", atLeastSomeData);	
+		assertTrue("Not the right number of messages have been received", rightNumber);
+		assertEquals(nbOfMessages, TOTAL_COUNT.get());
+		assertNull("'" + payload + " should be '" + NatsPublisher.NATS_PAYLOAD + "'", payload);		
 	}
 
 }

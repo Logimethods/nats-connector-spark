@@ -154,13 +154,13 @@ public class NatsToSparkConnector extends Receiver<String> {
 		// Make connection and initialize streams			  
 		final ConnectionFactory connectionFactory = new ConnectionFactory(getProperties());
 		final Connection connection = connectionFactory.createConnection();
-		logger.info("A NATS from '{}' to Spark Connection has been created for {}, based on '{}' Queue.", connection.getConnectedUrl(), this, queue);
+		logger.info("A NATS from '{}' to Spark Connection has been created for Subject '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);
 		
 		for (String subject: getSubjects()) {
 			final Subscription sub = connection.subscribe(subject, queue, m -> {
 				String s = new String(m.getData());
 				if (logger.isTraceEnabled()) {
-					logger.trace("Received on {}: {}.", m.getSubject(), s);
+					logger.trace("Received by {} on Subject '{}' sharing Queue '{}': {}.", this, m.getSubject(), queue, s);
 				}
 				store(s);
 			});

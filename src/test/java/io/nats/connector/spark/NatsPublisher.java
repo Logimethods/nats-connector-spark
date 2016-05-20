@@ -7,6 +7,8 @@
  *******************************************************************************/
 package io.nats.connector.spark;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import io.nats.client.ConnectionFactory;
 
 /**
@@ -14,7 +16,8 @@ import io.nats.client.ConnectionFactory;
  */
 public class NatsPublisher extends TestClient implements Runnable
 {
-	public static final String NATS_PAYLOAD = "Hello from NATS!";
+	public static final String NATS_PAYLOAD = "Hello from NATS! ";
+	protected static final AtomicInteger INCR = new AtomicInteger();
 
 	String subject = null;
 
@@ -40,8 +43,9 @@ public class NatsPublisher extends TestClient implements Runnable
 			setReady();
 
 			for (int i = 0; i < testCount; i++) {
-				c.publish(subject, NATS_PAYLOAD.getBytes());
-				logger.trace("Publish '{}' to '{}'.", NATS_PAYLOAD, subject);
+				final String payload = NATS_PAYLOAD + INCR.getAndIncrement();
+				c.publish(subject, payload.getBytes());
+				logger.trace("Publish '{}' to '{}'.", payload, subject);
 				tallyMessage();
 			}
 			c.flush();
