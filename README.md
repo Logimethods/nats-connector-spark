@@ -53,7 +53,7 @@ rdd.foreach(SparkToNatsConnector.publishToNats(properties));
 ## Testing
 
 JUnit tests are included. To perform those tests, [gnatsd](http://nats.io/download/nats-io/gnatsd/) is required.
-Take note that they cannot be run on Eclipse, but with Maven:
+Take note that they cannot be run on Eclipse (due to the required NATS server), but with Maven:
 
 ```
 nats-connector-spark> mvn compile test
