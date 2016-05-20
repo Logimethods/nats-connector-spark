@@ -110,6 +110,16 @@ public class NatsToSparkConnectorTest {
 	}
 	
 	@Test
+	public void testNatsToSparkConnectorWithSubjects() throws InterruptedException {
+		
+		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
+
+		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY(), DEFAULT_SUBJECT));
+
+		validateTheReceptionOfMessages(ssc, messages);
+	}
+	
+	@Test
 	public void testNatsToSparkConnectorWithPropertiesAndMultipleSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
