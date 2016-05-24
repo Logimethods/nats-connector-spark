@@ -5,12 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package io.nats.connector.spark;
+package com.logimethods.nats.connector.spark;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.spark.api.java.function.VoidFunction;

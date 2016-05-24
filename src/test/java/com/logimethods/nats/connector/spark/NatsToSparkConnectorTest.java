@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package io.nats.connector.spark;
+package com.logimethods.nats.connector.spark;
 
 import static org.junit.Assert.*;
 
@@ -31,7 +31,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.nats.connector.spark.NatsToSparkConnector;
+
+import com.logimethods.nats.connector.spark.NatsToSparkConnector;
 
 public class NatsToSparkConnectorTest {
 
@@ -51,9 +52,9 @@ public class NatsToSparkConnectorTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		System.setProperty("org.slf4j.simpleLogger.log.io.nats.connector.spark.NatsToSparkConnector", "trace");
-		System.setProperty("org.slf4j.simpleLogger.log.io.nats.connector.spark.NatsToSparkConnectorTest", "debug");
-		System.setProperty("org.slf4j.simpleLogger.log.io.nats.connector.spark.TestClient", "trace");
+		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.NatsToSparkConnector", "trace");
+		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.NatsToSparkConnectorTest", "debug");
+		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.TestClient", "trace");
 
 		logger = LoggerFactory.getLogger(NatsToSparkConnectorTest.class);       
 
@@ -95,7 +96,7 @@ public class NatsToSparkConnectorTest {
 	}
 	
 	/**
-	 * Test method for {@link io.nats.connector.spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String, java.lang.String)}.
+	 * Test method for {@link com.logimethods.nats.connector.spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String, java.lang.String)}.
 	 * @throws InterruptedException 
 	 */
 	@Test
@@ -131,7 +132,7 @@ public class NatsToSparkConnectorTest {
 	}
 	
 	/**
-	 * Test method for {@link io.nats.connector.spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
+	 * Test method for {@link com.logimethods.nats.connector.spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
 	 * @throws InterruptedException 
 	 */
 	@Test
@@ -147,7 +148,7 @@ public class NatsToSparkConnectorTest {
 	}
 	
 	/**
-	 * Test method for {@link io.nats.connector.spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
+	 * Test method for {@link com.logimethods.nats.connector.spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
 	 * @throws Exception 
 	 */
 	@Test
