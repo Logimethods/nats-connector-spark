@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
+import io.nats.client.Message;
+import io.nats.client.MessageHandler;
 import io.nats.client.Subscription;
 
 /**
@@ -157,23 +159,29 @@ public class NatsToSparkConnector extends Receiver<String> {
 		logger.info("A NATS from '{}' to Spark Connection has been created for Subject '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);
 		
 		for (String subject: getSubjects()) {
-			final Subscription sub = connection.subscribe(subject, queue, m -> {
-				String s = new String(m.getData());
-				if (logger.isTraceEnabled()) {
-					logger.trace("Received by {} on Subject '{}' sharing Queue '{}': {}.", this, m.getSubject(), queue, s);
+			final Subscription sub = connection.subscribe(subject, queue, new MessageHandler() {
+				@Override
+				public void onMessage(Message m) {
+					String s = new String(m.getData());
+					if (logger.isTraceEnabled()) {
+						logger.trace("Received by {} on Subject '{}' sharing Queue '{}': {}.", NatsToSparkConnector.this, m.getSubject(), queue, s);
+					}
+					store(s);
 				}
-				store(s);
 			});
 			logger.info("Listening on {}.", subject);
 			
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				logger.info("Caught CTRL-C, shutting down gracefully...");
-				try {
-					sub.unsubscribe();
-				} catch (IOException e) {
-					logger.error("Problem while unsubscribing " + e.toString());
+			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+				@Override
+				public void run() {
+					logger.info("Caught CTRL-C, shutting down gracefully...");
+					try {
+						sub.unsubscribe();
+					} catch (IOException e) {
+						logger.error("Problem while unsubscribing " + e.toString());
+					}
+					connection.close();
 				}
-				connection.close();
 			}));
 		}
 	}
