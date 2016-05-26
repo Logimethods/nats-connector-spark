@@ -25,7 +25,8 @@
         <dependency>
             <groupId>io.nats</groupId>
             <artifactId>jnats</artifactId>
-            <version>0.4.1</version>
+            <version>0.3.1</version>
+            <!-- 0.4.0 has been compiled for Java 1.8 -->
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
