@@ -59,27 +59,27 @@ public class NatsToSparkConnector extends Receiver<String> {
 		this.properties = properties;
 		this.subjects = Utilities.transformIntoAList(subjects);
 		setQueue();
-		logger.debug("CREATE SparkToNatsConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
+		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
 
 	protected NatsToSparkConnector(StorageLevel storageLevel, String... subjects) {
 		super(storageLevel);
 		this.subjects = Utilities.transformIntoAList(subjects);
 		setQueue();
-		logger.debug("CREATE SparkToNatsConnector {} with Storage Level {} and NATS Subjects '{}'.", this, properties, subjects);
+		logger.debug("CREATE NatsToSparkConnector {} with Storage Level {} and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
 	protected NatsToSparkConnector(Properties properties, StorageLevel storageLevel) {
 		super(storageLevel);
 		this.properties = properties;
 		setQueue();
-		logger.debug("CREATE SparkToNatsConnector {} with Properties '{}' and Storage Level {}.", this, properties, storageLevel);
+		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}' and Storage Level {}.", this, properties, storageLevel);
 	}
 
 	public NatsToSparkConnector(StorageLevel storageLevel) {
 		super(storageLevel);
 		setQueue();
-		logger.debug("CREATE SparkToNatsConnector {}.", this, properties, storageLevel);
+		logger.debug("CREATE NatsToSparkConnector {}.", this, properties, storageLevel);
 	}
 
 	/**
