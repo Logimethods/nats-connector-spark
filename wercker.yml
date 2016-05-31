@@ -1,8 +1,8 @@
-box: maven:latest
+box: lmagnin/docker-maven-nats
 build:
   steps:
     - xenoterracide/maven:
-        goals: compile
+        goals: compile test
 deploy:
   steps:
     - xenoterracide/maven:
