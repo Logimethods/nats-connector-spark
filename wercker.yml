@@ -3,3 +3,7 @@ build:
   steps:
     - xenoterracide/maven:
         goals: test
+deploy:
+  steps:
+    - xenoterracide/maven:
+        goals: -s ./settings.xml deploy
