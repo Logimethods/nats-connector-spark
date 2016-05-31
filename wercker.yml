@@ -2,7 +2,7 @@ box: maven:latest
 build:
   steps:
     - xenoterracide/maven:
-        goals: --debug build test
+        goals: --debug compile test
 deploy:
   steps:
     - xenoterracide/maven:
