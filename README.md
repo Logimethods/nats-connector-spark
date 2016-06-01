@@ -3,6 +3,46 @@
 That library provides an [Apache Spark](http://spark.apache.org/) (a fast and general engine for large-scale data processing) integration with the [NATS messaging system](https://nats.io) (a highly performant cloud native messaging system).
 
 [![License MIT](https://img.shields.io/npm/l/express.svg)](http://opensource.org/licenses/MIT)
+[![wercker status](https://app.wercker.com/status/7e12f3a04420e0ee5ec3151341dbda60/s/master "wercker status")](https://app.wercker.com/project/bykey/7e12f3a04420e0ee5ec3151341dbda60)
+
+## Installation
+
+### Maven Central
+
+#### Releases
+
+The NATS Spark connectors ar currently BETA, without being already tested in large applications..
+
+#### Snapshots
+
+Snapshots are regularly uploaded to the Sonatype OSSRH (OSS Repository Hosting) using
+the same Maven coordinates.
+If you are embedding the NATS Spark connectors, add the following dependency to your project's `pom.xml`.
+
+```xml
+  <dependencies>
+    ...
+    <dependency>
+      <groupId>com.logimethods</groupId>
+      <artifactId>nats-connector-spark</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+```
+If you don't already have your pom.xml configured for using Maven snapshots, you'll also need to add the following repository to your pom.xml.
+
+```xml
+<repositories>
+    ...
+    <repository>
+        <id>sonatype-snapshots</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+```
 
 ## Usage (in Java)
 ### From NATS to Spark (Streaming)
@@ -58,9 +98,6 @@ Take note that they cannot be run on Eclipse (due to the required NATS server), 
 ```
 nats-connector-spark> mvn compile test
 ```
-
-## Warning
-Those connectors are still in BETA version, without being already tested in large applications.
 
 ## License
 
