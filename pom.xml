@@ -25,6 +25,9 @@
         <java.version>1.7</java.version>
         <spark.version>1.6.1</spark.version>
         <junit-version>4.11</junit-version>
+  		<github.global.server>github</github.global.server>
+  		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
+  		<dependency.locations.enabled>false</dependency.locations.enabled>
     </properties>
 
     <dependencies>
@@ -197,7 +200,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-scm-publish-plugin</artifactId>
@@ -206,22 +208,22 @@
                     <checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
                     <checkinComment>Publishing javadoc for
                         ${project.artifactId}:${project.version}</checkinComment>
-                    <content>${project.reporting.outputDirectory}/apidocs</content>
+<!--                     <content>${project.reporting.outputDirectory}/apidocs</content> -->
+                    <content>target/apidocs</content>
                     <skipDeletedFiles>true</skipDeletedFiles>
-                    <pubScmUrl>scm:git:git@github.com:nats-io/nats-connector-spark.git</pubScmUrl>
-                    <scmBranch>gh-pages</scmBranch> <!- branch with static site ->
+                    <pubScmUrl>scm:git:git@github.com:logimethods/nats-connector-spark.git</pubScmUrl>
+                    <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
                 </configuration>
             </plugin>
-		            -->
-			<plugin>
-				<!-- https://github.com/github/maven-plugins -->
+			<!-- https://github.com/github/maven-plugins -->
+<!-- 			<plugin>
 				<groupId>com.github.github</groupId>
 				<artifactId>site-maven-plugin</artifactId>
 				<version>0.12</version>
 				<configuration>
 					<message>Javadoc for ${project.version}</message>
 					<path>target/apidocs</path>
-					<branch>gh-pages</branch>
+					<branch>refs/heads/gh-pages</branch>
 				</configuration>
 				<executions>
 					<execution>
@@ -231,7 +233,7 @@
 						<phase>site</phase>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> -->
         </plugins>
         <pluginManagement>
             <plugins>
