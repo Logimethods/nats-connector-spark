@@ -10,4 +10,4 @@ deploy:
         goals: -s ./settings.xml deploy
     - xenoterracide/maven:
         name: Deploy Javadoc to github pages
-        goals: scm-publish:publish-scm
+        goals: -s ./settings.xml scm-publish:publish-scm

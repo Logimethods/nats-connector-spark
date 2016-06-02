@@ -205,6 +205,7 @@
                 <artifactId>maven-scm-publish-plugin</artifactId>
                 <version>1.1</version>
                 <configuration>
+                    <serverId>github</serverId>
                     <checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
                     <checkinComment>Publishing javadoc for
                         ${project.artifactId}:${project.version}</checkinComment>
