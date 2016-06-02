@@ -18,19 +18,6 @@
     <description>Spark Plugin for NATS Connector</description>
     <url>https://github.com/Logimethods/nats-connector-spark</url>
     <inceptionYear>2016</inceptionYear>
-    
-    <distributionManagement>
-        <repository>
-            <id>ossrh</id>
-            <name>Sonatype OSS Staging</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <name>Sonatype OSS Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -325,28 +312,5 @@
             <post>natsio@googlegroups.com</post>
         </mailingList>
     </mailingLists>
-
-    <distributionManagement>
-        <repository>
-            <id>ossrh</id>
-            <name>Sonatype OSS Staging</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <name>Sonatype OSS Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>sonatype-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 -->
 </project>
