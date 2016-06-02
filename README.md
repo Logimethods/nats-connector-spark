@@ -11,7 +11,7 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 
 #### Releases
 
-The NATS Spark connectors ar currently BETA, without being already tested in large applications..
+The NATS Spark connectors are currently BETA, without being already fully tested in large applications.
 
 #### Snapshots
 
@@ -47,6 +47,9 @@ If you don't already have your pom.xml configured for using Maven snapshots, you
 ## Usage (in Java)
 ### From NATS to Spark (Streaming)
 ```
+import com.logimethods.nats.connector.spark.NatsToSparkConnector;
+```
+```
 final SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]");
 final JavaSparkContext sc = new JavaSparkContext(sparkConf);
 final JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
@@ -67,6 +70,9 @@ final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSpark
 ```
 
 ### From Spark (Streaming) to NATS
+```
+import com.logimethods.nats.connector.spark.SparkToNatsConnector;
+```
 ```
 final List<String> data = Arrays.asList(new String[] {
 		"data_1",
@@ -89,7 +95,19 @@ final Properties properties = new Properties();
 properties.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "SubjectA,SubjectB , SubjectC");
 rdd.foreach(SparkToNatsConnector.publishToNats(properties));		
 ```
+## Usage (in Scala)
+_See the Java code to get the list of the available options (properties, subjects, etc.)._
+### From NATS to Spark (Streaming)
+```
+val messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(properties, StorageLevel.MEMORY_ONLY, inputSubject))
+```
 
+### From Spark (Streaming) to NATS
+```
+val publishToNats = SparkToNatsConnector.publishToNats(properties, outputSubject)
+sparkStream.foreachRDD { rdd => rdd.foreach { m => publishToNats.call(m.toString()) }}
+```
+  
 ## Testing
 
 JUnit tests are included. To perform those tests, [gnatsd](http://nats.io/download/nats-io/gnatsd/) is required.
@@ -98,6 +116,12 @@ Take note that they cannot be run on Eclipse (due to the required NATS server), 
 ```
 nats-connector-spark> mvn compile test
 ```
+
+## Build & Dependencies
+
+- The NATS/Spark Connector library is coded in Java & packaged thanks to Maven as a Jar File.
+- That library uses [JNATS](https://github.com/nats-io/jnats) version 0.3.1 to allow compatibility with JVM 1.7 (which is by default used by Spark).
+- *The Spark Core & Streaming libraries need to be provided*.
 
 ## License
 
