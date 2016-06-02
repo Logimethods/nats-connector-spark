@@ -5,7 +5,12 @@
 
   <servers>
     <server>
-      <id>ossrh</id>
+      <id>sonatype-nexus-snapshots</id>
+      <username>${SONATYPE_USERNAME}</username>
+      <password>${SONATYPE_PASSWORD}</password>
+    </server>
+    <server>
+      <id>sonatype-nexus-staging</id>
       <username>${SONATYPE_USERNAME}</username>
       <password>${SONATYPE_PASSWORD}</password>
     </server>
