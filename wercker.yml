@@ -6,4 +6,8 @@ build:
 deploy:
   steps:
     - xenoterracide/maven:
+        name: Deploy jar file
         goals: -s ./settings.xml deploy
+    - xenoterracide/maven:
+        name: Deploy Javadoc to github pages
+        goals: site
