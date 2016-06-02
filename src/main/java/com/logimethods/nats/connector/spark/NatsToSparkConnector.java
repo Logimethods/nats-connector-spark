@@ -10,10 +10,7 @@ package com.logimethods.nats.connector.spark;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Properties;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.receiver.Receiver;
 import org.slf4j.Logger;
