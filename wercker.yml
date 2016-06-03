@@ -24,3 +24,11 @@ javadoc:
     - xenoterracide/maven:
         name: Deploy Javadoc to github pages
         goals: -e -X -s ./settings.xml clean install scm-publish:publish-scm
+
+gh-pages:
+  steps:
+    # https://github.com/lvivier/step-gh-pages
+    - gh-pages:
+        token: $GIT_OAUTH2TOKEN
+        domain: nats-connector-spark
+        basedir: target/apidocs
