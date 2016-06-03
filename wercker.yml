@@ -23,4 +23,4 @@ javadoc:
         keyname: GIT_PRIVATE_SSH_KEY
     - xenoterracide/maven:
         name: Deploy Javadoc to github pages
-        goals: -e -X -s ./settings.xml scm-publish:publish-scm
+        goals: -e -X -s ./settings.xml clean install scm-publish:publish-scm
