@@ -211,7 +211,7 @@
                         ${project.artifactId}:${project.version}</checkinComment>
 <!--                     <content>${project.reporting.outputDirectory}/apidocs</content> -->
                     <content>target/apidocs</content>
-                    <skipDeletedFiles>true</skipDeletedFiles>
+                    <!-- <skipDeletedFiles>true</skipDeletedFiles> -->
                     <pubScmUrl>scm:git:git@github.com:logimethods/nats-connector-spark.git</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
                 </configuration>

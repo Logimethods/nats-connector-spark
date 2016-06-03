@@ -16,6 +16,7 @@
 		</server>
 		<server>
 			<id>github</id>
+			<!-- https://developer.github.com/guides/managing-deploy-keys/ -->
 			<privateKey>${GIT_OAUTH2TOKEN}</privateKey>
 		</server>
 	</servers>
