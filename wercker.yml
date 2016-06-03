@@ -55,7 +55,7 @@ deploy-doc :
 # https://github.com/leipert/step-git-push      
 push-doc:
   steps:
-    - git-push:
+    - leipert/git-push:
          gh_oauth: $GIT_OAUTH2TOKEN
          gh_pages: true
          gh_pages_domain: logimethods.com
