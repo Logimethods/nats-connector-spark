@@ -32,3 +32,21 @@ gh-pages:
         token: $GIT_OAUTH2TOKEN
         domain: com.logimethods
         basedir: target/apidocs
+        
+deploy-doc :
+  steps :
+    - script:
+        name: Configure git
+        code: |-
+          git config --global user.email "laurent.magnin@logimethods.com"
+          git config --global user.name "laugimethods"
+
+          # remove current .git folder
+          rm -rf .git
+    - script:
+        name: Deploy to github pages
+        code: |-
+          git init
+          git add .
+          git commit -m "deploy commit from $WERCKER_STARTED_BY"
+          git push -f $GIT_OAUTH2TOKEN master:gh-pages
