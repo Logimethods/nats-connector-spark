@@ -16,7 +16,7 @@
 		</server>
 		<server>
 			<id>github</id>
-			<password>${GIT_OAUTH2TOKEN}</password>
+			<privateKey>${GIT_OAUTH2TOKEN}</privateKey>
 		</server>
 	</servers>
 
