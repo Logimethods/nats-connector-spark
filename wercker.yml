@@ -28,7 +28,7 @@ javadoc:
 gh-pages:
   steps:
     # https://github.com/lvivier/step-gh-pages
-    - gh-pages:
+    - lukevivier/gh-pages@0.2.1:
         token: $GIT_OAUTH2TOKEN
-        domain: nats-connector-spark
+        domain: com.logimethods.nats-connector-spark
         basedir: target/apidocs
