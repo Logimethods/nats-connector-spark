@@ -17,7 +17,8 @@
 		<server>
 			<id>github</id>
 			<!-- https://developer.github.com/guides/managing-deploy-keys/ -->
-			<privateKey>${GIT_OAUTH2TOKEN}</privateKey>
+			<privateKey>AAAAB3NzaC1yc2EAAAADAQABAAACAQCnTJGvgWtvItwc32FfG+SmC8exkakL6/EwTOU5UlBoSlprjimLe07VpbrE0Y/pRyUAScntfrbicUINRqlgBHKvBZuCwtQZTuuH2KgNhzOQ8ljOf3ex0jjrkTSxf9LvjmVTBXBKr9FPvupJe7UklqV7GjrPUAtAQMcU/pboQ2TUPgVgpLtRZvjgbfkyvpHC5H/LxguhaSHONjPUy3q++rkZwPS7PZAoecP/Qvoev7wly4hjxEAbDXHZMe6e99mj0EAbFqm+r8fyqwfYqXHswXTwNgMgIdVkSwyRJ79TPUuWyFXcVN0s1HDxNEsF1bmzMPmml5PkOGOESi+K2CJ9cKZUj9734Bdz/L0UDqTAYVGzT3SF2q8MCUA3XR/Q+av+1QTsnqMnB2SrYnbHVNFG4vBx880UIcGsQc2hHr+d+bgYk2xXdKjDlx8snAeXWknaNE3GDCyXxhgX4jfZRfAYcyiH3mYkpRla53e9amTfApoBMQ4nb6fwOjMzs2zX1rUTcLJ9rIk379wwsvIOcg//R5cMprWkYgdMmiyITAKbX4aTRPIshQ79KkFblzm/62PT9Xa6DtLjeEPjCIpphdKa+xFIYAXmfHajH8vKx+iyKQfxE7wahFEpEyabY+FXTseMO2BqnY+S1homwmidgopoDF5r1xch7w+3vWgf4hZK2CHbRw==</privateKey>
+			<!-- ${GIT_OAUTH2TOKEN} -->
 		</server>
 	</servers>
 
