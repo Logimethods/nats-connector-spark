@@ -1,8 +1,11 @@
 box: lmagnin/docker-maven-nats
+
 build:
   steps:
     - xenoterracide/maven:
+        name: Compile & Test
         goals: compile test
+
 deploy:
   steps:
     - xenoterracide/maven:
@@ -20,7 +23,12 @@ javadoc:
         fingerprint: 16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48
         type: rsa
     - add-ssh-key:
-        keyname: GIT_PRIVATE_SSH_KEY
+        keyname: $GIT_PRIVATE_SSH_KEY
+    - script:
+        name: Configure Git
+        code: |-
+          git config --global user.email "$GITHUB_EMAIL"
+          git config --global user.name "$GITHUB_USERNAME"
     - xenoterracide/maven:
         name: Deploy Javadoc to github pages
         goals: -e -X -s ./settings.xml clean install scm-publish:publish-scm
