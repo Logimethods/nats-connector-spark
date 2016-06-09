@@ -23,7 +23,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.sourceEncoding>UTF-8</project.reporting.sourceEncoding>
         <java.version>1.7</java.version>
-        <spark.version>1.6.1</spark.version>
+        <!-- 1.6.1 is not compatible with a docker-compose made cluster -->
+        <!-- https://forums.docker.com/t/underscore-in-domain-names/12584/2 -->
+        <spark.version>1.6.0</spark.version>
         <junit-version>4.11</junit-version>
   		<github.global.server>github</github.global.server>
   		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
