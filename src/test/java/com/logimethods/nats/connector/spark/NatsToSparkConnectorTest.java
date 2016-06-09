@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.Duration;
@@ -194,11 +195,11 @@ public class NatsToSparkConnectorTest {
 		
 		messages.print();
 		
-		messages.foreachRDD(new VoidFunction<JavaRDD<String>>() {
+		messages.foreachRDD(new Function<JavaRDD<String>, Void>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void call(JavaRDD<String> rdd) throws Exception {
+			public Void call(JavaRDD<String> rdd) throws Exception {
 				logger.debug("RDD received: {}", rdd.collect());
 				
 				final long count = rdd.count();
@@ -216,6 +217,8 @@ public class NatsToSparkConnectorTest {
 							payload = str;
 						}
 				}
+				
+				return null;
 			}			
 		});
 		
