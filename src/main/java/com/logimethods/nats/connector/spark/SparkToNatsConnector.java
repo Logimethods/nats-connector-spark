@@ -28,6 +28,7 @@ import io.nats.client.Message;
 public class SparkToNatsConnector implements Serializable {
 
 	public static final String NATS_SUBJECTS = "nats.io.connector.spark2nats.subjects";
+	public static final String CLOSE_CONNECTION = "___Cl0seConnectION___";
 
 	/**
 	 * 
@@ -141,6 +142,13 @@ public class SparkToNatsConnector implements Serializable {
 		return connection;
 	}
 
+	protected synchronized void closeConnection() {
+		if (connection != null) {
+			connection.close();
+			connection = null;
+		}
+	}
+
 	/**
 	 * A VoidFunction&lt;String&gt; method that will publish the provided String into NATS through the defined subjects.
 	 */
@@ -149,6 +157,11 @@ public class SparkToNatsConnector implements Serializable {
 
 		@Override
 		public void call(String str) throws Exception {
+			if (CLOSE_CONNECTION.equals(str)) {
+				closeConnection();
+				return;
+			}
+			
 			final Message natsMessage = new Message();
 
 			final byte[] payload = str.getBytes();
@@ -163,5 +176,4 @@ public class SparkToNatsConnector implements Serializable {
 			}
 		}
 	};
-
 }
