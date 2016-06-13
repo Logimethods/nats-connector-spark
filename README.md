@@ -167,6 +167,7 @@ Those connectors have been tested against a Spark Cluster, thanks to the [Docker
 
 - The NATS/Spark Connector library is coded in Java & packaged thanks to Maven as a Jar File.
 - That library uses [JNATS](https://github.com/nats-io/jnats) version 0.3.1 to allow compatibility with JVM 1.7 (which is by default used by Spark).
+- The Spark dependency has been limited to version 1.5.2 since versions 1.6.x are not compatible with Docker Compose (which has been used to test the connectors against a Spark Cluster). See [Underscore in domain names](https://forums.docker.com/t/underscore-in-domain-names/12584/2).
 - *The Spark Core & Streaming libraries need to be provided*.
 
 ## License
