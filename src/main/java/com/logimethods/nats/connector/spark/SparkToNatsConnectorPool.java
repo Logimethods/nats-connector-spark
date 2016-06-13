@@ -40,34 +40,34 @@ public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector imple
 	 * @param properties
 	 * @param subjects
 	 */
-	protected SparkToNatsConnectorPool() {
+	public SparkToNatsConnectorPool() {
 		super();
-		logger.debug("CREATE SparkToNatsConnector: " + this);
+		logger.debug("CREATE SparkToNatsConnectorPool: " + this);
 	}
 
-	protected SparkToNatsConnectorPool(Properties properties, String... subjects) {
+	public SparkToNatsConnectorPool(Properties properties, String... subjects) {
 		super();
 		this.properties = properties;
 		this.subjects = Utilities.transformIntoAList(subjects);
-		logger.debug("CREATE SparkToNatsConnector {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
+		logger.debug("CREATE SparkToNatsConnectorPool {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
 	/**
 	 * @param properties
 	 */
-	protected SparkToNatsConnectorPool(Properties properties) {
+	public SparkToNatsConnectorPool(Properties properties) {
 		super();
 		this.properties = properties;
-		logger.debug("CREATE SparkToNatsConnector {} with Properties '{}'.", this, properties);
+		logger.debug("CREATE SparkToNatsConnectorPool {} with Properties '{}'.", this, properties);
 	}
 
 	/**
 	 * @param subjects
 	 */
-	protected SparkToNatsConnectorPool(String... subjects) {
+	public SparkToNatsConnectorPool(String... subjects) {
 		super();
 		this.subjects = Utilities.transformIntoAList(subjects);
-		logger.debug("CREATE SparkToNatsConnector {} with NATS Subjects '{}'.", this, subjects);
+		logger.debug("CREATE SparkToNatsConnectorPool {} with NATS Subjects '{}'.", this, subjects);
 	}
 
 	public SparkToNatsConnector getConnector() throws Exception {

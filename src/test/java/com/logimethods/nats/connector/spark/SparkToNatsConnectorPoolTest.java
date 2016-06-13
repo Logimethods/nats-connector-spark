@@ -144,7 +144,6 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 		fail("An Exception(\"SparkToNatsConnector needs at least one Subject\") should have been raised.");
 	}*/
 
-	@SuppressWarnings("serial")
 	@Test
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
 		final List<String> data = getData();
