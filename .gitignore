@@ -22,3 +22,6 @@ hs_err_pid*
 *.class
 target/
 bin/
+
+# Wercker artifacts
+_*/
