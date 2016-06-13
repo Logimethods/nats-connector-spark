@@ -29,8 +29,8 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 
 	public static final String CLOSE_CONNECTION = "___Cl0seConnectION___";
 
-	protected ConnectionFactory connectionFactory = null;
-	protected Connection connection = null;
+	protected transient ConnectionFactory connectionFactory = null;
+	protected transient Connection connection = null;
 	protected Properties properties = null;
 	protected Collection<String> subjects;
 
@@ -130,7 +130,7 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	 */
 	public void publishToNats(Object obj) throws Exception {
 		String str = obj.toString();
-		publishToNats(str);
+		publishToNatsStr(str);
 	}
 
 	protected synchronized Connection getDefinedConnection() throws Exception {

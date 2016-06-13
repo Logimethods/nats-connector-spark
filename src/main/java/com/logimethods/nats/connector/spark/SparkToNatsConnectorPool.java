@@ -15,10 +15,19 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
 
+/**
+ * 
+ * @author laugimethods
+ * http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd
+ */
 public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5772600382175265781L;
 	
 	protected Properties				properties		  = null;
 	protected Collection<String>		subjects;
@@ -61,7 +70,7 @@ public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector imple
 		logger.debug("CREATE SparkToNatsConnector {} with NATS Subjects '{}'.", this, subjects);
 	}
 
-	public AbstractSparkToNatsConnector getConnector() throws Exception {
+	public SparkToNatsConnector getConnector() throws Exception {
 		synchronized(connectorsPool) {
 			if (connectorsPool.size() > 0) {
 				return connectorsPool.pollFirst();
@@ -71,8 +80,10 @@ public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector imple
 		return new SparkToNatsConnector(getDefinedProperties(), getDefinedSubjects(), getDefinedConnectionFactory());
 	}
 	
-	public void returnConnector(AbstractSparkToNatsConnector connector) {
-		
+	public void returnConnector(SparkToNatsConnector connector) {
+		synchronized(connectorsPool) {
+			connectorsPool.add(connector);
+		}
 	}
 
 	/**
