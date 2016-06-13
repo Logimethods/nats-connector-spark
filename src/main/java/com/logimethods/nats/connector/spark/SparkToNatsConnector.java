@@ -25,20 +25,19 @@ import io.nats.client.Message;
  * It provides a VoidFunction&lt;String&gt; method that can be called as follow:
  * <pre>rdd.foreach(SparkToNatsConnector.publishToNats( ... ));</pre>
  */
-public class SparkToNatsConnector implements Serializable {
+public class SparkToNatsConnector extends AbstractSparkToNatsConnector implements Serializable {
 
-	public static final String NATS_SUBJECTS = "nats.io.connector.spark2nats.subjects";
 	public static final String CLOSE_CONNECTION = "___Cl0seConnectION___";
+
+	protected ConnectionFactory connectionFactory = null;
+	protected Connection connection = null;
+	protected Properties properties = null;
+	protected Collection<String> subjects;
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	protected ConnectionFactory 	connectionFactory = null;
-	protected Connection        	connection        = null;
-	protected Properties			properties		  = null;
-	protected Collection<String>	subjects;
 
 	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnector.class);
 
@@ -49,6 +48,18 @@ public class SparkToNatsConnector implements Serializable {
 	protected SparkToNatsConnector() {
 		super();
 		logger.debug("CREATE SparkToNatsConnector: " + this);
+	}
+
+	/**
+	 * @param connectionFactory
+	 * @param properties
+	 * @param subjects
+	 */
+	protected SparkToNatsConnector(Properties properties, Collection<String> subjects, ConnectionFactory connectionFactory) {
+		super();
+		this.connectionFactory = connectionFactory;
+		this.properties = properties;
+		this.subjects = subjects;
 	}
 
 	protected SparkToNatsConnector(Properties properties, String... subjects) {
@@ -106,46 +117,51 @@ public class SparkToNatsConnector implements Serializable {
 		return new SparkToNatsConnector(subjects).publishToNats;
 	}
 
-	protected Properties getProperties(){
-		if (properties == null) {
-			properties = new Properties(System.getProperties());
-		}
-		return properties;
-	}
-
-	protected Collection<String> getSubjects() throws Exception {
-		if ((subjects ==  null) || (subjects.size() == 0)) {
-			final String subjectsStr = getProperties().getProperty(NATS_SUBJECTS);
-			if (subjectsStr == null) {
-				throw new Exception("SparkToNatsConnector needs at least one NATS Subject.");
-			}
-			final String[] subjectsArray = subjectsStr.split(",");
-			subjects = Utilities.transformIntoAList(subjectsArray);
-			logger.debug("Subject provided by the Properties: '{}'", subjects);
-		}
-		return subjects;
-	}    		
-
-	protected ConnectionFactory getConnectionFactory() throws Exception {
-		if (connectionFactory == null) {
-			connectionFactory = new ConnectionFactory(getProperties());
-		}		
-		return connectionFactory;
-	}
-
-	// A dedicated lock object would not be serializable... So, KISS.
-	protected synchronized Connection getConnection() throws Exception {
-		if (connection == null) {
-			connection = getConnectionFactory().createConnection();
-			logger.debug("A NATS Connection {} has been created for {}", connection, this);
-		}
-		return connection;
-	}
-
-	protected synchronized void closeConnection() {
+	public synchronized void closeConnection() {
 		if (connection != null) {
 			connection.close();
 			connection = null;
+		}
+	}
+
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @throws Exception 
+	 */
+	public void publishToNats(Object obj) throws Exception {
+		String str = obj.toString();
+		publishToNats(str);
+	}
+
+	protected synchronized Connection getDefinedConnection() throws Exception {
+		if (getConnection() == null) {
+			setConnection(createConnection());
+			getLogger().debug("A NATS Connection {} has been created for {}", getConnection(), this);
+		}
+		return getConnection();
+	}
+
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @throws Exception 
+	 */
+	protected void publishToNatsStr(String str) throws Exception {
+		if (CLOSE_CONNECTION.equals(str)) {
+			closeConnection();
+			return;
+		}
+		
+		final Message natsMessage = new Message();
+
+		final byte[] payload = str.getBytes();
+		natsMessage.setData(payload, 0, payload.length);
+
+		final Connection localConnection = getDefinedConnection();
+		for (String subject : getDefinedSubjects()) {
+			natsMessage.setSubject(subject);
+			localConnection.publish(natsMessage);
+
+			logger.trace("Send '{}' from Spark to NATS ({})", str, subject);
 		}
 	}
 
@@ -157,23 +173,70 @@ public class SparkToNatsConnector implements Serializable {
 
 		@Override
 		public void call(String str) throws Exception {
-			if (CLOSE_CONNECTION.equals(str)) {
-				closeConnection();
-				return;
-			}
-			
-			final Message natsMessage = new Message();
-
-			final byte[] payload = str.getBytes();
-			natsMessage.setData(payload, 0, payload.length);
-
-			final Connection localConnection = getConnection();
-			for (String subject : getSubjects()) {
-				natsMessage.setSubject(subject);
-				localConnection.publish(natsMessage);
-
-				logger.trace("Send '{}' from Spark to NATS ({})", str, subject);
-			}
+			publishToNatsStr(str);
 		}
 	};
+	
+	/**
+	 * @param connectionFactory the connectionFactory to set
+	 */
+	protected void setConnectionFactory(ConnectionFactory connectionFactory) {
+		this.connectionFactory = connectionFactory;
+	}
+
+	/**
+	 * @param connection the connection to set
+	 */
+	protected void setConnection(Connection connection) {
+		this.connection = connection;
+	}
+
+	/**
+	 * @param properties the properties to set
+	 */
+	protected void setProperties(Properties properties) {
+		this.properties = properties;
+	}
+
+	/**
+	 * @param subjects the subjects to set
+	 */
+	protected void setSubjects(Collection<String> subjects) {
+		this.subjects = subjects;
+	}
+
+	/**
+	 * @return the connectionFactory
+	 */
+	protected ConnectionFactory getConnectionFactory() {
+		return connectionFactory;
+	}
+
+	/**
+	 * @return the connection
+	 */
+	protected Connection getConnection() {
+		return connection;
+	}
+
+	/**
+	 * @return the properties
+	 */
+	protected Properties getProperties() {
+		return properties;
+	}
+
+	/**
+	 * @return the subjects
+	 */
+	protected Collection<String> getSubjects() {
+		return subjects;
+	}
+
+	/**
+	 * @return the logger
+	 */
+	protected Logger getLogger() {
+		return logger;
+	}
 }
