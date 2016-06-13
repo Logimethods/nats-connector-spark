@@ -72,22 +72,35 @@ final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSpark
 ```
 
 ### From Spark (Streaming) to NATS
+See [Design Patterns for using foreachRDD](http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd)
 ```
 import com.logimethods.nats.connector.spark.SparkToNatsConnector;
+import com.logimethods.nats.connector.spark.SparkToNatsConnectorPool;
 ```
 ```
-final List<String> data = Arrays.asList(new String[] {
-		"data_1",
-		"data_2",
-		"data_3",
+final SparkToNatsConnectorPool connectorPool = new SparkToNatsConnectorPool(DEFAULT_SUBJECT, subject1, subject2);
+lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
+	@Override
+	public Void call(JavaRDD<String> rdd) throws Exception {
+		final SparkToNatsConnector connector = connectorPool.getConnector(...);
+		rdd.foreachPartition(new VoidFunction<Iterator<String>> (){
+			@Override
+			public void call(Iterator<String> strings) throws Exception {
+				while(strings.hasNext()) {
+					final String str = strings.next();
+					connector.publishToNats(str);
+				}
+			}
+		});
+		connectorPool.returnConnector(connector);  // return to the pool for future reuse
+		return null;
+	}			
 });
-JavaRDD<String> rdd = sc.parallelize(data);
 ```
-
-#### To publish to NATS based on a list of subjects:
+#### To publish to a list of NATS subjects:
 
 ```
-rdd.foreach(SparkToNatsConnector.publishToNats("SubjectA", "SubjectB"));		
+final SparkToNatsConnector connector = connectorPool.getConnector("SubjectA", "SubjectB"));		
 ```
 
 #### To publish to a NATS server defined by properties:
@@ -95,8 +108,19 @@ rdd.foreach(SparkToNatsConnector.publishToNats("SubjectA", "SubjectB"));
 ```
 final Properties properties = new Properties();
 properties.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "SubjectA,SubjectB , SubjectC");
-rdd.foreach(SparkToNatsConnector.publishToNats(properties));		
+final SparkToNatsConnector connector = connectorPool.getConnector(properties));		
 ```
+
+### From Spark (*WITHOUT Streaming NOR Spark Cluster*) to NATS
+```
+import com.logimethods.nats.connector.spark.SparkToNatsConnector;
+```
+```
+rdd.foreach(SparkToNatsConnector.publishToNats("SubjectA", "SubjectB")); 
+```
+Be carefull: the connection to NATS is not closed by default.
+To do so, a `SparkToNatsConnector.CLOSE_CONNECTION` String has to be send through Spark to be published by the SparkToNatsConnector.
+
 ## Usage (in Scala)
 _See the Java code to get the list of the available options (properties, subjects, etc.)._
 ### From NATS to Spark (Streaming)
@@ -105,10 +129,28 @@ val messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(propertie
 ```
 
 ### From Spark (Streaming) to NATS
+See [Design Patterns for using foreachRDD](http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd)
+```
+messages.foreachRDD { rdd =>
+  val connectorPool = new SparkToNatsConnectorPool(properties, outputSubject)
+  rdd.foreachPartition { partitionOfRecords =>
+    val connector = connectorPool.getConnector()
+    partitionOfRecords.foreach(record => connector.publishToNats(record))
+    connectorPool.returnConnector(connector)  // return to the pool for future reuse
+  }
+}
+```
+
+### From Spark (*WITHOUT Streaming NOR Spark Cluster*) to NATS
+```
+import com.logimethods.nats.connector.spark.SparkToNatsConnector;
+```
 ```
 val publishToNats = SparkToNatsConnector.publishToNats(properties, outputSubject)
-sparkStream.foreachRDD { rdd => rdd.foreach { m => publishToNats.call(m.toString()) }}
+messages.foreachRDD { rdd => rdd.foreach { m => publishToNats.call(m.toString()) }}
 ```
+Be carefull: the connection to NATS is not closed by default.
+To do so, call `publishToNats.call(SparkToNatsConnector.CLOSE_CONNECTION)`.
   
 ## Testing
 
@@ -118,6 +160,8 @@ Take note that they cannot be run on Eclipse (due to the required NATS server), 
 ```
 nats-connector-spark> mvn compile test
 ```
+
+Those connectors have been tested against a Spark Cluster, thanks to the [Docker Based Application](https://github.com/Logimethods/docker-nats-connector-spark).
 
 ## Build & Dependencies
 
