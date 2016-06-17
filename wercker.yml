@@ -10,7 +10,7 @@ deploy:
   steps:
     - xenoterracide/maven:
         name: Deploy Jar File
-        goals: -s ./settings.xml deploy
+        goals: -s ./settings.xml -Dmaven.test.skip=true clean install deploy
         
 javadoc:
   steps:
@@ -21,4 +21,4 @@ javadoc:
           git config --global user.name "$GITHUB_USERNAME"
     - xenoterracide/maven:
         name: Deploy Javadoc to Github Pages
-        goals: -s ./settings.xml clean install scm-publish:publish-scm
+        goals: -s ./settings.xml clean install -Dmaven.test.skip=true scm-publish:publish-scm
