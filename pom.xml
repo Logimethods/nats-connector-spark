@@ -90,6 +90,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <passphrase>${SONATYPE_PASSPHRASE}</passphrase>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -17,7 +17,8 @@ deploy:
   steps:
     - xenoterracide/maven:
         name: Deploy Jar File
-        goals: -s ./settings.xml -Dmaven.test.skip=true clean verify deploy -Dgpg.passphrase=$SONATYPE_PASSPHRASE
+        goals: -s ./settings.xml -Dmaven.test.skip=true clean verify deploy
+        # -Dgpg.passphrase="$SONATYPE_PASSPHRASE"
         
 javadoc:
   steps:
