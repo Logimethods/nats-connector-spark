@@ -92,6 +92,7 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	 *
 	 * @param properties Defines the properties of the connection to NATS.
 	 * @param subjects The list of NATS subjects to publish to.
+	 * @return a VoidFunction&lt;String&gt;, backed by a SparkToNatsConnector, that can be called to publish messages to NATS.
 	 */
 	public static VoidFunction<String> publishToNats(Properties properties, String... subjects) {
 		return new SparkToNatsConnector(properties, subjects).publishToNats;
@@ -102,6 +103,7 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	 * The list of the NATS subjects (separated by ',') needs to be provided by the nats.io.connector.spark.subjects property.
 	 *
 	 * @param properties Defines the properties of the connection to NATS.
+	 * @return a VoidFunction&lt;String&gt;, backed by a SparkToNatsConnector, that can be called to publish messages to NATS.
 	 */
 	public static VoidFunction<String> publishToNats(Properties properties) {
 		return new SparkToNatsConnector(properties).publishToNats;
@@ -112,6 +114,7 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	 * The settings of the NATS connection can be defined thanks to the System Properties.
 	 *
 	 * @param subjects The list of NATS subjects to publish to.
+	 * @return a VoidFunction&lt;String&gt;, backed by a SparkToNatsConnector, that can be called to publish messages to NATS.
 	 */
 	public static VoidFunction<String> publishToNats(String... subjects) {
 		return new SparkToNatsConnector(subjects).publishToNats;
@@ -126,7 +129,8 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @throws Exception 
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception
 	 */
 	public void publishToNats(Object obj) throws Exception {
 		String str = obj.toString();
@@ -143,6 +147,7 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param obj the String that will be published to NATS
 	 * @throws Exception 
 	 */
 	protected void publishToNatsStr(String str) throws Exception {

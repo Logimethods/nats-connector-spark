@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 import io.nats.client.ConnectionFactory;
 
 /**
- * 
- * @author laugimethods
- * http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd
+ * A pool of SparkToNatsConnector(s).
+ * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
+ * @see <a href="https://github.com/Logimethods/nats-connector-spark/blob/master/README.md">NATS / Spark Connectors README (on Github)</a>
  */
 public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector implements Serializable {
 	
@@ -37,14 +37,22 @@ public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector imple
 	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnectorPool.class);
 
 	/**
-	 * @param properties
-	 * @param subjects
+	 * Create a pool of SparkToNatsConnector(s). 
+	 * A connector can be obtained from that pool through getConnector() and released through returnConnector(SparkToNatsConnector connector).
+	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
 	 */
 	public SparkToNatsConnectorPool() {
 		super();
 		logger.debug("CREATE SparkToNatsConnectorPool: " + this);
 	}
 
+	/**
+	 * Create a pool of SparkToNatsConnector(s).
+	 * A connector can be obtained from that pool through getConnector() and released through returnConnector(SparkToNatsConnector connector).
+	 * @param properties defines the properties of the connection to NATS.
+	 * @param subjects defines the NATS subjects to which the messages will be pushed.
+	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
+	 */
 	public SparkToNatsConnectorPool(Properties properties, String... subjects) {
 		super();
 		this.properties = properties;
@@ -53,7 +61,10 @@ public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector imple
 	}
 
 	/**
-	 * @param properties
+	 * Create a pool of SparkToNatsConnector(s).
+	 * A connector can be obtained from that pool through getConnector() and released through returnConnector(SparkToNatsConnector connector).
+	 * @param properties defines the properties of the connection to NATS.
+	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
 	 */
 	public SparkToNatsConnectorPool(Properties properties) {
 		super();
@@ -62,7 +73,10 @@ public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector imple
 	}
 
 	/**
-	 * @param subjects
+	 * Create a pool of SparkToNatsConnector(s).
+	 * A connector can be obtained from that pool through getConnector() and released through returnConnector(SparkToNatsConnector connector).
+	 * @param subjects defines the NATS subjects to which the messages will be pushed.
+	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
 	 */
 	public SparkToNatsConnectorPool(String... subjects) {
 		super();
@@ -70,6 +84,10 @@ public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector imple
 		logger.debug("CREATE SparkToNatsConnectorPool {} with NATS Subjects '{}'.", this, subjects);
 	}
 
+	/**
+	 * @return
+	 * @throws Exception
+	 */
 	public SparkToNatsConnector getConnector() throws Exception {
 		synchronized(connectorsPool) {
 			if (connectorsPool.size() > 0) {
@@ -80,6 +98,9 @@ public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector imple
 		return new SparkToNatsConnector(getDefinedProperties(), getDefinedSubjects(), getDefinedConnectionFactory());
 	}
 	
+	/**
+	 * @param connector
+	 */
 	public void returnConnector(SparkToNatsConnector connector) {
 		synchronized(connectorsPool) {
 			connectorsPool.add(connector);

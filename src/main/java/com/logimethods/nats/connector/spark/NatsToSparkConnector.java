@@ -85,6 +85,7 @@ public class NatsToSparkConnector extends Receiver<String> {
 	 * @param properties Defines the properties of the connection to NATS.
 	 * @param storageLevel Defines the StorageLevel used by Spark.
 	 * @param subjects The list of NATS subjects to publish to.
+	 * @return a NATS to Spark Connector.
 	 */
 	public static NatsToSparkConnector receiveFromNats(Properties properties, StorageLevel storageLevel, String... subjects) {
 		return new NatsToSparkConnector(properties, storageLevel, subjects);
@@ -96,6 +97,7 @@ public class NatsToSparkConnector extends Receiver<String> {
 	 *
 	 * @param storageLevel Defines the StorageLevel used by Spark.
 	 * @param subjects The list of NATS subjects to publish to.
+	 * @return a NATS to Spark Connector.
 	 */
 	public static NatsToSparkConnector receiveFromNats(StorageLevel storageLevel, String... subjects) {
 		return new NatsToSparkConnector(storageLevel, subjects);
@@ -107,6 +109,7 @@ public class NatsToSparkConnector extends Receiver<String> {
 	 *
 	 * @param properties Defines the properties of the connection to NATS.
 	 * @param storageLevel Defines the StorageLevel used by Spark.
+	 * @return a NATS to Spark Connector.
 	 */
 	public static NatsToSparkConnector receiveFromNats(Properties properties, StorageLevel storageLevel) {
 		return new NatsToSparkConnector(properties, storageLevel);
@@ -117,6 +120,7 @@ public class NatsToSparkConnector extends Receiver<String> {
 	 * The settings of the NATS connection can be defined thanks to the System Properties.
 	 *
 	 * @param storageLevel Defines the StorageLevel used by Spark.
+	 * @return a NATS to Spark Connector.
 	 */
 	public static NatsToSparkConnector receiveFromNats(StorageLevel storageLevel) {
 		return new NatsToSparkConnector(storageLevel);
