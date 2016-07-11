@@ -26,7 +26,6 @@ deploy:
           ls -als ./pgp
           more ./pgp/pubring.asc
           gpg --version
-          gpg --dearmor
     - xenoterracide/maven:
         name: Sign & Deploy Artifacts
         goals: -s ./settings.xml -Dmaven.test.skip=true clean verify deploy
