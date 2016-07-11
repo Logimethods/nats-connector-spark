@@ -1,0 +1,1 @@
+base64 -i XXXXXXXX.asc -o SONATYPE_PGP_KEYS_64.txt
