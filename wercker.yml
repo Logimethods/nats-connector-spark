@@ -28,7 +28,7 @@ deploy:
           gpg --import ./pgp/keys.asc
     - xenoterracide/maven:
         name: Sign & Deploy Artifacts
-        goals: -s ./settings.xml -Dmaven.test.skip=true clean verify deploy -Dgpg.passphrase="$SONATYPE_PASSPHRASE"
+        goals: -s ./settings.xml -Dgpg.passphrase="$SONATYPE_PASSPHRASE" -Dmaven.test.skip=true clean verify deploy
         
 javadoc:
   steps:
