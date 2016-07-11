@@ -85,8 +85,8 @@ public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector imple
 	}
 
 	/**
-	 * @return
-	 * @throws Exception
+	 * @return a SparkToNatsConnector from the Pool of Connectors (if not empty), otherwise create and return a new one.
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	public SparkToNatsConnector getConnector() throws Exception {
 		synchronized(connectorsPool) {
@@ -99,7 +99,7 @@ public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector imple
 	}
 	
 	/**
-	 * @param connector
+	 * @param connector the SparkToNatsConnector to add to the Pool of Connectors.
 	 */
 	public void returnConnector(SparkToNatsConnector connector) {
 		synchronized(connectorsPool) {

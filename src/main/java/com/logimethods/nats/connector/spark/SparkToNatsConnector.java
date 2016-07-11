@@ -130,7 +130,7 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.
 	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	public void publishToNats(Object obj) throws Exception {
 		String str = obj.toString();
@@ -147,8 +147,8 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param obj the String that will be published to NATS
-	 * @throws Exception 
+	 * @param obj the String that will be published to NATS.
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	protected void publishToNatsStr(String str) throws Exception {
 		if (CLOSE_CONNECTION.equals(str)) {
