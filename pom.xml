@@ -93,8 +93,8 @@
 		                    <ascDirectory>${ASC_DIRECTORY}</ascDirectory>
 		                    <publicKeyring>${ASC_DIRECTORY}/pubring.asc</publicKeyring>
 		                    <secretKeyring>${ASC_DIRECTORY}/secring.asc</secretKeyring>
-		                </configuration>
-                    </execution> -->
+		                </configuration> -->
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
