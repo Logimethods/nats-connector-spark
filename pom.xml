@@ -88,12 +88,12 @@
                         <goals>
                             <goal>sign</goal>
                         </goals>
-<!-- 		                <configuration>
+ 		                <configuration>
 		                    <passphrase>${SONATYPE_PASSPHRASE}</passphrase>
-		                    <ascDirectory>${ASC_DIRECTORY}</ascDirectory>
+<!--		                    <ascDirectory>${ASC_DIRECTORY}</ascDirectory>
 		                    <publicKeyring>${ASC_DIRECTORY}/pubring.asc</publicKeyring>
-		                    <secretKeyring>${ASC_DIRECTORY}/secring.asc</secretKeyring>
-		                </configuration> -->
+		                    <secretKeyring>${ASC_DIRECTORY}/secring.asc</secretKeyring> -->
+		                </configuration>
                     </execution>
                 </executions>
             </plugin>
