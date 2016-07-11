@@ -21,15 +21,16 @@ deploy:
           export ASC_DIRECTORY=$(pwd)/pgp
           mkdir pgp
           mkdir /root/.gnupg
-          echo "${SONATYPE_PGP_SECRING_64}" | base64 -d > ./pgp/secring.asc
-          echo "${SONATYPE_PGP_PUBRING_64}" | base64 -d > ./pgp/pubring.asc
+#          echo "${SONATYPE_PGP_SECRING_64}" | base64 -d > ./pgp/secring.asc
+#          echo "${SONATYPE_PGP_PUBRING_64}" | base64 -d > ./pgp/pubring.asc
+          echo "${SONATYPE_PGP_KEYS_64}" | base64 -d > ./pgp/keys.asc
           ls -als ./pgp
           more ./pgp/pubring.asc
           gpg --version
+          gpg --import ./pgp/keys.asc
     - xenoterracide/maven:
         name: Sign & Deploy Artifacts
-        goals: -s ./settings.xml -Dmaven.test.skip=true clean verify deploy
-        # -Dgpg.passphrase="$SONATYPE_PASSPHRASE"
+        goals: -s ./settings.xml -Dmaven.test.skip=true clean verify deploy -Dgpg.passphrase="$SONATYPE_PASSPHRASE"
         
 javadoc:
   steps:
