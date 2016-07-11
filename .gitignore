@@ -25,3 +25,7 @@ bin/
 
 # Wercker artifacts
 _*/
+
+# Keys
+keys/
+*.asc
