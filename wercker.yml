@@ -20,8 +20,8 @@ deploy:
         code: |
           export ASC_DIRECTORY=$(pwd)/pgp
           mkdir /root/.gnupg
-          echo "${SONATYPE_PGP_SECRING_64}" | base64 -d > /root/.gnupg/secring.gpg
-          echo "${SONATYPE_PGP_PUBRING_64}" | base64 -d > /root/.gnupg/pubring.gpg
+          echo "${SONATYPE_PGP_SECRING_64}" | base64 -d > /root/.gnupg/secring.asc
+          echo "${SONATYPE_PGP_PUBRING_64}" | base64 -d > /root/.gnupg/pubring.asc
           ls -als /root/.gnupg
     - xenoterracide/maven:
         name: Sign & Deploy Artifacts
