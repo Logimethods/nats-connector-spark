@@ -222,6 +222,7 @@
                     <!-- <skipDeletedFiles>true</skipDeletedFiles> -->
                     <pubScmUrl>scm:git:https://git@github.com/logimethods/nats-connector-spark.git</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
+                    <dryRun>true</dryRun>
                 </configuration>
             </plugin>
 			<!-- https://github.com/github/maven-plugins -->
