@@ -216,7 +216,7 @@
                     <checkinComment>Publishing javadoc for
                         ${project.artifactId}:${project.version}</checkinComment>
 <!--                     <content>${project.reporting.outputDirectory}/apidocs</content> -->
-                    <content>target/apidoc</content>
+                    <content>target/apidocs</content>
                     <!-- <skipDeletedFiles>true</skipDeletedFiles> -->
                     <pubScmUrl>scm:git:https://git@github.com/logimethods/nats-connector-spark.git/docs/${project.version}/api</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
