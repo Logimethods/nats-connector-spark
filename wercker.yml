@@ -25,9 +25,9 @@ deploy:
           more ./pgp/pubring.asc
           gpg --version
           gpg --import ./pgp/keys.asc
-    - xenoterracide/maven:
-        name: Sign & Deploy Artifacts
-        goals: -s ./settings.xml -Dmaven.test.skip=true clean verify deploy
+#    - xenoterracide/maven:
+#        name: Sign & Deploy Artifacts
+#        goals: -s ./settings.xml -Dmaven.test.skip=true clean verify deploy
         # -Dgpg.passphrase="$SONATYPE_PASSPHRASE"
         
 javadoc:
