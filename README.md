@@ -13,7 +13,7 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 
 #### Releases
 
-The NATS Spark connectors are currently BETA, without being already fully tested in large applications.
+The NATS Spark connectors have been released, but without being already fully tested in large applications.
 
 #### Snapshots
 
