@@ -63,6 +63,13 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
+    <distributionManagement>
+      <site>
+        <id>www.logimethods.com</id>
+        <url>http://logimethods.github.io/nats-connector-spark/</url>
+      </site>
+    </distributionManagement>
 
     <build>
         <plugins>
