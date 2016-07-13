@@ -30,6 +30,8 @@
   		<github.global.server>github</github.global.server>
   		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
   		<dependency.locations.enabled>false</dependency.locations.enabled>
+  		<!-- https://dzone.com/articles/how-publish-maven-site-docs -->
+  		<scm-publish.siteDocOuputDirectory>docs/${project.version}/api</scm-publish.siteDocOuputDirectory>
     </properties>
 
     <dependencies>
