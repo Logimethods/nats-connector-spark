@@ -202,6 +202,7 @@
                             <header>nats-connector-spark ${project.version}</header>
                             <footer>nats-connector-spark ${project.version}</footer>
                             <doctitle>nats-connector-spark ${project.version}</doctitle>
+                            <reportOutputDirectory>${project.build.directory}/target</reportOutputDirectory>
                             <destDir>apidocs/docs/${project.version}/api</destDir>
                         </configuration>
                     </execution>
