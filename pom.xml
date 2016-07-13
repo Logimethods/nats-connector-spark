@@ -221,7 +221,6 @@
                     <!-- <skipDeletedFiles>true</skipDeletedFiles> -->
                     <pubScmUrl>scm:git:https://git@github.com/logimethods/nats-connector-spark.git</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
-                    <dryRun>true</dryRun>
                     <ignorePathsToDelete>"target/apidocs/docs/0.2.0-SNAPSHOT"</ignorePathsToDelete>
                 </configuration>
             </plugin>
