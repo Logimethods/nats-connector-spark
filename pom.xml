@@ -215,14 +215,14 @@
                 <configuration>
                     <serverId>github</serverId>
                     <checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
-                    <checkinComment>Publishing javadoc for
-                        ${project.artifactId}:${project.version}</checkinComment>
+                    <checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}</checkinComment>
 <!--                     <content>${project.reporting.outputDirectory}/apidocs</content> -->
                     <content>target/apidocs</content>
                     <!-- <skipDeletedFiles>true</skipDeletedFiles> -->
                     <pubScmUrl>scm:git:https://git@github.com/logimethods/nats-connector-spark.git</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
                     <dryRun>true</dryRun>
+                    <ignorePathsToDelete>"target/apidocs/docs/0.2.0-SNAPSHOT"</ignorePathsToDelete>
                 </configuration>
             </plugin>
 			<!-- https://github.com/github/maven-plugins -->
