@@ -27,7 +27,20 @@ If you are embedding the NATS Spark connectors, add the following dependency to 
     </dependency>
   </dependencies>
 ```
+If you don't already have your pom.xml configured for using Maven releases from Sonatype / Nexus, you'll also need to add the following repository to your pom.xml.
 
+```xml
+<repositories>
+    ...
+    <repository>
+        <id>sonatype-oss-public</id>
+        <url>https://oss.sonatype.org/content/groups/public/</url>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+    </repository>
+</repositories>
+```
 #### Snapshots
 
 Snapshots are regularly uploaded to the Sonatype OSSRH (OSS Repository Hosting) using
@@ -44,7 +57,7 @@ If you are embedding the NATS Spark connectors, add the following dependency to 
     </dependency>
   </dependencies>
 ```
-If you don't already have your pom.xml configured for using Maven snapshots, you'll also need to add the following repository to your pom.xml.
+If you don't already have your pom.xml configured for using Maven snapshots from Sonatype / Nexus, you'll also need to add the following repository to your pom.xml.
 
 ```xml
 <repositories>
