@@ -30,9 +30,9 @@
   		<github.global.server>github</github.global.server>
   		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
   		<dependency.locations.enabled>false</dependency.locations.enabled>
-  		<!-- https://dzone.com/articles/how-publish-maven-site-docs -->
+  		<!-- https://dzone.com/articles/how-publish-maven-site-docs
   		<scm-publish.siteDocOuputDirectory>docs/${project.version}/api</scm-publish.siteDocOuputDirectory>
-        <scm-publish.siteOuputDirectory>docs/${project.version}/api</scm-publish.siteOuputDirectory>
+        <scm-publish.siteOuputDirectory>docs/${project.version}/api</scm-publish.siteOuputDirectory> -->
     </properties>
 
     <dependencies>
@@ -187,7 +187,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
+                <version>2.10.4</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -202,6 +202,7 @@
                             <header>nats-connector-spark ${project.version}</header>
                             <footer>nats-connector-spark ${project.version}</footer>
                             <doctitle>nats-connector-spark ${project.version}</doctitle>
+                            <destDir>apidocs/docs/${project.version}/api</destDir>
                         </configuration>
                     </execution>
                 </executions>
