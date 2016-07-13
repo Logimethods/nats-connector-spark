@@ -15,6 +15,19 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 
 The NATS Spark connectors have been released, but without being already fully tested in large applications.
 
+If you are embedding the NATS Spark connectors, add the following dependency to your project's `pom.xml`.
+
+```xml
+  <dependencies>
+    ...
+    <dependency>
+      <groupId>com.logimethods</groupId>
+      <artifactId>nats-connector-spark</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+  </dependencies>
+```
+
 #### Snapshots
 
 Snapshots are regularly uploaded to the Sonatype OSSRH (OSS Repository Hosting) using
@@ -27,7 +40,7 @@ If you are embedding the NATS Spark connectors, add the following dependency to 
     <dependency>
       <groupId>com.logimethods</groupId>
       <artifactId>nats-connector-spark</artifactId>
-      <version>0.1.0</version>
+      <version>0.2.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 ```
