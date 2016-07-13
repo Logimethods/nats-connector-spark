@@ -38,5 +38,8 @@ javadoc:
           git config --global user.email "$GITHUB_EMAIL"
           git config --global user.name "$GITHUB_USERNAME"
     - xenoterracide/maven:
-        name: Deploy Javadoc to Github Pages
+        name: Deploy Javadoc to Github Pages / Staging
+        goals: -Preporting site site:stage
+    - xenoterracide/maven:
+        name: Deploy Javadoc to Github Pages / Publish
         goals: -s ./settings.xml -Dmaven.test.skip=true scm-publish:publish-scm
