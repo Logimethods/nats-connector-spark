@@ -66,13 +66,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
-    <distributionManagement>
-      <site>
-        <id>www.logimethods.com</id>
-        <url>http://logimethods.github.io/nats-connector-spark/</url>
-      </site>
-    </distributionManagement>
 
     <build>
         <plugins>
@@ -223,7 +216,7 @@
                     <checkinComment>Publishing javadoc for
                         ${project.artifactId}:${project.version}</checkinComment>
 <!--                     <content>${project.reporting.outputDirectory}/apidocs</content> -->
-                    <content>target/staging</content>
+                    <content>target/apidoc</content>
                     <!-- <skipDeletedFiles>true</skipDeletedFiles> -->
                     <pubScmUrl>scm:git:https://git@github.com/logimethods/nats-connector-spark.git</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
