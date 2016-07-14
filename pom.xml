@@ -12,7 +12,7 @@
 
     <groupId>com.logimethods</groupId>
     <artifactId>nats-connector-spark</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0-SNAPSHOT</version>
 
     <name>nats-connector-spark</name>
     <description>Spark Plugin for NATS Connector</description>
@@ -213,16 +213,11 @@
                     <serverId>github</serverId>
                     <checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
                     <checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}</checkinComment>
-<!--                     <content>${project.reporting.outputDirectory}/apidocs</content> -->
                     <content>target/apidocs</content>
                     <!-- <skipDeletedFiles>true</skipDeletedFiles> -->
                     <pubScmUrl>scm:git:https://git@github.com/logimethods/nats-connector-spark.git</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
                     <ignorePathsToDelete>
-                    	<!-- <ignorePathToDelete>target/apidocs/docs/0.2.0-SNAPSHOT-BIS/api</ignorePathToDelete>
-                    	<ignorePathToDelete>apidocs/docs/0.2.0-SNAPSHOT/api</ignorePathToDelete>
-                    	<ignorePathToDelete>docs/0.2.0-SNAPSHOT-BIS/api</ignorePathToDelete>
-                    	<ignorePathToDelete>docs/0.2.0-SNAPSHOT</ignorePathToDelete> -->
                     	<ignorePathToDelete>?.?.?</ignorePathToDelete>
                     	<ignorePathToDelete>home.html</ignorePathToDelete>
                     </ignorePathsToDelete>
