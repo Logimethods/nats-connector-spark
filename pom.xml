@@ -200,7 +200,7 @@
                             <footer>nats-connector-spark ${project.version}</footer>
                             <doctitle>nats-connector-spark ${project.version}</doctitle>
                             <!-- <reportOutputDirectory>./target</reportOutputDirectory> -->
-                            <destDir>target/apidocs/docs/${project.version}-BIS/api</destDir>
+                            <destDir>target/apidocs/docs/${project.version}/api</destDir>
                         </configuration>
                     </execution>
                 </executions>
@@ -219,7 +219,11 @@
                     <pubScmUrl>scm:git:https://git@github.com/logimethods/nats-connector-spark.git</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
                     <ignorePathsToDelete>
-                    	<ignorePathToDelete>docs/0.2.0-SNAPSHOT/api</ignorePathToDelete>
+                    	<ignorePathToDelete>target/apidocs/docs/0.2.0-SNAPSHOT-BIS/api</ignorePathToDelete>
+                    	<ignorePathToDelete>apidocs/docs/0.2.0-SNAPSHOT-BIS/api</ignorePathToDelete>
+                    	<ignorePathToDelete>docs/0.2.0-SNAPSHOT-BIS/api</ignorePathToDelete>
+                    	<ignorePathToDelete>docs/0.2.0-SNAPSHOT-BIS</ignorePathToDelete>
+                    	<ignorePathToDelete>0.2.0-SNAPSHOT-BIS</ignorePathToDelete>
                     </ignorePathsToDelete>
                 </configuration>
             </plugin>
