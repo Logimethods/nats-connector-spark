@@ -30,9 +30,6 @@
   		<github.global.server>github</github.global.server>
   		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
   		<dependency.locations.enabled>false</dependency.locations.enabled>
-  		<!-- https://dzone.com/articles/how-publish-maven-site-docs
-  		<scm-publish.siteDocOuputDirectory>docs/${project.version}/api</scm-publish.siteDocOuputDirectory>
-        <scm-publish.siteOuputDirectory>docs/${project.version}/api</scm-publish.siteOuputDirectory> -->
     </properties>
 
     <dependencies>
@@ -222,7 +219,7 @@
                     <pubScmUrl>scm:git:https://git@github.com/logimethods/nats-connector-spark.git</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
                     <ignorePathsToDelete>
-                      <ignorePathToDelete>docs/0.2.0-SNAPSHOT-BIS</ignorePathToDelete>
+                    	<ignorePathToDelete>docs/*-BIS</ignorePathToDelete>
                     </ignorePathsToDelete>
                 </configuration>
             </plugin>
