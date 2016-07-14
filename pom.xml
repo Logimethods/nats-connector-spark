@@ -224,7 +224,7 @@
                     	<ignorePathToDelete>docs/0.2.0-SNAPSHOT-BIS/api</ignorePathToDelete>
                     	<ignorePathToDelete>docs/0.2.0-SNAPSHOT</ignorePathToDelete> -->
                     	<ignorePathToDelete>?.?.?</ignorePathToDelete>
-                    	<ignorePathToDelete>test.txt</ignorePathToDelete>
+                    	<ignorePathToDelete>home.html</ignorePathToDelete>
                     </ignorePathsToDelete>
                 </configuration>
             </plugin>
