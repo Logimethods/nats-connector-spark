@@ -220,10 +220,10 @@
                     <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
                     <ignorePathsToDelete>
                     	<ignorePathToDelete>target/apidocs/docs/0.2.0-SNAPSHOT-BIS/api</ignorePathToDelete>
-                    	<ignorePathToDelete>apidocs/docs/0.2.0-SNAPSHOT-BIS/api</ignorePathToDelete>
+                    	<!-- <ignorePathToDelete>apidocs/docs/0.2.0-SNAPSHOT-BIS/api</ignorePathToDelete>
                     	<ignorePathToDelete>docs/0.2.0-SNAPSHOT-BIS/api</ignorePathToDelete>
                     	<ignorePathToDelete>docs/0.2.0-SNAPSHOT-BIS</ignorePathToDelete>
-                    	<ignorePathToDelete>0.2.0-SNAPSHOT-BIS</ignorePathToDelete>
+                    	<ignorePathToDelete>0.2.0-SNAPSHOT-BIS</ignorePathToDelete> -->
                     </ignorePathsToDelete>
                 </configuration>
             </plugin>
