@@ -223,7 +223,7 @@
                     	<ignorePathToDelete>apidocs/docs/0.2.0-SNAPSHOT/api</ignorePathToDelete>
                     	<ignorePathToDelete>docs/0.2.0-SNAPSHOT-BIS/api</ignorePathToDelete>
                     	<ignorePathToDelete>docs/0.2.0-SNAPSHOT</ignorePathToDelete> -->
-                    	<ignorePathToDelete>0.2.0-SNAPSHOT-BIS</ignorePathToDelete>
+                    	<ignorePathToDelete>*-BIS</ignorePathToDelete>
                     </ignorePathsToDelete>
                 </configuration>
             </plugin>
