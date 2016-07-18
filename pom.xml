@@ -219,7 +219,7 @@
                     <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
                     <ignorePathsToDelete>
                     	<ignorePathToDelete>?.?.?</ignorePathToDelete>
-                    	<ignorePathToDelete>index.htm</ignorePathToDelete>
+                    	<!-- <ignorePathToDelete>index.htm</ignorePathToDelete> -->
                     </ignorePathsToDelete>
                 </configuration>
             </plugin>

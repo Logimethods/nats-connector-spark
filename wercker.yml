@@ -43,7 +43,7 @@ javadoc:
         name: Set index.htm
         code: |-
           cd /pipeline/source/target/scmpublish
-          ls docs | perl -e 'print "<html><body><ul>"; while(<>) { chop $_; print "<li><a href=\"./docs/$_/api\">$_</a></li>";} print "</ul></body></html>"' > index.html
+          ls docs | perl -e 'print "<html><body><ul>"; while(<>) { chop $_; print "<li><a href=\"./docs/$_/api\">$_</a></li>";} print "</ul></body></html>"' > index.htm
           echo "Last edited the $(date +'%Y-%m-%d at %H:%M:%S')" >> index.htm
           more index.htm
           git add --all        
