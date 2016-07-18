@@ -39,3 +39,11 @@ javadoc:
     - xenoterracide/maven:
         name: Publish Javadoc to Github Pages
         goals: -s ./settings.xml -Dmaven.test.skip=true scm-publish:publish-scm
+    - script:
+        name: Set index.html
+        code: |-
+          cd /pipeline/source/target/scmpublish
+          git status
+          ls docs | perl -e 'print "<html><body><ul>"; while(<>) { chop $_; print "<li><a href=\"./docs/$_/api\">$_</a></li>";} print "</ul></body></html>"' > index.html
+          echo "Last edited the $(date +'%Y-%m-%d at %H:%M:%S')" >> index.html
+          more index.html
