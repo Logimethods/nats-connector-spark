@@ -195,7 +195,6 @@ Those connectors have been tested against a Spark Cluster, thanks to the [Docker
 - That library uses [JNATS](https://github.com/nats-io/jnats) version 0.3.1 to allow compatibility with JVM 1.7 (which is by default used by Spark).
 - The Spark dependency has been limited to version 1.5.2 since versions 1.6.x are not compatible with Docker Compose (which has been used to test the connectors against a Spark Cluster). See [Underscore in domain names](https://forums.docker.com/t/underscore-in-domain-names/12584/2).
 - *The Spark Core & Streaming libraries need to be provided*.
-- The [gh-pages/index.htm](https://github.com/Logimethods/nats-connector-spark/blob/gh-pages/index.htm) file needs to be completed for each new version to allow accces to its API from [http://logimethods.github.io/nats-connector-spark](http://logimethods.github.io/nats-connector-spark).
 
 ## Samples
 * The ['docker-nats-connector-spark'](https://github.com/Logimethods/docker-nats-connector-spark) Docker Based Project that makes use of Gatling, Spark & NATS.
