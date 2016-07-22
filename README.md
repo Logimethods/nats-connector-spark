@@ -196,6 +196,19 @@ Those connectors have been tested against a Spark Cluster, thanks to the [Docker
 - The Spark dependency has been limited to version 1.5.2 since versions 1.6.x are not compatible with Docker Compose (which has been used to test the connectors against a Spark Cluster). See [Underscore in domain names](https://forums.docker.com/t/underscore-in-domain-names/12584/2).
 - *The Spark Core & Streaming libraries need to be provided*.
 
+## Release Notes
+### Version 0.1.0
+* Spark is based on version 1.5.2 so to be able to use docker-compose without hostname constrains.
+
+### Version 0.2.0-SNAPSHOT
+* To be able to use that connector on a Spark Cluster in version 1.6.2 started by docker-compose, containers need to belong to an external network (which enforce a hostname without underscore). See [Switch to using hyphens as a separator in hostnames](https://github.com/docker/compose/issues/229):
+```
+networks:
+  default:
+    external:
+      name: spark
+```
+
 ## Samples
 * The ['docker-nats-connector-spark'](https://github.com/Logimethods/docker-nats-connector-spark) Docker Based Project that makes use of Gatling, Spark & NATS.
 
