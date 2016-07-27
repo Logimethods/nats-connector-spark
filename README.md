@@ -203,6 +203,10 @@ Those connectors have been tested against a Spark Cluster, thanks to the [Docker
 ### Version 0.2.0-SNAPSHOT
 * To be able to use that connector on a Spark Cluster in version 1.6.2 started by docker-compose, containers need to belong to an external network (which enforce a hostname without underscore). See [Switch to using hyphens as a separator in hostnames](https://github.com/docker/compose/issues/229):
 ```
+$ docker network create spark
+```
+Add to your `docker-compose.yml` file the following network:
+```
 networks:
   default:
     external:
