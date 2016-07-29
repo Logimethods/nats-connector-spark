@@ -22,7 +22,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.sourceEncoding>UTF-8</project.reporting.sourceEncoding>
-        <java.version>1.7</java.version>
+        <java.version>1.8</java.version>
         <!-- 1.6.1 is not compatible with a docker-compose made cluster -->
         <!-- https://forums.docker.com/t/underscore-in-domain-names/12584/2 -->
         <spark.version>1.6.2</spark.version>
@@ -30,15 +30,24 @@
   		<github.global.server>github</github.global.server>
   		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
   		<dependency.locations.enabled>false</dependency.locations.enabled>
+  		<!-- NATS -->
+        <!-- 0.4.0 has been compiled for Java 1.8 -->
+  		<!-- <jnats.version>0.3.1</jnats.version> -->
+  		<jnats.version>0.4.1</jnats.version>
+  		<!-- <java-nats-streaming.version>0.1.0-SNAPSHOT</java-nats-streaming.version> -->
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.nats</groupId>
             <artifactId>jnats</artifactId>
-            <version>0.3.1</version>
-            <!-- 0.4.0 has been compiled for Java 1.8 -->
+            <version>${jnats.version}</version>
         </dependency>
+<!--         <dependency>
+            <groupId>io.nats</groupId>
+            <artifactId>java-nats-streaming</artifactId>
+            <version>${java-nats-streaming.version}</version>
+        </dependency> -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
