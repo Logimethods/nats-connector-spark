@@ -34,6 +34,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.logimethods.nats.connector.spark.NatsStandardToSparkConnector.NATS_SUBJECTS;
+
 public class NatsToSparkConnectorTest {
 
 	protected static String DEFAULT_SUBJECT_ROOT = "nats2sparkSubject";
@@ -141,7 +143,7 @@ public class NatsToSparkConnectorTest {
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final Properties properties = new Properties();
-		properties.setProperty(NatsToSparkConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
+		properties.setProperty(NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
 		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(properties, StorageLevel.MEMORY_ONLY()));
 
 		validateTheReceptionOfMessages(ssc, messages);
@@ -171,14 +173,14 @@ public class NatsToSparkConnectorTest {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
-		System.setProperty(NatsToSparkConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
+		System.setProperty(NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
 
 		try {
 			final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()));
 
 			validateTheReceptionOfMessages(ssc, messages);
 		} finally {
-			System.clearProperty(NatsToSparkConnector.NATS_SUBJECTS);
+			System.clearProperty(NATS_SUBJECTS);
 		}		
 	}
 	
