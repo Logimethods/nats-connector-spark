@@ -42,7 +42,7 @@ public class NatsToSparkConnectorTest {
 	protected static int DEFAULT_SUBJECT_INR = 0;
 	protected static String DEFAULT_SUBJECT;
 	protected static JavaSparkContext sc;
-	protected static AtomicInteger TOTAL_COUNT = new AtomicInteger();;
+	protected static AtomicInteger TOTAL_COUNT = new AtomicInteger();
 	static Logger logger = null;
 	static Boolean rightNumber = true;
 	static Boolean atLeastSomeData = false;

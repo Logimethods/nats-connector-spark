@@ -35,7 +35,7 @@ import io.nats.client.Subscription;
  * </pre>
  * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
-public class NatsStandardToSparkConnectorImpl extends NatsToSparkConnector {
+public class NatsStandardToSparkConnectorImpl extends NatsToSparkConnector<NatsStandardToSparkConnectorImpl> {
 
 	/**
 	 * 
@@ -43,8 +43,6 @@ public class NatsStandardToSparkConnectorImpl extends NatsToSparkConnector {
 	private static final long serialVersionUID = 1L;
 
 	static final Logger logger = LoggerFactory.getLogger(NatsStandardToSparkConnectorImpl.class);
-
-	protected String 				queue;
 
 	protected NatsStandardToSparkConnectorImpl(Properties properties, StorageLevel storageLevel, String... subjects) {
 		super(storageLevel, subjects);
@@ -70,15 +68,6 @@ public class NatsStandardToSparkConnectorImpl extends NatsToSparkConnector {
 		super(storageLevel);
 		setQueue();
 		logger.debug("CREATE NatsToSparkConnector {}.", this, properties, storageLevel);
-	}
-
-	public NatsStandardToSparkConnectorImpl withProperties(Properties properties) {
-		this.properties = properties;
-		return this;
-	}
-	
-	protected void setQueue() {
-		queue = "Q" + System.identityHashCode(this) ;
 	}
 
 	/** Create a socket connection and receive data until receiver is stopped 

@@ -35,7 +35,7 @@ import io.nats.stan.SubscriptionOptions;
  * </pre>
  * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
-public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector {
+public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<NatsStreamingToSparkConnectorImpl> {
 
 	/**
 	 * 
@@ -46,32 +46,6 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector {
 
 	protected String clusterID, clientID;
 	protected SubscriptionOptions opts = null;
-	protected String queue = null;
-
-	/* Constructors with explicit subjects */
-	
-	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID, String... subjects) {
-		super(storageLevel, subjects);
-		this.clusterID = clusterID;
-		this.clientID = clientID;
-//		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
-	}
-
-	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID, SubscriptionOptions opts, String... subjects) {
-		this(storageLevel, clusterID, clientID, subjects);
-		this.opts = opts;
-	}
-
-	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID, String queue, String... subjects) {
-		this(storageLevel, clusterID, clientID, subjects);
-		this.queue = queue;
-	}
-
-	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID, String queue, SubscriptionOptions opts, String... subjects) {
-		this(storageLevel, clusterID, clientID, subjects);
-		this.queue = queue;
-		this.opts = opts;
-	}
 
 	/* Constructors with subjects provided by the environment */
 	
@@ -79,25 +53,16 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector {
 		super(storageLevel);
 		this.clusterID = clusterID;
 		this.clientID = clientID;
+		setQueue();
 //		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
 
-	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID, SubscriptionOptions opts) {
-		this(storageLevel, clusterID, clientID);
+	public NatsStreamingToSparkConnectorImpl withSubscriptionOptions(SubscriptionOptions opts) {
 		this.opts = opts;
+		return this;
 	}
-
-	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID, String queue) {
-		this(storageLevel, clusterID, clientID);
-		this.queue = queue;
-	}
-
-	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID, String queue, SubscriptionOptions opts) {
-		this(storageLevel, clusterID, clientID);
-		this.queue = queue;
-		this.opts = opts;
-	}
-
+	
+	
 	/** Create a socket connection and receive data until receiver is stopped 
 	 * @throws Exception **/
 	protected void receive() throws Exception {

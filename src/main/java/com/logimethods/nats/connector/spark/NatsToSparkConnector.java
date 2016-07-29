@@ -30,12 +30,13 @@ import org.slf4j.LoggerFactory;
  * @see <a href="http://spark.apache.org/docs/1.6.1/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
 @SuppressWarnings("serial")
-public abstract class NatsToSparkConnector extends Receiver<String> {
+public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 
 	static final Logger logger = LoggerFactory.getLogger(NatsToSparkConnector.class);
 	
 	protected Collection<String> subjects = null;
 	protected Properties		 properties = null;
+	protected String 			 queue;
 
 	public static final String NATS_SUBJECTS = "nats.io.connector.nats2spark.subjects";
 
@@ -48,9 +49,24 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 		this.subjects = Utilities.transformIntoAList(subjects);
 	}
 	
-	public NatsToSparkConnector withSubjects(String... subjects) {
+	/* with... */
+	
+	@SuppressWarnings("unchecked")
+	public T withSubjects(String... subjects) {
 		this.subjects = Utilities.transformIntoAList(subjects);
-		return this;
+		return (T)this;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public T withQueue(String queue) {
+		this.queue = queue;
+		return (T)this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public T withProperties(Properties properties) {
+		this.properties = properties;
+		return (T)this;
 	}
 
 	/* **************** STANDARD NATS **************** */
@@ -107,7 +123,7 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 
 	/* **************** NATS STREAMING **************** */
 	
-	public static NatsStreamingToSparkConnectorImpl receiveFromNatsStreaming(StorageLevel storageLevel, String clusterID, String clientID, String... subjects) {
+	public static NatsStreamingToSparkConnectorImpl receiveFromNatsStreaming(StorageLevel storageLevel, String clusterID, String clientID) {
 		return new NatsStreamingToSparkConnectorImpl(storageLevel, clusterID, clientID);
 	}
 	
@@ -135,6 +151,10 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 	/** Create a socket connection and receive data until receiver is stopped 
 	 * @throws Exception **/
 	protected abstract void receive() throws Exception;
+	
+	protected void setQueue() {
+		queue = "Q" + System.identityHashCode(this) ;
+	}
 
 	protected Properties getProperties(){
 		if (properties == null) {
