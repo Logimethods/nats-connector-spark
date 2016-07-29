@@ -99,7 +99,7 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 
 	/* **************** NATS STREAMING **************** */
 	
-	public static NatsToSparkConnector receiveFromNats(StorageLevel storageLevel, String clusterID, String clientID, String... subjects) {
+	public static NatsToSparkConnector receiveFromNatsStreaming(StorageLevel storageLevel, String clusterID, String clientID, String... subjects) {
 		return new NatsStreamingToSparkConnectorImpl(storageLevel, clusterID, clientID);
 	}
 	
