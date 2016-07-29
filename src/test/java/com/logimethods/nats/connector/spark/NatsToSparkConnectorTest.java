@@ -113,11 +113,34 @@ public class NatsToSparkConnectorTest {
 	}
 	
 	@Test
+	public void testNatsToSparkConnectorWithAdditionalPropertiesAndSubjects() throws InterruptedException {
+		
+		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
+
+		final Properties properties = new Properties();
+		final JavaReceiverInputDStream<String> messages = 
+				ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withProperties(properties).withSubjects(DEFAULT_SUBJECT));
+
+		validateTheReceptionOfMessages(ssc, messages);
+	}
+	
+	@Test
 	public void testNatsToSparkConnectorWithSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY(), DEFAULT_SUBJECT));
+
+		validateTheReceptionOfMessages(ssc, messages);
+	}
+	
+	@Test
+	public void testNatsToSparkConnectorWithAdditionalSubjects() throws InterruptedException {
+		
+		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
+
+		final JavaReceiverInputDStream<String> messages = 
+				ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withSubjects(DEFAULT_SUBJECT));
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}
@@ -129,6 +152,18 @@ public class NatsToSparkConnectorTest {
 
 		final Properties properties = new Properties();
 		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(properties, StorageLevel.MEMORY_ONLY(), DEFAULT_SUBJECT, "EXTRA_SUBJECT"));
+
+		validateTheReceptionOfMessages(ssc, messages);
+	}
+	
+	@Test
+	public void testNatsToSparkConnectorWithAdditionalPropertiesAndMultipleSubjects() throws InterruptedException {
+		
+		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
+
+		final Properties properties = new Properties();
+		final JavaReceiverInputDStream<String> messages = 
+				ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withProperties(properties).withSubjects(DEFAULT_SUBJECT, "EXTRA_SUBJECT"));
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}
@@ -145,6 +180,18 @@ public class NatsToSparkConnectorTest {
 		final Properties properties = new Properties();
 		properties.setProperty(NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
 		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(properties, StorageLevel.MEMORY_ONLY()));
+
+		validateTheReceptionOfMessages(ssc, messages);
+	}
+	
+	@Test
+	public void testNatsToSparkConnectorWithAdditionalProperties() throws InterruptedException {
+		
+		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
+
+		final Properties properties = new Properties();
+		properties.setProperty(NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
+		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withProperties(properties));
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}

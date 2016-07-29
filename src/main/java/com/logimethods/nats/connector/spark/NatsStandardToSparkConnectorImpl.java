@@ -66,12 +66,17 @@ public class NatsStandardToSparkConnectorImpl extends NatsToSparkConnector {
 		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}' and Storage Level {}.", this, properties, storageLevel);
 	}
 
-	public NatsStandardToSparkConnectorImpl(StorageLevel storageLevel) {
+	protected NatsStandardToSparkConnectorImpl(StorageLevel storageLevel) {
 		super(storageLevel);
 		setQueue();
 		logger.debug("CREATE NatsToSparkConnector {}.", this, properties, storageLevel);
 	}
 
+	public NatsStandardToSparkConnectorImpl withProperties(Properties properties) {
+		this.properties = properties;
+		return this;
+	}
+	
 	protected void setQueue() {
 		queue = "Q" + System.identityHashCode(this) ;
 	}

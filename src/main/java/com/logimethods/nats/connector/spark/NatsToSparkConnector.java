@@ -39,13 +39,18 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 
 	public static final String NATS_SUBJECTS = "nats.io.connector.nats2spark.subjects";
 
-	public NatsToSparkConnector(StorageLevel storageLevel) {
+	protected NatsToSparkConnector(StorageLevel storageLevel) {
 		super(storageLevel);
 	}
 
-	public NatsToSparkConnector(StorageLevel storageLevel, String... subjects) {
+	protected NatsToSparkConnector(StorageLevel storageLevel, String... subjects) {
 		super(storageLevel);
 		this.subjects = Utilities.transformIntoAList(subjects);
+	}
+	
+	public NatsToSparkConnector withSubjects(String... subjects) {
+		this.subjects = Utilities.transformIntoAList(subjects);
+		return this;
 	}
 
 	/* **************** STANDARD NATS **************** */
@@ -58,7 +63,8 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 	 * @param subjects The list of NATS subjects to publish to.
 	 * @return a NATS to Spark Connector.
 	 */
-	public static NatsToSparkConnector receiveFromNats(Properties properties, StorageLevel storageLevel, String... subjects) {
+	@Deprecated
+	public static NatsStandardToSparkConnectorImpl receiveFromNats(Properties properties, StorageLevel storageLevel, String... subjects) {
 		return new NatsStandardToSparkConnectorImpl(properties, storageLevel, subjects);
 	}
 
@@ -70,7 +76,8 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 	 * @param subjects The list of NATS subjects to publish to.
 	 * @return a NATS to Spark Connector.
 	 */
-	public static NatsToSparkConnector receiveFromNats(StorageLevel storageLevel, String... subjects) {
+	@Deprecated
+	public static NatsStandardToSparkConnectorImpl receiveFromNats(StorageLevel storageLevel, String... subjects) {
 		return new NatsStandardToSparkConnectorImpl(storageLevel, subjects);
 	}
 
@@ -82,7 +89,8 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 	 * @param storageLevel Defines the StorageLevel used by Spark.
 	 * @return a NATS to Spark Connector.
 	 */
-	public static NatsToSparkConnector receiveFromNats(Properties properties, StorageLevel storageLevel) {
+	@Deprecated
+	public static NatsStandardToSparkConnectorImpl receiveFromNats(Properties properties, StorageLevel storageLevel) {
 		return new NatsStandardToSparkConnectorImpl(properties, storageLevel);
 	}
 
@@ -93,13 +101,13 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 	 * @param storageLevel Defines the StorageLevel used by Spark.
 	 * @return a NATS to Spark Connector.
 	 */
-	public static NatsToSparkConnector receiveFromNats(StorageLevel storageLevel) {
+	public static NatsStandardToSparkConnectorImpl receiveFromNats(StorageLevel storageLevel) {
 		return new NatsStandardToSparkConnectorImpl(storageLevel);
 	}
 
 	/* **************** NATS STREAMING **************** */
 	
-	public static NatsToSparkConnector receiveFromNatsStreaming(StorageLevel storageLevel, String clusterID, String clientID, String... subjects) {
+	public static NatsStreamingToSparkConnectorImpl receiveFromNatsStreaming(StorageLevel storageLevel, String clusterID, String clientID, String... subjects) {
 		return new NatsStreamingToSparkConnectorImpl(storageLevel, clusterID, clientID);
 	}
 	
