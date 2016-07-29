@@ -7,6 +7,7 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark;
 
+import java.util.Collection;
 import java.util.Properties;
 
 import org.apache.spark.storage.StorageLevel;
@@ -28,14 +29,27 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * @see <a href="http://spark.apache.org/docs/1.6.1/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
+@SuppressWarnings("serial")
 public abstract class NatsToSparkConnector extends Receiver<String> {
 
 	static final Logger logger = LoggerFactory.getLogger(NatsToSparkConnector.class);
+	
+	protected Collection<String> subjects = null;
+	protected Properties		 properties = null;
+
+	public static final String NATS_SUBJECTS = "nats.io.connector.nats2spark.subjects";
 
 	public NatsToSparkConnector(StorageLevel storageLevel) {
 		super(storageLevel);
 	}
 
+	public NatsToSparkConnector(StorageLevel storageLevel, String... subjects) {
+		super(storageLevel);
+		this.subjects = Utilities.transformIntoAList(subjects);
+	}
+
+	/* **************** STANDARD NATS **************** */
+	
 	/**
 	 * Will push into Spark Strings (messages) provided by NATS.
 	 *
@@ -45,7 +59,7 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 	 * @return a NATS to Spark Connector.
 	 */
 	public static NatsToSparkConnector receiveFromNats(Properties properties, StorageLevel storageLevel, String... subjects) {
-		return new NatsStandardToSparkConnector(properties, storageLevel, subjects);
+		return new NatsStandardToSparkConnectorImpl(properties, storageLevel, subjects);
 	}
 
 	/**
@@ -57,7 +71,7 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 	 * @return a NATS to Spark Connector.
 	 */
 	public static NatsToSparkConnector receiveFromNats(StorageLevel storageLevel, String... subjects) {
-		return new NatsStandardToSparkConnector(storageLevel, subjects);
+		return new NatsStandardToSparkConnectorImpl(storageLevel, subjects);
 	}
 
 	/**
@@ -69,7 +83,7 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 	 * @return a NATS to Spark Connector.
 	 */
 	public static NatsToSparkConnector receiveFromNats(Properties properties, StorageLevel storageLevel) {
-		return new NatsStandardToSparkConnector(properties, storageLevel);
+		return new NatsStandardToSparkConnectorImpl(properties, storageLevel);
 	}
 
 	/**
@@ -80,8 +94,15 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 	 * @return a NATS to Spark Connector.
 	 */
 	public static NatsToSparkConnector receiveFromNats(StorageLevel storageLevel) {
-		return new NatsStandardToSparkConnector(storageLevel);
+		return new NatsStandardToSparkConnectorImpl(storageLevel);
 	}
+
+	/* **************** NATS STREAMING **************** */
+	
+	public static NatsToSparkConnector receiveFromNats(StorageLevel storageLevel, String clusterID, String clientID, String... subjects) {
+		return new NatsStreamingToSparkConnectorImpl(storageLevel, clusterID, clientID);
+	}
+	
 
 	@Override
 	public void onStart() {
@@ -106,5 +127,25 @@ public abstract class NatsToSparkConnector extends Receiver<String> {
 	/** Create a socket connection and receive data until receiver is stopped 
 	 * @throws Exception **/
 	protected abstract void receive() throws Exception;
+
+	protected Properties getProperties(){
+		if (properties == null) {
+			properties = new Properties(System.getProperties());
+		}
+		return properties;
+	}
+
+	protected Collection<String> getSubjects() throws Exception {
+		if ((subjects ==  null) || (subjects.size() == 0)) {
+			final String subjectsStr = getProperties().getProperty(NATS_SUBJECTS);
+			if (subjectsStr == null) {
+				throw new Exception("NatsToSparkConnector needs at least one NATS Subject.");
+			}
+			final String[] subjectsArray = subjectsStr.split(",");
+			subjects = Utilities.transformIntoAList(subjectsArray);
+			logger.debug("Subject provided by the Properties: '{}'", subjects);
+		}
+		return subjects;
+	}    		
 }
 

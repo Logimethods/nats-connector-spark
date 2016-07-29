@@ -35,44 +35,38 @@ import io.nats.client.Subscription;
  * </pre>
  * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
-public class NatsStandardToSparkConnector extends NatsToSparkConnector {
+public class NatsStandardToSparkConnectorImpl extends NatsToSparkConnector {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String NATS_SUBJECTS = "nats.io.connector.nats2spark.subjects";
+	static final Logger logger = LoggerFactory.getLogger(NatsStandardToSparkConnectorImpl.class);
 
-	static final Logger logger = LoggerFactory.getLogger(NatsStandardToSparkConnector.class);
-
-	protected Properties			properties = null;
-	protected Collection<String>	subjects = null;
 	protected String 				queue;
 
-	protected NatsStandardToSparkConnector(Properties properties, StorageLevel storageLevel, String... subjects) {
-		super(storageLevel);
+	protected NatsStandardToSparkConnectorImpl(Properties properties, StorageLevel storageLevel, String... subjects) {
+		super(storageLevel, subjects);
 		this.properties = properties;
-		this.subjects = Utilities.transformIntoAList(subjects);
 		setQueue();
 		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
 
-	protected NatsStandardToSparkConnector(StorageLevel storageLevel, String... subjects) {
-		super(storageLevel);
-		this.subjects = Utilities.transformIntoAList(subjects);
+	protected NatsStandardToSparkConnectorImpl(StorageLevel storageLevel, String... subjects) {
+		super(storageLevel, subjects);
 		setQueue();
 		logger.debug("CREATE NatsToSparkConnector {} with Storage Level {} and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
-	protected NatsStandardToSparkConnector(Properties properties, StorageLevel storageLevel) {
+	protected NatsStandardToSparkConnectorImpl(Properties properties, StorageLevel storageLevel) {
 		super(storageLevel);
 		this.properties = properties;
 		setQueue();
 		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}' and Storage Level {}.", this, properties, storageLevel);
 	}
 
-	public NatsStandardToSparkConnector(StorageLevel storageLevel) {
+	public NatsStandardToSparkConnectorImpl(StorageLevel storageLevel) {
 		super(storageLevel);
 		setQueue();
 		logger.debug("CREATE NatsToSparkConnector {}.", this, properties, storageLevel);
@@ -80,20 +74,6 @@ public class NatsStandardToSparkConnector extends NatsToSparkConnector {
 
 	protected void setQueue() {
 		queue = "Q" + System.identityHashCode(this) ;
-	}
-
-	@Override
-	public void onStart() {
-		//Start the thread that receives data over a connection
-		new Thread()  {
-			@Override public void run() {
-				try {
-					receive();
-				} catch (Exception e) {
-					logger.error("Cannot start the connector: ", e);
-				}
-			}
-		}.start();
 	}
 
 	/** Create a socket connection and receive data until receiver is stopped 
@@ -111,7 +91,7 @@ public class NatsStandardToSparkConnector extends NatsToSparkConnector {
 				public void onMessage(Message m) {
 					String s = new String(m.getData());
 					if (logger.isTraceEnabled()) {
-						logger.trace("Received by {} on Subject '{}' sharing Queue '{}': {}.", NatsStandardToSparkConnector.this, m.getSubject(), queue, s);
+						logger.trace("Received by {} on Subject '{}' sharing Queue '{}': {}.", NatsStandardToSparkConnectorImpl.this, m.getSubject(), queue, s);
 					}
 					store(s);
 				}

@@ -34,7 +34,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.logimethods.nats.connector.spark.NatsStandardToSparkConnector.NATS_SUBJECTS;
+import static com.logimethods.nats.connector.spark.NatsToSparkConnector.NATS_SUBJECTS;
 
 public class NatsToSparkConnectorTest {
 
