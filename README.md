@@ -193,15 +193,16 @@ Those connectors have been tested against a Spark Cluster, thanks to the [Docker
 ## Build & Dependencies
 
 - The NATS/Spark Connector library is coded in Java & packaged thanks to Maven as a Jar File.
-- That library uses [JNATS](https://github.com/nats-io/jnats) version 0.3.1 to allow compatibility with JVM 1.7 (which is by default used by Spark).
 - *The Spark Core & Streaming libraries need to be provided*.
 
 ## Release Notes
 ### Version 0.1.0
-* Is based on Spark version 1.5.2 to be able to use docker-compose without hostname constrains. See [Underscore in domain names](https://forums.docker.com/t/underscore-in-domain-names/12584/2).
+- That library uses [JNATS](https://github.com/nats-io/jnats) version 0.3.1 to allow compatibility with JVM 1.7 (which is by default used by Spark).
+- Is based on Spark version 1.5.2 to be able to use docker-compose without hostname constrains. See [Underscore in domain names](https://forums.docker.com/t/underscore-in-domain-names/12584/2).
 
 ### Version 0.2.0-SNAPSHOT
-* To be able to use that connector on a docker-compose based Spark version 1.6.2 Cluster, containers need to belong to an external network (which enforce a hostname without underscore). See [Switch to using hyphens as a separator in hostnames](https://github.com/docker/compose/issues/229):
+- That library uses [JNATS](https://github.com/nats-io/jnats) version 0.4.1, which requires a JVM 1.8.
+- To be able to use that connector on a docker-compose based Spark version 1.6.2 Cluster, containers need to belong to an external network (which enforce a hostname without underscore). See [Switch to using hyphens as a separator in hostnames](https://github.com/docker/compose/issues/229):
 ```
 $ docker network create spark
 ```
