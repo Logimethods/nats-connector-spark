@@ -19,6 +19,7 @@ import io.nats.stan.ConnectionFactory;
 import io.nats.stan.Message;
 import io.nats.stan.MessageHandler;
 import io.nats.stan.Subscription;
+import io.nats.stan.SubscriptionOptions;
 
 /**
  * A NATS to Spark Connector.
@@ -44,12 +45,36 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector {
 	static final Logger logger = LoggerFactory.getLogger(NatsStreamingToSparkConnectorImpl.class);
 
 	protected String clusterID, clientID;
+	protected SubscriptionOptions opts;
+	protected String queue;
 
 	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID, String... subjects) {
 		super(storageLevel, subjects);
 		this.clusterID = clusterID;
 		this.clientID = clientID;
 //		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
+	}
+
+	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID, SubscriptionOptions opts, String... subjects) {
+		super(storageLevel, subjects);
+		this.clusterID = clusterID;
+		this.clientID = clientID;
+		this.opts = opts;
+	}
+
+	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID, String queue, String... subjects) {
+		super(storageLevel, subjects);
+		this.clusterID = clusterID;
+		this.clientID = clientID;
+		this.queue = queue;
+	}
+
+	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID, String queue, SubscriptionOptions opts, String... subjects) {
+		super(storageLevel, subjects);
+		this.clusterID = clusterID;
+		this.clientID = clientID;
+		this.queue = queue;
+		this.opts = opts;
 	}
 
 	/** Create a socket connection and receive data until receiver is stopped 
