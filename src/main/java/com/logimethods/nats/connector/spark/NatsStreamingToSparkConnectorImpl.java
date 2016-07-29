@@ -45,8 +45,8 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector {
 	static final Logger logger = LoggerFactory.getLogger(NatsStreamingToSparkConnectorImpl.class);
 
 	protected String clusterID, clientID;
-	protected SubscriptionOptions opts;
-	protected String queue;
+	protected SubscriptionOptions opts = null;
+	protected String queue = null;
 
 	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID, String... subjects) {
 		super(storageLevel, subjects);
@@ -87,7 +87,7 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector {
 //		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);
 		
 		for (String subject: getSubjects()) {
-			final Subscription sub = connection.subscribe(subject, new MessageHandler() {
+			final Subscription sub = connection.subscribe(subject, queue, new MessageHandler() {
 				@Override
 				public void onMessage(Message m) {
 					String s = new String(m.getData());
@@ -96,7 +96,7 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector {
 					}
 					store(s);
 				}
-			});
+			}, opts);
 			logger.info("Listening on {}.", subject);
 			
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
@@ -106,12 +106,12 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector {
 					try {
 						sub.unsubscribe();
 					} catch (IOException | TimeoutException e) {
-						logger.error("Problem while unsubscribing " + e.toString());
+						logger.error("Exception while unsubscribing " + e.toString());
 					}
 					try {
 						connection.close();
 					} catch (IOException | TimeoutException e) {
-						logger.error("Problem while unsubscribing " + e.toString());
+						logger.error("Exception while unsubscribing " + e.toString());
 					}
 				}
 			}));
