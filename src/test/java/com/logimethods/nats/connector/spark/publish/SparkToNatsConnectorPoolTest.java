@@ -174,7 +174,7 @@ lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 				while(strings.hasNext()) {
 					final String str = strings.next();
 					logger.debug("Will publish " + str);
-					connector.publishToNats(str);
+					connector.publish(str);
 				}
 			}
 		});

@@ -124,9 +124,9 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @param obj the object from which the toString() will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	public void publishToNats(Object obj) throws Exception {
+	public void publish(Object obj) throws Exception {
 		String str = obj.toString();
-		publishToNatsStr(str);
+		publishToStr(str);
 	}
 
 	/**
@@ -162,7 +162,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		@Override
 		public void call(String str) throws Exception {
 			logger.trace("Publish to NATS: " + str);
-			publishToNatsStr(str);
+			publishToStr(str);
 		}
 	};
 	
@@ -173,7 +173,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		this.properties = properties;
 	}
 
-	protected abstract void publishToNatsStr(String str) throws Exception;
+	protected abstract void publishToStr(String str) throws Exception;
 
 	/**
 	 * @param subjects the subjects to set

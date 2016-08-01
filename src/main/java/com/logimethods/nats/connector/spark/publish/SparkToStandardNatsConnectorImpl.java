@@ -103,7 +103,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @param obj the String that will be published to NATS.
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	protected void publishToNatsStr(String str) throws Exception {
+	protected void publishToStr(String str) throws Exception {
 		if (CLOSE_CONNECTION.equals(str)) {
 			closeConnection();
 			return;
