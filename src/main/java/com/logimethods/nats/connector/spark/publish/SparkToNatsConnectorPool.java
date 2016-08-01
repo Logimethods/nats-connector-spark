@@ -97,7 +97,7 @@ public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector imple
 			}
 		}
 		
-		return new SparkToNatsConnector(getDefinedProperties(), getDefinedSubjects(), getDefinedConnectionFactory());
+		return new SparkToStandardNatsConnectorImpl(getDefinedProperties(), getDefinedSubjects(), getDefinedConnectionFactory());
 	}
 	
 	/**

@@ -17,22 +17,16 @@ import org.slf4j.LoggerFactory;
 
 import com.logimethods.nats.connector.spark.Utilities;
 
-import io.nats.client.Connection;
-import io.nats.client.ConnectionFactory;
-import io.nats.client.Message;
-
 /**
  * A Spark to NATS connector.
  * <p>
  * It provides a VoidFunction&lt;String&gt; method that can be called as follow:
  * <pre>rdd.foreach(SparkToNatsConnector.publishToNats( ... ));</pre>
  */
-public class SparkToNatsConnector extends AbstractSparkToNatsConnector implements Serializable {
+public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnector implements Serializable {
 
 	public static final String CLOSE_CONNECTION = "___Cl0seConnectION___";
 
-	protected transient ConnectionFactory connectionFactory = null;
-	protected transient Connection connection = null;
 	protected Properties properties = null;
 	protected Collection<String> subjects;
 
@@ -41,7 +35,7 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	 */
 	private static final long serialVersionUID = 1L;
 
-	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnector.class);
+	protected static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnector.class);
 
 	/**
 	 * @param properties
@@ -57,12 +51,12 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	 * @param properties
 	 * @param subjects
 	 */
-	protected SparkToNatsConnector(Properties properties, Collection<String> subjects, ConnectionFactory connectionFactory) {
+/*	protected SparkToNatsConnector(Properties properties, Collection<String> subjects, ConnectionFactory connectionFactory) {
 		super();
 		this.connectionFactory = connectionFactory;
 		this.properties = properties;
 		this.subjects = subjects;
-	}
+	}*/
 
 	protected SparkToNatsConnector(Properties properties, String... subjects) {
 		super();
@@ -98,7 +92,7 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	 */
 	@Deprecated
 	public static VoidFunction<String> publishToNats(Properties properties, String... subjects) {
-		return new SparkToNatsConnector(properties, subjects).publishToNats;
+		return new SparkToStandardNatsConnectorImpl(properties, subjects).publishToNats;
 	}
 
 	/**
@@ -110,7 +104,7 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	 */
 	@Deprecated
 	public static VoidFunction<String> publishToNats(Properties properties) {
-		return new SparkToNatsConnector(properties).publishToNats;
+		return new SparkToStandardNatsConnectorImpl(properties).publishToNats;
 	}
 
 	/**
@@ -122,88 +116,31 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	 */
 	@Deprecated
 	public static VoidFunction<String> publishToNats(String... subjects) {
-		return new SparkToNatsConnector(subjects).publishToNats;
+		return new SparkToStandardNatsConnectorImpl(subjects).publishToNats;
 	}
 
 	/**
 	 */
-	public static SparkToNatsConnector newConnection() {
-		return new SparkToNatsConnector();
+	public static SparkToStandardNatsConnectorImpl newConnection() {
+		return new SparkToStandardNatsConnectorImpl();
 	}
 
 	/**
 	 * @param properties the properties to set
 	 */
-	public SparkToNatsConnector withProperties(Properties properties) {
+	@SuppressWarnings("unchecked")
+	public T withProperties(Properties properties) {
 		setProperties(properties);
-		return this;
+		return (T)this;
 	}
 
 	/**
 	 * @param subjects the subjects to set
 	 */
-	public SparkToNatsConnector withSubjects(String... subjects) {
+	@SuppressWarnings("unchecked")
+	public T withSubjects(String... subjects) {
 		setSubjects(Utilities.transformIntoAList(subjects));
-		return this;
-	}
-
-	public synchronized void closeConnection() {
-		if (connection != null) {
-			connection.close();
-			connection = null;
-		}
-	}
-
-	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
-	 */
-	public void publishToNats(Object obj) throws Exception {
-		String str = obj.toString();
-		publishToNatsStr(str);
-	}
-
-	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
-	 */
-	public VoidFunction<String> publishToNats() throws Exception {
-		return publishToNats;
-	}
-
-	protected synchronized Connection getDefinedConnection() throws Exception {
-		if (getConnection() == null) {
-			setConnection(createConnection());
-			getLogger().debug("A NATS Connection {} has been created for {}", getConnection(), this);
-		}
-		return getConnection();
-	}
-
-	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param obj the String that will be published to NATS.
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
-	 */
-	protected void publishToNatsStr(String str) throws Exception {
-		if (CLOSE_CONNECTION.equals(str)) {
-			closeConnection();
-			return;
-		}
-		
-		final Message natsMessage = new Message();
-
-		final byte[] payload = str.getBytes();
-		natsMessage.setData(payload, 0, payload.length);
-
-		final Connection localConnection = getDefinedConnection();
-		for (String subject : getDefinedSubjects()) {
-			natsMessage.setSubject(subject);
-			localConnection.publish(natsMessage);
-
-			logger.trace("Send '{}' from Spark to NATS ({})", str, subject);
-		}
+		return (T)this;
 	}
 
 	/**
@@ -219,45 +156,19 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	};
 	
 	/**
-	 * @param connectionFactory the connectionFactory to set
-	 */
-	protected void setConnectionFactory(ConnectionFactory connectionFactory) {
-		this.connectionFactory = connectionFactory;
-	}
-
-	/**
-	 * @param connection the connection to set
-	 */
-	protected void setConnection(Connection connection) {
-		this.connection = connection;
-	}
-
-	/**
 	 * @param properties the properties to set
 	 */
 	protected void setProperties(Properties properties) {
 		this.properties = properties;
 	}
 
+	protected abstract void publishToNatsStr(String str) throws Exception;
+
 	/**
 	 * @param subjects the subjects to set
 	 */
 	protected void setSubjects(Collection<String> subjects) {
 		this.subjects = subjects;
-	}
-
-	/**
-	 * @return the connectionFactory
-	 */
-	protected ConnectionFactory getConnectionFactory() {
-		return connectionFactory;
-	}
-
-	/**
-	 * @return the connection
-	 */
-	protected Connection getConnection() {
-		return connection;
 	}
 
 	/**
