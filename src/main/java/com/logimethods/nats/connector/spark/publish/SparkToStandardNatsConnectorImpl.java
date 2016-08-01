@@ -86,16 +86,6 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @param obj the object from which the toString() will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	public void publishToNats(Object obj) throws Exception {
-		String str = obj.toString();
-		publishToNatsStr(str);
-	}
-
-	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
-	 */
 	public VoidFunction<String> publishToNats() throws Exception {
 		return publishToNats;
 	}
