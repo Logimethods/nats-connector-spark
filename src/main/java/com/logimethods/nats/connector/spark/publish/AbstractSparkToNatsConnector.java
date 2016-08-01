@@ -7,18 +7,14 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark.publish;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Properties;
-import java.util.concurrent.TimeoutException;
 
-import io.nats.client.Connection;
-import io.nats.client.ConnectionFactory;
 import org.slf4j.Logger;
 
 import com.logimethods.nats.connector.spark.Utilities;
 
-public abstract class AbstractSparkToNatsConnector {
+public abstract class AbstractSparkToNatsConnector<T> {
 	
 	public static final String NATS_SUBJECTS = "nats.io.connector.spark2nats.subjects";
 
@@ -27,12 +23,6 @@ public abstract class AbstractSparkToNatsConnector {
 	}
 	
 	protected abstract Logger getLogger();
-	
-	/**
-	 * @param connectionFactory the connectionFactory to set
-	 */
-	protected abstract void setConnectionFactory(ConnectionFactory connectionFactory);	
-	protected abstract ConnectionFactory getConnectionFactory();
 
 	/**
 	 * @param connection the connection to set
@@ -70,16 +60,5 @@ public abstract class AbstractSparkToNatsConnector {
 			getLogger().debug("Subject provided by the Properties: '{}'", getSubjects());
 		}
 		return getSubjects();
-	}
-
-	protected ConnectionFactory getDefinedConnectionFactory() throws Exception {
-		if (getConnectionFactory() == null) {
-			setConnectionFactory(new ConnectionFactory(getDefinedProperties()));
-		}		
-		return getConnectionFactory();
-	}
-	
-	protected Connection createConnection() throws IOException, TimeoutException, Exception {
-		return getDefinedConnectionFactory().createConnection();
 	}
 }

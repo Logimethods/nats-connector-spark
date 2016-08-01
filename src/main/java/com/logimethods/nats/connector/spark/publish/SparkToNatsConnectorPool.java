@@ -24,7 +24,7 @@ import io.nats.client.ConnectionFactory;
  * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
  * @see <a href="https://github.com/Logimethods/nats-connector-spark/blob/master/README.md">NATS / Spark Connectors README (on Github)</a>
  */
-public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector implements Serializable {
+public class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsConnector<T> implements Serializable {
 	
 	/**
 	 * 
@@ -97,7 +97,7 @@ public class SparkToNatsConnectorPool extends AbstractSparkToNatsConnector imple
 			}
 		}
 		
-		return new SparkToStandardNatsConnectorImpl(getDefinedProperties(), getDefinedSubjects(), getDefinedConnectionFactory());
+		return new SparkToStandardNatsConnectorImpl(getDefinedProperties(), getDefinedSubjects(), getConnectionFactory());
 	}
 	
 	/**

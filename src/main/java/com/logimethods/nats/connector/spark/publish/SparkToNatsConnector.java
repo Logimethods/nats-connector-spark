@@ -23,7 +23,7 @@ import com.logimethods.nats.connector.spark.Utilities;
  * It provides a VoidFunction&lt;String&gt; method that can be called as follow:
  * <pre>rdd.foreach(SparkToNatsConnector.publishToNats( ... ));</pre>
  */
-public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnector implements Serializable {
+public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnector<T> implements Serializable {
 
 	public static final String CLOSE_CONNECTION = "___Cl0seConnectION___";
 

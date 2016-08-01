@@ -7,8 +7,10 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark.publish;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.spark.api.java.function.VoidFunction;
 
@@ -90,14 +92,6 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 		return publishToNats;
 	}
 
-	protected synchronized Connection getDefinedConnection() throws Exception {
-		if (getConnection() == null) {
-			setConnection(createConnection());
-			getLogger().debug("A NATS Connection {} has been created for {}", getConnection(), this);
-		}
-		return getConnection();
-	}
-
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.
 	 * @param obj the String that will be published to NATS.
@@ -114,7 +108,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 		final byte[] payload = str.getBytes();
 		natsMessage.setData(payload, 0, payload.length);
 	
-		final Connection localConnection = getDefinedConnection();
+		final Connection localConnection = getConnection();
 		for (String subject : getDefinedSubjects()) {
 			natsMessage.setSubject(subject);
 			localConnection.publish(natsMessage);
@@ -123,32 +117,23 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 		}
 	}
 
-	/**
-	 * @param connectionFactory the connectionFactory to set
-	 */
-	protected void setConnectionFactory(ConnectionFactory connectionFactory) {
-		this.connectionFactory = connectionFactory;
+	protected synchronized Connection getConnection() throws Exception {
+		if (connection == null) {
+			connection = createConnection();
+			getLogger().debug("A NATS Connection {} has been created for {}", connection, this);
+		}
+		return connection;
 	}
 
-	/**
-	 * @param connection the connection to set
-	 */
-	protected void setConnection(Connection connection) {
-		this.connection = connection;
-	}
-
-	/**
-	 * @return the connectionFactory
-	 */
-	protected ConnectionFactory getConnectionFactory() {
+	protected ConnectionFactory getConnectionFactory() throws Exception {
+		if (connectionFactory == null) {
+			connectionFactory = new ConnectionFactory(getDefinedProperties());
+		}		
 		return connectionFactory;
 	}
-
-	/**
-	 * @return the connection
-	 */
-	protected Connection getConnection() {
-		return connection;
+	
+	protected Connection createConnection() throws IOException, TimeoutException, Exception {
+		return getConnectionFactory().createConnection();
 	}
 
 }
