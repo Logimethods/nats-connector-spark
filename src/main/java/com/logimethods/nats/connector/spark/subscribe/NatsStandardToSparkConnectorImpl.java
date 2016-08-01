@@ -109,25 +109,5 @@ public class NatsStandardToSparkConnectorImpl extends NatsToSparkConnector<NatsS
 			}));
 		}
 	}
-
-	protected Properties getProperties(){
-		if (properties == null) {
-			properties = new Properties(System.getProperties());
-		}
-		return properties;
-	}
-
-	protected Collection<String> getSubjects() throws Exception {
-		if ((subjects ==  null) || (subjects.size() == 0)) {
-			final String subjectsStr = getProperties().getProperty(NATS_SUBJECTS);
-			if (subjectsStr == null) {
-				throw new Exception("NatsToSparkConnector needs at least one NATS Subject.");
-			}
-			final String[] subjectsArray = subjectsStr.split(",");
-			subjects = Utilities.transformIntoAList(subjectsArray);
-			logger.debug("Subject provided by the Properties: '{}'", subjects);
-		}
-		return subjects;
-	}
 }
 
