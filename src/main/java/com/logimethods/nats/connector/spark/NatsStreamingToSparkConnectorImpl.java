@@ -23,8 +23,6 @@ import io.nats.stan.Message;
 import io.nats.stan.MessageHandler;
 import io.nats.stan.Subscription;
 import io.nats.stan.SubscriptionOptions;
-import io.nats.stan.SubscriptionOptions.Builder;
-import io.nats.stan.protobuf.StartPosition;
 
 /**
  * A NATS to Spark Connector.
