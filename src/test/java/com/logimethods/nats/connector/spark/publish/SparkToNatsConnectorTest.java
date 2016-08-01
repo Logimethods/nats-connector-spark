@@ -122,7 +122,7 @@ public class SparkToNatsConnectorTest {
 		JavaRDD<String> rdd = sc.parallelize(data);
 
 		try {
-			rdd.foreach(SparkToNatsConnector.publishToNats());
+			rdd.foreach(SparkToNatsConnector.newConnection().publishToNats());
 		} catch (Exception e) {
 			if (e.getMessage().contains("SparkToNatsConnector needs at least one NATS Subject"))
 				return;
@@ -134,7 +134,7 @@ public class SparkToNatsConnectorTest {
 	}
 
 	@Test
-	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
+	public void testStaticSparkToNatsIncludingMultipleSubjects() throws Exception {   
 		final List<String> data = getData();
 
 		String subject1 = "subject1";
@@ -153,7 +153,26 @@ public class SparkToNatsConnectorTest {
 	}
 
 	@Test
-	public void testStaticSparkToNatsWithProperties() throws Exception {   
+	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
+		final List<String> data = getData();
+
+		String subject1 = "subject1";
+		NatsSubscriber ns1 = getNatsSubscriber(data, subject1);
+
+		String subject2 = "subject2";
+		NatsSubscriber ns2 = getNatsSubscriber(data, subject2);
+
+		JavaRDD<String> rdd = sc.parallelize(data);
+
+		rdd.foreach(SparkToNatsConnector.newConnection().withSubjects(DEFAULT_SUBJECT, subject1, subject2).publishToNats());		
+
+		// wait for the subscribers to complete.
+		ns1.waitForCompletion();
+		ns2.waitForCompletion();
+	}
+
+	@Test
+	public void testStaticSparkToNatsIncludingProperties() throws Exception {   
 		final List<String> data = getData();
 
 		NatsSubscriber ns1 = getNatsSubscriber(data, DEFAULT_SUBJECT);
@@ -163,6 +182,22 @@ public class SparkToNatsConnectorTest {
 		final Properties properties = new Properties();
 		properties.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
 		rdd.foreach(SparkToNatsConnector.publishToNats(properties));		
+
+		// wait for the subscribers to complete.
+		ns1.waitForCompletion();
+	}
+
+	@Test
+	public void testStaticSparkToNatsWithProperties() throws Exception {   
+		final List<String> data = getData();
+
+		NatsSubscriber ns1 = getNatsSubscriber(data, DEFAULT_SUBJECT);
+
+		JavaRDD<String> rdd = sc.parallelize(data);
+
+		final Properties properties = new Properties();
+		properties.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
+		rdd.foreach(SparkToNatsConnector.newConnection().withProperties(properties).publishToNats());		
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
@@ -179,7 +214,7 @@ public class SparkToNatsConnectorTest {
 		System.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
 
 		try {
-			rdd.foreach(SparkToNatsConnector.publishToNats());
+			rdd.foreach(SparkToNatsConnector.newConnection().publishToNats());
 			// wait for the subscribers to complete.
 			ns1.waitForCompletion();
 		} finally {

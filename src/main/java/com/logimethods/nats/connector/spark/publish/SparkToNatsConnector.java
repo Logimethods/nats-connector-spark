@@ -96,6 +96,7 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	 * @param subjects The list of NATS subjects to publish to.
 	 * @return a VoidFunction&lt;String&gt;, backed by a SparkToNatsConnector, that can be called to publish messages to NATS.
 	 */
+	@Deprecated
 	public static VoidFunction<String> publishToNats(Properties properties, String... subjects) {
 		return new SparkToNatsConnector(properties, subjects).publishToNats;
 	}
@@ -107,6 +108,7 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	 * @param properties Defines the properties of the connection to NATS.
 	 * @return a VoidFunction&lt;String&gt;, backed by a SparkToNatsConnector, that can be called to publish messages to NATS.
 	 */
+	@Deprecated
 	public static VoidFunction<String> publishToNats(Properties properties) {
 		return new SparkToNatsConnector(properties).publishToNats;
 	}
@@ -118,8 +120,31 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	 * @param subjects The list of NATS subjects to publish to.
 	 * @return a VoidFunction&lt;String&gt;, backed by a SparkToNatsConnector, that can be called to publish messages to NATS.
 	 */
+	@Deprecated
 	public static VoidFunction<String> publishToNats(String... subjects) {
 		return new SparkToNatsConnector(subjects).publishToNats;
+	}
+
+	/**
+	 */
+	public static SparkToNatsConnector newConnection() {
+		return new SparkToNatsConnector();
+	}
+
+	/**
+	 * @param properties the properties to set
+	 */
+	public SparkToNatsConnector withProperties(Properties properties) {
+		setProperties(properties);
+		return this;
+	}
+
+	/**
+	 * @param subjects the subjects to set
+	 */
+	public SparkToNatsConnector withSubjects(String... subjects) {
+		setSubjects(Utilities.transformIntoAList(subjects));
+		return this;
 	}
 
 	public synchronized void closeConnection() {
@@ -137,6 +162,15 @@ public class SparkToNatsConnector extends AbstractSparkToNatsConnector implement
 	public void publishToNats(Object obj) throws Exception {
 		String str = obj.toString();
 		publishToNatsStr(str);
+	}
+
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	public VoidFunction<String> publishToNats() throws Exception {
+		return publishToNats;
 	}
 
 	protected synchronized Connection getDefinedConnection() throws Exception {
