@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Level;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -36,7 +37,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logimethods.nats.connector.spark.NatsPublisher;
+import com.logimethods.nats.connector.spark.TestClient;
 import com.logimethods.nats.connector.spark.UnitTestUtilities;
+import com.logimethods.nats.connector.spark.publish.SparkToNatsConnector;
+import com.logimethods.nats.connector.spark.publish.SparkToNatsConnectorTest;
+import com.logimethods.nats.connector.spark.publish.SparkToStandardNatsConnectorImpl;
 import com.logimethods.nats.connector.spark.subscribe.NatsToSparkConnector;
 
 public class NatsToSparkConnectorTest {
@@ -57,9 +62,9 @@ public class NatsToSparkConnectorTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.subscribe.NatsToSparkConnector", "trace");
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.subscribe.NatsToSparkConnectorTest", "debug");
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.TestClient", "trace");
+		UnitTestUtilities.setLogLevel(NatsToSparkConnector.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(NatsToSparkConnectorTest.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(TestClient.class, Level.WARN);
 
 		logger = LoggerFactory.getLogger(NatsToSparkConnectorTest.class);       
 
@@ -79,8 +84,8 @@ public class NatsToSparkConnectorTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		assertTrue(logger.isDebugEnabled());
-		assertTrue(LoggerFactory.getLogger(NatsToSparkConnector.class).isTraceEnabled());
+//		assertTrue(logger.isDebugEnabled());
+//		assertTrue(LoggerFactory.getLogger(NatsToSparkConnector.class).isTraceEnabled());
 		
 		DEFAULT_SUBJECT = DEFAULT_SUBJECT_ROOT + (DEFAULT_SUBJECT_INR++);
 		TOTAL_COUNT.set(0);

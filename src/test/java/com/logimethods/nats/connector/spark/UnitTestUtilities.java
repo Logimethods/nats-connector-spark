@@ -14,8 +14,13 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.log4j.Level;
+
+import com.logimethods.nats.connector.spark.publish.SparkToNatsConnector;
+
 public class UnitTestUtilities {
 
+	private static final String ORG_SLF4J_SIMPLE_LOGGER_LOG = "org.slf4j.simpleLogger.log.";
 	static NATSServer defaultServer = null;
 	Process authServerProcess = null;
 
@@ -156,5 +161,9 @@ public class UnitTestUtilities {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
 		}
+	}
+	
+	public static void setLogLevel(@SuppressWarnings("rawtypes") Class clazz, Level level){
+		System.setProperty(ORG_SLF4J_SIMPLE_LOGGER_LOG + clazz.getCanonicalName(), level.toString());
 	}
 }

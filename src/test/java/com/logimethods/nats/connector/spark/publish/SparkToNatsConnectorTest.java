@@ -16,6 +16,7 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.log4j.Level;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -29,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logimethods.nats.connector.spark.NatsSubscriber;
+import com.logimethods.nats.connector.spark.TestClient;
 import com.logimethods.nats.connector.spark.UnitTestUtilities;
 import com.logimethods.nats.connector.spark.publish.SparkToNatsConnector;
 
@@ -45,10 +47,11 @@ public class SparkToNatsConnectorTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.publish.SparkToNatsConnector", "trace");
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.publish.SparkToNatsConnectorTest", "debug");
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.TestClient", "debug");
-
+		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(SparkToNatsConnectorTest.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(TestClient.class, Level.WARN);
+		
 		logger = LoggerFactory.getLogger(SparkToNatsConnectorTest.class);       
 
 		SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]");
@@ -71,8 +74,8 @@ public class SparkToNatsConnectorTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		assertTrue(logger.isDebugEnabled());
-		assertTrue(LoggerFactory.getLogger(SparkToNatsConnector.class).isTraceEnabled());
+//		assertTrue(logger.isDebugEnabled());
+//		assertTrue(LoggerFactory.getLogger(SparkToNatsConnector.class).isWarnEnabled());
 	}
 
 	/**
@@ -115,7 +118,7 @@ public class SparkToNatsConnectorTest {
 		return ns1;
 	}
 
-	@Test
+	@Test(timeout=2000)
 	public void testStaticSparkToNatsNoSubjects() throws Exception {   
 		final List<String> data = getData();
 
@@ -133,7 +136,7 @@ public class SparkToNatsConnectorTest {
 		fail("An Exception(\"SparkToNatsConnector needs at least one Subject\") should have been raised.");
 	}
 
-	@Test
+	@Test(timeout=2000)
 	public void testStaticSparkToNatsIncludingMultipleSubjects() throws Exception {   
 		final List<String> data = getData();
 
@@ -152,7 +155,7 @@ public class SparkToNatsConnectorTest {
 		ns2.waitForCompletion();
 	}
 
-	@Test
+	@Test(timeout=2000)
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
 		final List<String> data = getData();
 
@@ -171,7 +174,7 @@ public class SparkToNatsConnectorTest {
 		ns2.waitForCompletion();
 	}
 
-	@Test
+	@Test(timeout=2000)
 	public void testStaticSparkToNatsIncludingProperties() throws Exception {   
 		final List<String> data = getData();
 
@@ -187,7 +190,7 @@ public class SparkToNatsConnectorTest {
 		ns1.waitForCompletion();
 	}
 
-	@Test
+	@Test(timeout=2000)
 	public void testStaticSparkToNatsWithProperties() throws Exception {   
 		final List<String> data = getData();
 
@@ -203,7 +206,7 @@ public class SparkToNatsConnectorTest {
 		ns1.waitForCompletion();
 	}
 
-	@Test
+	@Test(timeout=2000)
 	public void testStaticSparkToNatsWithSystemProperties() throws Exception {   
 		final List<String> data = getData();
 

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.log4j.Level;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
 import com.logimethods.nats.connector.spark.NatsSubscriber;
+import com.logimethods.nats.connector.spark.TestClient;
 import com.logimethods.nats.connector.spark.UnitTestUtilities;
 import com.logimethods.nats.connector.spark.publish.SparkToNatsConnector;
 import com.logimethods.nats.connector.spark.publish.SparkToNatsConnectorPool;
@@ -54,10 +56,11 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.publish.SparkToNatsConnector", "trace");
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.publish.SparkToNatsConnectorPool", "trace");
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.publish.SparkToNatsConnectorPoolTest", "debug");
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.TestClient", "debug");
+		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPoolTest.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(TestClient.class, Level.WARN);
 
 		logger = LoggerFactory.getLogger(SparkToNatsConnectorPoolTest.class);       
 		
@@ -77,8 +80,8 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		assertTrue(logger.isDebugEnabled());
-		assertTrue(LoggerFactory.getLogger(SparkToNatsConnector.class).isTraceEnabled());
+//		assertTrue(logger.isDebugEnabled());
+//		assertTrue(LoggerFactory.getLogger(SparkToNatsConnector.class).isTraceEnabled());
 
 		// Create a local StreamingContext with two working thread and batch interval of 1 second
 		SparkConf conf = new SparkConf().setMaster("local[2]").setAppName("My Spark Streaming Job");
@@ -130,7 +133,7 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 		return ns1;
 	}
 
-/*	@Test
+/*	@Test(timeout=2000)
 	public void testStaticSparkToNatsNoSubjects() throws Exception {   
 		final List<String> data = getData();
 
@@ -148,7 +151,7 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 		fail("An Exception(\"SparkToNatsConnector needs at least one Subject\") should have been raised.");
 	}*/
 
-	@Test
+	@Test(timeout=2000)
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
 		final List<String> data = getData();
 
@@ -199,7 +202,7 @@ lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 		ns2.waitForCompletion();
 	}
 
-/*	@Test
+/*	@Test(timeout=2000)
 	public void testStaticSparkToNatsWithProperties() throws Exception {   
 		final List<String> data = getData();
 
@@ -215,7 +218,7 @@ lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 		ns1.waitForCompletion();
 	}
 
-	@Test
+	@Test(timeout=2000)
 	public void testStaticSparkToNatsWithSystemProperties() throws Exception {   
 		final List<String> data = getData();
 
