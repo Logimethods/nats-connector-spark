@@ -8,6 +8,9 @@
 package com.logimethods.nats.connector.spark;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.spark.storage.StorageLevel;
@@ -20,6 +23,8 @@ import io.nats.stan.Message;
 import io.nats.stan.MessageHandler;
 import io.nats.stan.Subscription;
 import io.nats.stan.SubscriptionOptions;
+import io.nats.stan.SubscriptionOptions.Builder;
+import io.nats.stan.protobuf.StartPosition;
 
 /**
  * A NATS to Spark Connector.
@@ -46,6 +51,7 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 
 	protected String clusterID, clientID;
 	protected SubscriptionOptions opts = null;
+	protected SubscriptionOptions.Builder optsBuilder = null;
 
 	/* Constructors with subjects provided by the environment */
 	
@@ -61,8 +67,152 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 		this.opts = opts;
 		return this;
 	}
+
+    /**
+     * Sets the durable subscriber name for the subscription.
+     * 
+     * @param durableName the name of the durable subscriber
+     * @return this
+     */
+    public NatsStreamingToSparkConnectorImpl setDurableName(String durableName) {
+    	getOptsBuilder().setDurableName(durableName);
+    	return this;
+    }
+
+    /**
+     * Sets the maximum number of in-flight (unacknowledged) messages for the subscription.
+     * 
+     * @param maxInFlight the maximum number of in-flight messages
+     * @return this
+     */
+    public NatsStreamingToSparkConnectorImpl setMaxInFlight(int maxInFlight) {
+    	getOptsBuilder().setMaxInFlight(maxInFlight);
+        return this;
+    }
+
+    /**
+     * Sets the amount of time the subscription will wait for ACKs from the cluster.
+     * 
+     * @param ackWait the amount of time the subscription will wait for an ACK from the cluster
+     * @return this
+     */
+    public NatsStreamingToSparkConnectorImpl setAckWait(Duration ackWait) {
+    	getOptsBuilder().setAckWait(ackWait);
+        return this;
+    }
+
+    /**
+     * Sets the amount of time the subscription will wait for ACKs from the cluster.
+     * 
+     * @param ackWait the amount of time the subscription will wait for an ACK from the cluster
+     * @param unit the time unit
+     * @return this
+     */
+    public NatsStreamingToSparkConnectorImpl setAckWait(long ackWait, TimeUnit unit) {
+    	getOptsBuilder().setAckWait(ackWait, unit);
+        return this;
+    }
+
+    /**
+     * Sets whether or not messages must be acknowledge individually by calling
+     * {@link Message#ack()}.
+     * 
+     * @param manualAcks whether or not messages must be manually acknowledged
+     * @return this
+     */
+    public NatsStreamingToSparkConnectorImpl setManualAcks(boolean manualAcks) {
+    	getOptsBuilder().setManualAcks(manualAcks);
+        return this;
+    }
+
+    /**
+     * Specifies the sequence number from which to start receiving messages.
+     * 
+     * @param seq the sequence number from which to start receiving messages
+     * @return this
+     */
+    public NatsStreamingToSparkConnectorImpl startAtSequence(long seq) {
+    	getOptsBuilder().startAtSequence(seq);
+        return this;
+    }
+
+    /**
+     * Specifies the desired start time position using {@code java.time.Instant}.
+     * 
+     * @param start the desired start time position expressed as a {@code java.time.Instant}
+     * @return this
+     */
+    public NatsStreamingToSparkConnectorImpl startAtTime(Instant start) {
+    	getOptsBuilder().startAtTime(start);
+        return this;
+    }
+
+    /**
+     * Specifies the desired delta start time position in the desired unit.
+     * 
+     * @param ago the historical time delta (from now) from which to start receiving messages
+     * @param unit the time unit
+     * @return this
+     */
+    public NatsStreamingToSparkConnectorImpl startAtTimeDelta(long ago, TimeUnit unit) {
+    	getOptsBuilder().startAtTimeDelta(ago, unit);
+        return this;
+    }
+
+    /**
+     * Specifies the desired delta start time as a {@link java.time.Duration}.
+     * 
+     * @param ago the historical time delta (from now) from which to start receiving messages
+     * @return this
+     */
+    public NatsStreamingToSparkConnectorImpl startAtTimeDelta(Duration ago) {
+    	getOptsBuilder().startAtTimeDelta(ago);
+        return this;
+    }
+
+    /**
+     * Specifies that message delivery should start with the last (most recent) message stored
+     * for this subject.
+     * 
+     * @return this
+     */
+    public NatsStreamingToSparkConnectorImpl startWithLastReceived() {
+    	getOptsBuilder().startWithLastReceived();
+        return this;
+    }
+
+    /**
+     * Specifies that message delivery should begin at the oldest available message for this
+     * subject.
+     * 
+     * @return this
+     */
+    public NatsStreamingToSparkConnectorImpl deliverAllAvailable() {
+    	getOptsBuilder().deliverAllAvailable();
+        return this;
+    }
+
 	
-	
+	/**
+	 * @return the opts
+	 */
+	protected SubscriptionOptions getSubscriptionOptions() {
+		if ((opts == null) && (optsBuilder != null)){
+			opts = optsBuilder.build();
+		}
+		return opts;
+	}
+
+	/**
+	 * @return the optsBuilder
+	 */
+	protected SubscriptionOptions.Builder getOptsBuilder() {
+		if (optsBuilder == null) {
+			optsBuilder = new SubscriptionOptions.Builder();
+		}
+		return optsBuilder;
+	}
+
 	/** Create a socket connection and receive data until receiver is stopped 
 	 * @throws Exception **/
 	protected void receive() throws Exception {
@@ -82,7 +232,7 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 					}
 					store(s);
 				}
-			}, opts);
+			}, getSubscriptionOptions());
 			logger.info("Listening on {}.", subject);
 			
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){

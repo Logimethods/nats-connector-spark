@@ -171,7 +171,7 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 			}
 			final String[] subjectsArray = subjectsStr.split(",");
 			subjects = Utilities.transformIntoAList(subjectsArray);
-			logger.debug("Subject provided by the Properties: '{}'", subjects);
+			logger.debug("Subject(s) provided by the Properties: '{}'", subjects);
 		}
 		return subjects;
 	}    		

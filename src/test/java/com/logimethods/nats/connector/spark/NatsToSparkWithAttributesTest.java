@@ -46,6 +46,10 @@ public class NatsToSparkWithAttributesTest {
 		connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), clusterID, clientID)
 				.withProperties(properties).withSubscriptionOptions(opts).withSubjects("SUBJECT");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
+		
+		connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), clusterID, clientID)
+				.withProperties(properties).startWithLastReceived().withSubjects("SUBJECT");
+		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
 	}
 
 }
