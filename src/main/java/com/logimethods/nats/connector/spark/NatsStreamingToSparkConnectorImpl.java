@@ -61,8 +61,8 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 //		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
 
-	public NatsStreamingToSparkConnectorImpl withSubscriptionOptions(SubscriptionOptions opts) {
-		this.opts = opts;
+	public NatsStreamingToSparkConnectorImpl withSubscriptionOptionsBuilder(SubscriptionOptions.Builder optsBuilder) {
+		this.optsBuilder = optsBuilder;
 		return this;
 	}
 

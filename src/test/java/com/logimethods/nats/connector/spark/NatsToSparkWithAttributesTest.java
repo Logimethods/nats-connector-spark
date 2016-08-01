@@ -6,6 +6,8 @@ package com.logimethods.nats.connector.spark;
 import static com.logimethods.nats.connector.spark.NatsToSparkConnector.NATS_SUBJECTS;
 import static org.junit.Assert.*;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Properties;
 
 import org.apache.spark.storage.StorageLevel;
@@ -50,9 +52,9 @@ public class NatsToSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStreamingToSparkConnectorImpl_2() {
-		SubscriptionOptions opts = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME).build();
+		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME);
 		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID, CLIENT_ID)
-				.withProperties(PROPERTIES).withSubscriptionOptions(opts).withSubjects("SUBJECT");
+				.withProperties(PROPERTIES).withSubscriptionOptionsBuilder(optsBuilder).withSubjects("SUBJECT");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
 		assertEquals(DURABLE_NAME, connector.getSubscriptionOptions().getDurableName());
 	}
@@ -67,11 +69,14 @@ public class NatsToSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStreamingToSparkConnectorImpl_4() {
-		SubscriptionOptions opts = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME).build();
+		final Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
+		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME).startAtTime(start);
+		final String newName = "NEW NAME";
 		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID, CLIENT_ID)
-				.withProperties(PROPERTIES).withSubscriptionOptions(opts).setDurableName("NEW NAME").withSubjects("SUBJECT");
+				.withProperties(PROPERTIES).withSubscriptionOptionsBuilder(optsBuilder).setDurableName(newName).withSubjects("SUBJECT");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
-		assertEquals(DURABLE_NAME, connector.getSubscriptionOptions().getDurableName());
+		assertEquals(newName, connector.getSubscriptionOptions().getDurableName());
+		assertEquals(start, connector.getSubscriptionOptions().getStartTime());
 	}
 
 }
