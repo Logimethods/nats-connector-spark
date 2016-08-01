@@ -11,12 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class TestClient {
-	static Logger logger = LoggerFactory.getLogger(TestClient.class);
+	protected static Logger logger = LoggerFactory.getLogger(TestClient.class);
 
 	Object readyLock = new Object();
 	boolean isReady = false;
 
-	String id = "";
+	protected String id = "";
 
 	Object completeLock = new Object();
 	boolean isComplete = false;
@@ -25,23 +25,23 @@ public abstract class TestClient {
 
 	int msgCount = 0;
 
-	int tallyMessage()
+	public int tallyMessage()
 	{
 		return (++msgCount);
 	}
 
-	int getMessageCount()
+	public int getMessageCount()
 	{
 		return msgCount;
 	}
 
-	TestClient(String id, int testCount)
+	public TestClient(String id, int testCount)
 	{
 		this.id = id;
 		this.testCount = testCount;
 	}
 
-	void setReady()
+	public void setReady()
 	{
 		logger.debug("Client ({}) is ready.", id);
 		synchronized (readyLock)
@@ -54,7 +54,7 @@ public abstract class TestClient {
 		}
 	}
 
-	void waitUntilReady()
+	public void waitUntilReady()
 	{
 		synchronized (readyLock)
 		{
@@ -69,7 +69,7 @@ public abstract class TestClient {
 		logger.debug("Done waiting for Client ({}) to be ready.", id);
 	}
 
-	void setComplete()
+	public void setComplete()
 	{
 		logger.debug("Client ({}) has completed.", id);
 
@@ -83,7 +83,7 @@ public abstract class TestClient {
 		}
 	}
 
-	void waitForCompletion()
+	public void waitForCompletion()
 	{
 		synchronized (completeLock)
 		{

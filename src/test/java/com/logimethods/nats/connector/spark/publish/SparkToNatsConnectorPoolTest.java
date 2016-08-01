@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.nats.connector.spark;
+package com.logimethods.nats.connector.spark.publish;
 
 import static org.junit.Assert.assertTrue;
 
@@ -34,6 +34,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
+import com.logimethods.nats.connector.spark.NatsSubscriber;
+import com.logimethods.nats.connector.spark.UnitTestUtilities;
+import com.logimethods.nats.connector.spark.publish.SparkToNatsConnector;
+import com.logimethods.nats.connector.spark.publish.SparkToNatsConnectorPool;
 
 //@Ignore
 @SuppressWarnings("serial")
@@ -50,9 +54,9 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.SparkToNatsConnector", "trace");
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.SparkToNatsConnectorPool", "trace");
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.SparkToNatsConnectorPoolTest", "debug");
+		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.publish.SparkToNatsConnector", "trace");
+		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.publish.SparkToNatsConnectorPool", "trace");
+		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.publish.SparkToNatsConnectorPoolTest", "debug");
 		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.TestClient", "debug");
 
 		logger = LoggerFactory.getLogger(SparkToNatsConnectorPoolTest.class);       

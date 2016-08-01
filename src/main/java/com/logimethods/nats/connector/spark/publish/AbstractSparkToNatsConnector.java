@@ -1,4 +1,4 @@
-package com.logimethods.nats.connector.spark;
+package com.logimethods.nats.connector.spark.publish;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -8,6 +8,8 @@ import java.util.concurrent.TimeoutException;
 import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
 import org.slf4j.Logger;
+
+import com.logimethods.nats.connector.spark.Utilities;
 
 public abstract class AbstractSparkToNatsConnector {
 	

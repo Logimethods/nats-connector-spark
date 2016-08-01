@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.nats.connector.spark;
+package com.logimethods.nats.connector.spark.publish;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -28,7 +28,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.logimethods.nats.connector.spark.SparkToNatsConnector;
+import com.logimethods.nats.connector.spark.NatsSubscriber;
+import com.logimethods.nats.connector.spark.UnitTestUtilities;
+import com.logimethods.nats.connector.spark.publish.SparkToNatsConnector;
 
 //@Ignore
 public class SparkToNatsConnectorTest {
@@ -43,8 +45,8 @@ public class SparkToNatsConnectorTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.SparkToNatsConnector", "trace");
-		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.SparkToNatsConnectorTest", "debug");
+		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.publish.SparkToNatsConnector", "trace");
+		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.publish.SparkToNatsConnectorTest", "debug");
 		System.setProperty("org.slf4j.simpleLogger.log.com.logimethods.nats.connector.spark.TestClient", "debug");
 
 		logger = LoggerFactory.getLogger(SparkToNatsConnectorTest.class);       

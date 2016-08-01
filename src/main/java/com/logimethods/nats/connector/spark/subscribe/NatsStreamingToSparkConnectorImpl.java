@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.nats.connector.spark;
+package com.logimethods.nats.connector.spark.subscribe;
 
 import java.io.IOException;
 import java.time.Duration;

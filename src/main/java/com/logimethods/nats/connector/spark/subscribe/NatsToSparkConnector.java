@@ -5,15 +5,18 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.nats.connector.spark;
+package com.logimethods.nats.connector.spark.subscribe;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.receiver.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.logimethods.nats.connector.spark.Utilities;
 
 /**
  * A NATS to Spark Connector.

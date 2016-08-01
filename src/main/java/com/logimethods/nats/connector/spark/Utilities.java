@@ -15,7 +15,7 @@ public class Utilities {
 	 * @param subjects
 	 * @return
 	 */
-	protected static List<String> transformIntoAList(String... subjects) {
+	public static List<String> transformIntoAList(String... subjects) {
 		ArrayList<String> list = new ArrayList<String>(subjects.length);
 		for (String subject: subjects){
 			list.add(subject.trim());

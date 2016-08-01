@@ -1,9 +1,9 @@
 /**
  * 
  */
-package com.logimethods.nats.connector.spark;
+package com.logimethods.nats.connector.spark.subscribe;
 
-import static com.logimethods.nats.connector.spark.NatsToSparkConnector.NATS_SUBJECTS;
+import static com.logimethods.nats.connector.spark.subscribe.NatsToSparkConnector.NATS_SUBJECTS;
 import static org.junit.Assert.*;
 
 import java.time.Instant;
@@ -12,6 +12,10 @@ import java.util.Properties;
 
 import org.apache.spark.storage.StorageLevel;
 import org.junit.Test;
+
+import com.logimethods.nats.connector.spark.subscribe.NatsStandardToSparkConnectorImpl;
+import com.logimethods.nats.connector.spark.subscribe.NatsStreamingToSparkConnectorImpl;
+import com.logimethods.nats.connector.spark.subscribe.NatsToSparkConnector;
 
 import io.nats.stan.SubscriptionOptions;
 
