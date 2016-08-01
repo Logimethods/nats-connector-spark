@@ -43,7 +43,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 */
 	protected SparkToNatsConnector() {
 		super();
-		logger.debug("CREATE SparkToNatsConnector: " + this);
+		logger.info("CREATE SparkToNatsConnector: " + this);
 	}
 
 	/**
@@ -62,7 +62,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		super();
 		this.properties = properties;
 		this.subjects = Utilities.transformIntoAList(subjects);
-		logger.debug("CREATE SparkToNatsConnector {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
+		logger.info("CREATE SparkToNatsConnector {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
 	/**
@@ -71,7 +71,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected SparkToNatsConnector(Properties properties) {
 		super();
 		this.properties = properties;
-		logger.debug("CREATE SparkToNatsConnector {} with Properties '{}'.", this, properties);
+		logger.info("CREATE SparkToNatsConnector {} with Properties '{}'.", this, properties);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected SparkToNatsConnector(String... subjects) {
 		super();
 		this.subjects = Utilities.transformIntoAList(subjects);
-		logger.debug("CREATE SparkToNatsConnector {} with NATS Subjects '{}'.", this, subjects);
+		logger.info("CREATE SparkToNatsConnector {} with NATS Subjects '{}'.", this, subjects);
 	}
 
 	/**
@@ -151,6 +151,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 
 		@Override
 		public void call(String str) throws Exception {
+			logger.trace("Publish to NATS: " + str);
 			publishToNatsStr(str);
 		}
 	};
