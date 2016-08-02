@@ -17,14 +17,12 @@ import org.slf4j.LoggerFactory;
 
 import com.logimethods.nats.connector.spark.Utilities;
 
-import io.nats.client.ConnectionFactory;
-
 /**
  * A pool of SparkToNatsConnector(s).
  * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
  * @see <a href="https://github.com/Logimethods/nats-connector-spark/blob/master/README.md">NATS / Spark Connectors README (on Github)</a>
  */
-public class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsConnector<T> implements Serializable {
+public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsConnector<T> implements Serializable {
 	
 	/**
 	 * 
@@ -33,7 +31,6 @@ public class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsConnector<T>
 	
 	protected Properties				properties		  = null;
 	protected Collection<String>		subjects;
-	protected static ConnectionFactory 	connectionFactory = null;
 	protected static LinkedList<SparkToNatsConnector> connectorsPool = new LinkedList<SparkToNatsConnector>();
 
 	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnectorPool.class);
@@ -94,15 +91,7 @@ public class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsConnector<T>
 	 * @return a SparkToNatsConnector from the Pool of Connectors (if not empty), otherwise create and return a new one.
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	public SparkToNatsConnector getConnector() throws Exception {
-		synchronized(connectorsPool) {
-			if (connectorsPool.size() > 0) {
-				return connectorsPool.pollFirst();
-			}
-		}
-		
-		return new SparkToStandardNatsConnectorImpl(getDefinedProperties(), getDefinedSubjects(), getConnectionFactory());
-	}
+	public abstract SparkToNatsConnector getConnector() throws Exception;
 	
 	/**
 	 * @param connector the SparkToNatsConnector to add to the Pool of Connectors.
@@ -139,20 +128,6 @@ public class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsConnector<T>
 	 */
 	protected void setSubjects(Collection<String> subjects) {
 		this.subjects = subjects;
-	}
-
-	/**
-	 * @return the connectionFactory
-	 */
-	protected ConnectionFactory getConnectionFactory() {
-		return connectionFactory;
-	}
-
-	/**
-	 * @param connectionFactory the connectionFactory to set
-	 */
-	protected void setConnectionFactory(ConnectionFactory connectionFactory) {
-		SparkToNatsConnectorPool.connectionFactory = connectionFactory;
 	}
 
 	/**

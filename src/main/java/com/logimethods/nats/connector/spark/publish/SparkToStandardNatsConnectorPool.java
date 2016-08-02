@@ -7,6 +7,43 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark.publish;
 
+import io.nats.client.ConnectionFactory;
+
 public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<SparkToStandardNatsConnectorPool> {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	// TODO
+	protected static ConnectionFactory 	connectionFactory = null;
+	
+	/**
+	 * @return a SparkToNatsConnector from the Pool of Connectors (if not empty), otherwise create and return a new one.
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	public SparkToNatsConnector getConnector() throws Exception {
+		synchronized(connectorsPool) {
+			if (connectorsPool.size() > 0) {
+				return connectorsPool.pollFirst();
+			}
+		}
+		
+		return new SparkToStandardNatsConnectorImpl(getDefinedProperties(), getDefinedSubjects(), getConnectionFactory());
+	}
+
+	/**
+	 * @return the connectionFactory
+	 */
+	protected ConnectionFactory getConnectionFactory() {
+		return connectionFactory;
+	}
+
+	/**
+	 * @param connectionFactory the connectionFactory to set
+	 */
+	protected void setConnectionFactory(ConnectionFactory connectionFactory) {
+		SparkToStandardNatsConnectorPool.connectionFactory = connectionFactory;
+	}
 
 }
