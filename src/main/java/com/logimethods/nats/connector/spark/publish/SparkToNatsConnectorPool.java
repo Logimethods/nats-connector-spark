@@ -29,9 +29,9 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 */
 	private static final long serialVersionUID = -5772600382175265781L;
 	
-	protected Properties				properties		  = null;
-	protected Collection<String>		subjects;
-	protected static LinkedList<SparkToNatsConnector> connectorsPool = new LinkedList<SparkToNatsConnector>();
+	protected Properties				properties		= null;
+	protected Collection<String>		subjects 		= null;
+	protected static LinkedList<SparkToNatsConnector<?>> connectorsPool = new LinkedList<SparkToNatsConnector<?>>();
 
 	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnectorPool.class);
 
@@ -91,12 +91,12 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @return a SparkToNatsConnector from the Pool of Connectors (if not empty), otherwise create and return a new one.
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	public abstract SparkToNatsConnector getConnector() throws Exception;
+	public abstract SparkToNatsConnector<?> getConnector() throws Exception;
 	
 	/**
 	 * @param connector the SparkToNatsConnector to add to the Pool of Connectors.
 	 */
-	public void returnConnector(SparkToNatsConnector connector) {
+	public void returnConnector(SparkToNatsConnector<?> connector) {
 		synchronized(connectorsPool) {
 			connectorsPool.add(connector);
 		}

@@ -15,14 +15,14 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	// TODO
-	protected static ConnectionFactory 	connectionFactory = null;
+	// TODO No more static, needs to be checked on a cluster
+	protected ConnectionFactory 	connectionFactory = null;
 	
 	/**
 	 * @return a SparkToNatsConnector from the Pool of Connectors (if not empty), otherwise create and return a new one.
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	public SparkToNatsConnector getConnector() throws Exception {
+	public SparkToNatsConnector<?> getConnector() throws Exception {
 		synchronized(connectorsPool) {
 			if (connectorsPool.size() > 0) {
 				return connectorsPool.pollFirst();
@@ -42,8 +42,8 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 	/**
 	 * @param connectionFactory the connectionFactory to set
 	 */
-	protected void setConnectionFactory(ConnectionFactory connectionFactory) {
-		SparkToStandardNatsConnectorPool.connectionFactory = connectionFactory;
+	protected void setConnectionFactory(ConnectionFactory factory) {
+		connectionFactory = factory;
 	}
 
 }
