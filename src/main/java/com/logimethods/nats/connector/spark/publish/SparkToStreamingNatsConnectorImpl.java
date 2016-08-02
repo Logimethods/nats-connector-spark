@@ -7,12 +7,11 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark.publish;
 
+import java.util.Collection;
 import java.util.Properties;
 
-//import io.nats.stan.Connection;
-//import io.nats.stan.ConnectionFactory;
-import io.nats.client.Connection;
-import io.nats.client.ConnectionFactory;
+import io.nats.stan.Connection;
+import io.nats.stan.ConnectionFactory;
 
 public class SparkToStreamingNatsConnectorImpl extends SparkToNatsConnector<SparkToStreamingNatsConnectorImpl> {
 
@@ -24,52 +23,29 @@ public class SparkToStreamingNatsConnectorImpl extends SparkToNatsConnector<Spar
 	protected transient Connection connection = null;
 
 	/**
-	 * 
-	 */
-	protected SparkToStreamingNatsConnectorImpl() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
 	 * @param properties
+	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToStreamingNatsConnectorImpl(Properties properties, String... subjects) {
+	protected SparkToStreamingNatsConnectorImpl(Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
 		super(properties, subjects);
-		// TODO Auto-generated constructor stub
+		this.connectionFactory = connectionFactory;
 	}
 
 	/**
 	 * @param properties
-	 */
-	protected SparkToStreamingNatsConnectorImpl(Properties properties) {
-		super(properties);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
+	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToStreamingNatsConnectorImpl(String... subjects) {
-		super(subjects);
-		// TODO Auto-generated constructor stub
+	protected SparkToStreamingNatsConnectorImpl(Properties properties, ConnectionFactory connectionFactory, String... subjects) {
+		super(properties, subjects);
+		this.connectionFactory = connectionFactory;
 	}
 
 	@Override
 	protected void publishToStr(String str) throws Exception {
 		// TODO Auto-generated method stub
 		
-	}
-
-	protected void setConnectionFactory(ConnectionFactory connectionFactory) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	protected ConnectionFactory getConnectionFactory() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
