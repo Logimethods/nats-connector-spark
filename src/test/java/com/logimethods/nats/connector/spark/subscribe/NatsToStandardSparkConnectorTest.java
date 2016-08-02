@@ -249,7 +249,9 @@ public class NatsToStandardSparkConnectorTest {
 		final int nbOfMessages = 5;
 		NatsPublisher np = new NatsPublisher("np", DEFAULT_SUBJECT,  nbOfMessages);
 		
-		messages.print();
+		if (logger.isDebugEnabled()) {
+			messages.print();
+		}
 		
 		messages.foreachRDD(new Function<JavaRDD<String>, Void>() {
 			private static final long serialVersionUID = 1L;

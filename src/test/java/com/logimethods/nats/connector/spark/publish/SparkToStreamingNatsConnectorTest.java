@@ -1,0 +1,215 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Logimethods
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the MIT License (MIT)
+ * which accompanies this distribution, and is available at
+ * http://opensource.org/licenses/MIT
+ *******************************************************************************/
+package com.logimethods.nats.connector.spark.publish;
+
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeoutException;
+
+import org.apache.log4j.Level;
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.VoidFunction;
+import org.apache.spark.streaming.Durations;
+import org.apache.spark.streaming.api.java.JavaDStream;
+import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.io.Files;
+import com.logimethods.nats.connector.spark.NatsSubscriber;
+import com.logimethods.nats.connector.spark.STANServer;
+import com.logimethods.nats.connector.spark.TestClient;
+import com.logimethods.nats.connector.spark.UnitTestUtilities;
+import com.logimethods.nats.connector.spark.subscribe.NatsToSparkConnector;
+
+import io.nats.stan.Connection;
+import io.nats.stan.ConnectionFactory;
+
+// Call first $~/Applications/nats-streaming-server-darwin-amd64/nats-streaming-server -m 8222
+public class SparkToStreamingNatsConnectorTest {
+
+    static final String clusterName = "test-cluster"; //"my_test_cluster";
+    static final String clientName = "me";
+
+	protected static final String DEFAULT_SUBJECT = "spark2natsSubject";
+	static JavaStreamingContext ssc;
+	static Logger logger = null;
+	File tempDir;
+
+	/**
+	 * @throws java.lang.Exception
+	 */
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		// Enable tracing for debugging as necessary.
+		UnitTestUtilities.setLogLevel(NatsToSparkConnector.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(SparkToStreamingNatsConnectorTest.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(TestClient.class, Level.WARN);
+
+		logger = LoggerFactory.getLogger(SparkToStreamingNatsConnectorTest.class);       
+	}
+
+	/**
+	 * @throws java.lang.Exception
+	 */
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
+	}
+
+	/**
+	 * @throws java.lang.Exception
+	 */
+	@Before
+	public void setUp() throws Exception {
+		// Create a local StreamingContext with two working thread and batch interval of 1 second
+		SparkConf conf = new SparkConf().setMaster("local[2]").setAppName("My Spark Streaming Job");
+		ssc = new JavaStreamingContext(conf, Durations.seconds(1));
+		
+	    tempDir = Files.createTempDir();
+	    tempDir.deleteOnExit();
+	}
+
+	/**
+	 * @throws java.lang.Exception
+	 */
+	@After
+	public void tearDown() throws Exception {
+	    ssc.stop();
+	    ssc = null;
+	}
+
+	/**
+	 * @return
+	 */
+	protected List<String> getData() {
+		final List<String> data = Arrays.asList(new String[] {
+				"data_1",
+				"data_2",
+				"data_3",
+				"data_4",
+				"data_5",
+				"data_6"
+		});
+		return data;
+	}
+
+	/**
+	 * @param data
+	 * @return
+	 */
+	protected NatsSubscriber getNatsSubscriber(final List<String> data, String subject) {
+		ExecutorService executor = Executors.newFixedThreadPool(1);
+
+		NatsSubscriber ns1 = new NatsSubscriber(subject + "_id", subject, data.size());
+
+		// start the subscribers apps
+		executor.execute(ns1);
+
+		// wait for subscribers to be ready.
+		ns1.waitUntilReady();
+		return ns1;
+	}
+
+    @Test
+    public void testBasicPublish() {
+        // Run a STAN server
+        try (STANServer s = runServer(clusterName, false)) {
+            try (Connection sc =
+                    new ConnectionFactory(clusterName, clientName).createConnection()) {
+                sc.publish("foo", "Hello World!".getBytes());
+            } catch (IOException | TimeoutException e) {
+                fail(e.getMessage());
+            }
+        }
+    }
+
+    @Test(timeout=6000)
+    public void testStreamingSparkToNatsPublish() {
+        // Run a STAN server
+        try (STANServer s = runServer(clusterName, false)) {
+            try (Connection stanc =
+                    new ConnectionFactory(clusterName, clientName).createConnection()) {
+        		final List<String> data = getData();
+
+        		String subject1 = "subject1";
+        		NatsSubscriber ns1 = getNatsSubscriber(data, subject1);
+
+        		String subject2 = "subject2";
+        		NatsSubscriber ns2 = getNatsSubscriber(data, subject2);
+
+        		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+
+        		final SparkToNatsConnectorPool<?> connectorPool = new SparkToStreamingNatsConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2);
+        		lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
+        			@Override
+        			public Void call(JavaRDD<String> rdd) throws Exception {
+        				final SparkToNatsConnector<?> connector = connectorPool.getConnector();
+        				rdd.foreachPartition(new VoidFunction<Iterator<String>> (){
+        					@Override
+        					public void call(Iterator<String> strings) throws Exception {
+        						while(strings.hasNext()) {
+        							final String str = strings.next();
+        							logger.debug("Will publish " + str);
+        							connector.publish(str);
+        						}
+        					}
+        				});
+        				connectorPool.returnConnector(connector);  // return to the pool for future reuse
+        				return null;
+        			}			
+        		});
+        		
+        		ssc.start();
+
+        		Thread.sleep(1000);
+
+        		File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
+        		PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
+        		for(String str: data) {
+        			writer.println(str);
+        		}		
+        		writer.close();
+
+        		// wait for the subscribers to complete.
+        		ns1.waitForCompletion();
+        		ns2.waitForCompletion();
+            } catch (IOException | TimeoutException | InterruptedException e) {
+                fail(e.getMessage());
+            }
+        }
+    }
+    
+    static STANServer runServer(String clusterID) {
+        return runServer(clusterID, false);
+    }
+
+    static STANServer runServer(String clusterID, boolean debug) {
+        STANServer srv = new STANServer(clusterID, debug);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return srv;
+    }
+}
