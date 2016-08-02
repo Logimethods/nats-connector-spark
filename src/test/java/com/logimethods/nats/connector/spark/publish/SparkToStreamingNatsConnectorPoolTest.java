@@ -46,7 +46,7 @@ import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
 
 // Call first $~/Applications/nats-streaming-server-darwin-amd64/nats-streaming-server -m 8222
-public class SparkToStreamingNatsConnectorTest {
+public class SparkToStreamingNatsConnectorPoolTest {
 
     static final String clusterName = "test-cluster"; //"my_test_cluster";
     static final String clientName = "me";
@@ -63,10 +63,10 @@ public class SparkToStreamingNatsConnectorTest {
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
 		UnitTestUtilities.setLogLevel(NatsToSparkConnector.class, Level.WARN);
-		UnitTestUtilities.setLogLevel(SparkToStreamingNatsConnectorTest.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(SparkToStreamingNatsConnectorPoolTest.class, Level.WARN);
 		UnitTestUtilities.setLogLevel(TestClient.class, Level.WARN);
 
-		logger = LoggerFactory.getLogger(SparkToStreamingNatsConnectorTest.class);       
+		logger = LoggerFactory.getLogger(SparkToStreamingNatsConnectorPoolTest.class);       
 	}
 
 	/**
