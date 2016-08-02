@@ -29,7 +29,7 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 			}
 		}
 		
-		return new SparkToStandardNatsConnectorImpl(getDefinedProperties(), getDefinedSubjects(), getConnectionFactory());
+		return new SparkToStandardNatsConnectorImpl(getDefinedProperties(), getConnectionFactory(), getDefinedSubjects());
 	}
 
 	/**
@@ -45,5 +45,4 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 	protected void setConnectionFactory(ConnectionFactory factory) {
 		connectionFactory = factory;
 	}
-
 }

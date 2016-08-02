@@ -14,14 +14,12 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.spark.api.java.function.VoidFunction;
 
+import com.logimethods.nats.connector.spark.Utilities;
+
 import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
 import io.nats.client.Message;
 
-/**
- * @author laugimethods
- *
- */
 public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStandardNatsConnectorImpl> {
 
 	/**
@@ -32,48 +30,23 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	protected transient Connection connection = null;
 
 	/**
-	 * 
-	 */
-	public SparkToStandardNatsConnectorImpl() {
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
 	 * @param properties
-	 * @param subjects
 	 * @param connectionFactory
-	 */
-	public SparkToStandardNatsConnectorImpl(Properties properties, Collection<String> subjects,
-			ConnectionFactory connectionFactory) {
-		super(properties);
-		this.subjects = subjects;
-		this.connectionFactory = connectionFactory;
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param properties
 	 * @param subjects
 	 */
-	public SparkToStandardNatsConnectorImpl(Properties properties, String... subjects) {
+	protected SparkToStandardNatsConnectorImpl(Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
 		super(properties, subjects);
-		// TODO Auto-generated constructor stub
+		this.connectionFactory = connectionFactory;
 	}
 
 	/**
 	 * @param properties
-	 */
-	public SparkToStandardNatsConnectorImpl(Properties properties) {
-		super(properties);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
+	 * @param connectionFactory
 	 * @param subjects
 	 */
-	public SparkToStandardNatsConnectorImpl(String... subjects) {
-		super(subjects);
-		// TODO Auto-generated constructor stub
+	protected SparkToStandardNatsConnectorImpl(Properties properties, ConnectionFactory connectionFactory, String... subjects) {
+		super(properties, subjects);
+		this.connectionFactory = connectionFactory;
 	}
 
 	public synchronized void closeConnection() {

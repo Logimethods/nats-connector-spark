@@ -46,22 +46,17 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		logger.info("CREATE SparkToNatsConnector: " + this);
 	}
 
-	/**
-	 * @param connectionFactory
-	 * @param properties
-	 * @param subjects
-	 */
-/*	protected SparkToNatsConnector(Properties properties, Collection<String> subjects, ConnectionFactory connectionFactory) {
-		super();
-		this.connectionFactory = connectionFactory;
-		this.properties = properties;
-		this.subjects = subjects;
-	}*/
-
 	protected SparkToNatsConnector(Properties properties, String... subjects) {
 		super();
 		this.properties = properties;
 		this.subjects = Utilities.transformIntoAList(subjects);
+		logger.info("CREATE SparkToNatsConnector {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
+	}
+
+	protected SparkToNatsConnector(Properties properties, Collection<String> subjects) {
+		super();
+		this.properties = properties;
+		this.subjects = subjects;
 		logger.info("CREATE SparkToNatsConnector {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
@@ -92,7 +87,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 */
 	@Deprecated
 	public static VoidFunction<String> publishToNats(Properties properties, String... subjects) {
-		return new SparkToStandardNatsConnectorImpl(properties, subjects).publishToNats;
+		return new SparkToStandardNatsConnectorImpl(properties, null, subjects).publishToNats;
 	}
 
 	/**
@@ -104,7 +99,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 */
 	@Deprecated
 	public static VoidFunction<String> publishToNats(Properties properties) {
-		return new SparkToStandardNatsConnectorImpl(properties).publishToNats;
+		return new SparkToStandardNatsConnectorImpl(properties, null).publishToNats;
 	}
 
 	/**
@@ -116,7 +111,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 */
 	@Deprecated
 	public static VoidFunction<String> publishToNats(String... subjects) {
-		return new SparkToStandardNatsConnectorImpl(subjects).publishToNats;
+		return new SparkToStandardNatsConnectorImpl(null, null, subjects).publishToNats;
 	}
 
 	/**
@@ -132,7 +127,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	/**
 	 */
 	public static SparkToStandardNatsConnectorImpl newConnection() {
-		return new SparkToStandardNatsConnectorImpl();
+		return new SparkToStandardNatsConnectorImpl(null, null);
 	}
 
 	/**
