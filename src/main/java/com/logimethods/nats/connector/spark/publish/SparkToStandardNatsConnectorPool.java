@@ -7,6 +7,6 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark.publish;
 
-public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<SparkToStandardNatsConnectorImpl> {
+public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<SparkToStandardNatsConnectorPool> {
 
 }

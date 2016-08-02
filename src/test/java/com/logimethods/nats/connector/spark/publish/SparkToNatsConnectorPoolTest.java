@@ -151,6 +151,7 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 		fail("An Exception(\"SparkToNatsConnector needs at least one Subject\") should have been raised.");
 	}*/
 
+	@SuppressWarnings("deprecation")
 	@Test(timeout=8000)
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
 		final List<String> data = getData();
@@ -163,7 +164,7 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 
 		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
-		final SparkToNatsConnectorPool connectorPool = new SparkToNatsConnectorPool(DEFAULT_SUBJECT, subject1, subject2);
+		final SparkToNatsConnectorPool connectorPool = new SparkToStandardNatsConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2);
 		lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 			@Override
 			public Void call(JavaRDD<String> rdd) throws Exception {
