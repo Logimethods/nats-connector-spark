@@ -7,15 +7,13 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark;
 
-import io.nats.client.AsyncSubscription;
-import io.nats.client.ConnectionFactory;
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
 
 /**
  * Simulates a simple NATS subscriber.
  */
-public class NatsSubscriber extends TestClient implements Runnable, MessageHandler
+public abstract class NatsSubscriber extends TestClient implements Runnable, MessageHandler
 {
 	String subject = null;
 	boolean checkPayload = true;
@@ -26,33 +24,6 @@ public class NatsSubscriber extends TestClient implements Runnable, MessageHandl
 		this.subject = subject;
 
 		logger.info("Creating NATS Subscriber ({})", id);
-	}
-
-	@Override
-	public void run() {
-
-		try {
-			logger.info("NATS Subscriber ({}):  Subscribing to subject: {}", id, subject); //trace
-
-			io.nats.client.Connection c = new ConnectionFactory().createConnection();
-
-			AsyncSubscription s = c.subscribeAsync(subject, this);
-			s.start();
-
-			setReady();
-
-			logger.info("NATS Subscriber ({}):  Subscribing to subject: {}", id, subject); // debug
-
-			waitForCompletion();
-
-			s.unsubscribe();
-
-			logger.info("NATS Subscriber ({}):  Exiting.", id); // debug
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-		}
 	}
 
 	@Override

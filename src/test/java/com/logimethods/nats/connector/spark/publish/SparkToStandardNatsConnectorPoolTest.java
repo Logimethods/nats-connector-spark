@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
-import com.logimethods.nats.connector.spark.NatsSubscriber;
+import com.logimethods.nats.connector.spark.StandardNatsSubscriber;
 import com.logimethods.nats.connector.spark.TestClient;
 import com.logimethods.nats.connector.spark.UnitTestUtilities;
 import com.logimethods.nats.connector.spark.publish.SparkToNatsConnector;
@@ -116,10 +116,10 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 	 * @param data
 	 * @return
 	 */
-	protected NatsSubscriber getNatsSubscriber(final List<String> data, String subject) {
+	protected StandardNatsSubscriber getStandardNatsSubscriber(final List<String> data, String subject) {
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 
-		NatsSubscriber ns1 = new NatsSubscriber(subject + "_id", subject, data.size());
+		StandardNatsSubscriber ns1 = new StandardNatsSubscriber(subject + "_id", subject, data.size());
 
 		// start the subscribers apps
 		executor.execute(ns1);
@@ -135,10 +135,10 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		final List<String> data = getData();
 
 		String subject1 = "subject1";
-		NatsSubscriber ns1 = getNatsSubscriber(data, subject1);
+		StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
 
 		String subject2 = "subject2";
-		NatsSubscriber ns2 = getNatsSubscriber(data, subject2);
+		StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
 
 		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
@@ -184,10 +184,10 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		final List<String> data = getData();
 
 		String subject1 = "subject1";
-		NatsSubscriber ns1 = getNatsSubscriber(data, subject1);
+		StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
 
 		String subject2 = "subject2";
-		NatsSubscriber ns2 = getNatsSubscriber(data, subject2);
+		StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
 
 		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
@@ -233,10 +233,10 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		final List<String> data = getData();
 
 		String subject1 = "subject1";
-		NatsSubscriber ns1 = getNatsSubscriber(data, subject1);
+		StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
 
 		String subject2 = "subject2";
-		NatsSubscriber ns2 = getNatsSubscriber(data, subject2);
+		StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
 
 		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 

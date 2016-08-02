@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
-import com.logimethods.nats.connector.spark.NatsSubscriber;
+import com.logimethods.nats.connector.spark.StreamingNatsSubscriber;
 import com.logimethods.nats.connector.spark.STANServer;
 import com.logimethods.nats.connector.spark.TestClient;
 import com.logimethods.nats.connector.spark.UnitTestUtilities;
@@ -117,10 +117,10 @@ public class SparkToStreamingNatsConnectorTest {
 	 * @param data
 	 * @return
 	 */
-	protected NatsSubscriber getNatsSubscriber(final List<String> data, String subject) {
+	protected StreamingNatsSubscriber getStreamingNatsSubscriber(final List<String> data, String subject, String clusterName, String clientName) {
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 
-		NatsSubscriber ns1 = new NatsSubscriber(subject + "_id", subject, data.size());
+		StreamingNatsSubscriber ns1 = new StreamingNatsSubscriber(subject + "_id", subject, clusterName, clientName, data.size());
 
 		// start the subscribers apps
 		executor.execute(ns1);
@@ -152,10 +152,10 @@ public class SparkToStreamingNatsConnectorTest {
         		final List<String> data = getData();
 
         		String subject1 = "subject1";
-        		NatsSubscriber ns1 = getNatsSubscriber(data, subject1);
+        		StreamingNatsSubscriber ns1 = getStreamingNatsSubscriber(data, subject1, clusterName, clientName + "_SUB1");
 
         		String subject2 = "subject2";
-        		NatsSubscriber ns2 = getNatsSubscriber(data, subject2);
+        		StreamingNatsSubscriber ns2 = getStreamingNatsSubscriber(data, subject2, clusterName, clientName + "_SUB2");
 
         		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
