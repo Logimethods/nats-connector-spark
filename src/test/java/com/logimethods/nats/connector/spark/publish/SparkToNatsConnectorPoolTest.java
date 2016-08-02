@@ -153,7 +153,7 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 
 	@SuppressWarnings("deprecation")
 	@Test(timeout=8000)
-	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
+	public void testStaticSparkToNatsIncludingMultipleSubjects() throws Exception {   
 		final List<String> data = getData();
 
 		String subject1 = "subject1";
@@ -165,6 +165,59 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
 		final SparkToNatsConnectorPool connectorPool = new SparkToStandardNatsConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2);
+		lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
+			@Override
+			public Void call(JavaRDD<String> rdd) throws Exception {
+				final SparkToNatsConnector connector = connectorPool.getConnector();
+				rdd.foreachPartition(new VoidFunction<Iterator<String>> (){
+					@Override
+					public void call(Iterator<String> strings) throws Exception {
+						while(strings.hasNext()) {
+							final String str = strings.next();
+							logger.debug("Will publish " + str);
+							connector.publish(str);
+						}
+					}
+				});
+				connectorPool.returnConnector(connector);  // return to the pool for future reuse
+				return null;
+			}			
+		});
+
+//		lines.print();
+		
+		ssc.start();
+
+		Thread.sleep(1000);
+
+		File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
+		PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
+		for(String str: data) {
+			writer.println(str);
+		}		
+		writer.close();
+
+//		Thread.sleep(6000);
+
+		// wait for the subscribers to complete.
+		ns1.waitForCompletion();
+		ns2.waitForCompletion();
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test(timeout=8000)
+	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
+		final List<String> data = getData();
+
+		String subject1 = "subject1";
+		NatsSubscriber ns1 = getNatsSubscriber(data, subject1);
+
+		String subject2 = "subject2";
+		NatsSubscriber ns2 = getNatsSubscriber(data, subject2);
+
+		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+
+		final SparkToNatsConnectorPool connectorPool = SparkToNatsConnectorPool.newPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2);
 		lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 			@Override
 			public Void call(JavaRDD<String> rdd) throws Exception {

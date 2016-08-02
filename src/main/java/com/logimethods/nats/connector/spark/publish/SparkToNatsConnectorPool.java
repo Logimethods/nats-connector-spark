@@ -85,6 +85,10 @@ public class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsConnector<T>
 		this.subjects = Utilities.transformIntoAList(subjects);
 		logger.debug("CREATE SparkToNatsConnectorPool {} with NATS Subjects '{}'.", this, subjects);
 	}
+	
+	public static SparkToStandardNatsConnectorPool newPool() {
+		return new SparkToStandardNatsConnectorPool();
+	}
 
 	/**
 	 * @return a SparkToNatsConnector from the Pool of Connectors (if not empty), otherwise create and return a new one.
