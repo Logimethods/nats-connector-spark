@@ -23,7 +23,7 @@ import io.nats.stan.SubscriptionOptions;
  * @author laugimethods
  *
  */
-public class NatsToSparkWithAttributesTest {
+public class NatsToStandardSparkWithAttributesTest {
 	protected final static String CLUSTER_ID = "CLUSTER_ID";
 	protected final static String CLIENT_ID = "CLIENT_ID";
 	protected final static String DURABLE_NAME = "$DURABLE_NAME";

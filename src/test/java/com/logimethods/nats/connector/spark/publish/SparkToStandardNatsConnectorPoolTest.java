@@ -42,7 +42,7 @@ import com.logimethods.nats.connector.spark.publish.SparkToNatsConnectorPool;
 
 //@Ignore
 @SuppressWarnings("serial")
-public class SparkToNatsConnectorPoolTest implements Serializable {
+public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 
 	protected static final String DEFAULT_SUBJECT = "spark2natsSubject";
 	static JavaStreamingContext ssc;
@@ -58,10 +58,10 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, TRACE);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, INFO);
 		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, INFO);
-		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPoolTest.class, INFO);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorPoolTest.class, INFO);
 		UnitTestUtilities.setLogLevel(TestClient.class, INFO);
 
-		logger = LoggerFactory.getLogger(SparkToNatsConnectorPoolTest.class);       
+		logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorPoolTest.class);       
 		
 		UnitTestUtilities.startDefaultServer();
 	}

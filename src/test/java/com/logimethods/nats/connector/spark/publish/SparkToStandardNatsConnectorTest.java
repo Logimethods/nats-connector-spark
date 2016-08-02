@@ -34,7 +34,7 @@ import com.logimethods.nats.connector.spark.UnitTestUtilities;
 import com.logimethods.nats.connector.spark.publish.SparkToNatsConnector;
 
 //@Ignore
-public class SparkToNatsConnectorTest {
+public class SparkToStandardNatsConnectorTest {
 
 	protected static final String DEFAULT_SUBJECT = "spark2natsSubject";
 	protected static JavaSparkContext sc;
@@ -48,10 +48,10 @@ public class SparkToNatsConnectorTest {
 		// Enable tracing for debugging as necessary.
 		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, Level.WARN);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, Level.WARN);
-		UnitTestUtilities.setLogLevel(SparkToNatsConnectorTest.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorTest.class, Level.WARN);
 		UnitTestUtilities.setLogLevel(TestClient.class, Level.WARN);
 		
-		logger = LoggerFactory.getLogger(SparkToNatsConnectorTest.class);       
+		logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorTest.class);       
 
 		SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]");
 		sc = new JavaSparkContext(sparkConf);
