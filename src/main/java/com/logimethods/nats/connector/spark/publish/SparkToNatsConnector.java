@@ -136,24 +136,6 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	}
 
 	/**
-	 * @param properties the properties to set
-	 */
-	@SuppressWarnings("unchecked")
-	public T withProperties(Properties properties) {
-		setProperties(properties);
-		return (T)this;
-	}
-
-	/**
-	 * @param subjects the subjects to set
-	 */
-	@SuppressWarnings("unchecked")
-	public T withSubjects(String... subjects) {
-		setSubjects(Utilities.transformIntoAList(subjects));
-		return (T)this;
-	}
-
-	/**
 	 * A VoidFunction&lt;String&gt; method that will publish the provided String into NATS through the defined subjects.
 	 */
 	protected VoidFunction<String> publishToNats = new VoidFunction<String>() {

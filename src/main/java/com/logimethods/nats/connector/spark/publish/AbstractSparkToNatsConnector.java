@@ -42,6 +42,24 @@ public abstract class AbstractSparkToNatsConnector<T> {
 	protected abstract void setSubjects(Collection<String> subjects);	
 	protected abstract Collection<String> getSubjects();
 
+	/**
+	 * @param properties the properties to set
+	 */
+	@SuppressWarnings("unchecked")
+	public T withProperties(Properties properties) {
+		setProperties(properties);
+		return (T)this;
+	}
+
+	/**
+	 * @param subjects the subjects to set
+	 */
+	@SuppressWarnings("unchecked")
+	public T withSubjects(String... subjects) {
+		setSubjects(Utilities.transformIntoAList(subjects));
+		return (T)this;
+	}
+
 	protected Properties getDefinedProperties() {
 		if (getProperties() == null) {
 			setProperties(new Properties(System.getProperties()));
