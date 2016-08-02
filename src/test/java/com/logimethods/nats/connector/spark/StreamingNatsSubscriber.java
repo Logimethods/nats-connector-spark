@@ -42,7 +42,13 @@ public class StreamingNatsSubscriber extends NatsSubscriber {
 			Subscription sub = c.subscribe(subject, new MessageHandler() {
 			    public void onMessage(Message m) {
 			        //System.out.printf("Received a message: %s\n", m.getData());
-			        logger.info("Received a message ({}) on subject: {}", m.getData(), subject);
+			        logger.info("Received a message ({}) on subject: {}", new String(m.getData()), subject);
+			        
+					if (tallyMessage() == testCount)
+					{
+						logger.info("NATS Subscriber ({}) Received {} messages.  Completed.", clientName, testCount);
+						setComplete();
+					}
 			    }
 			});
 
