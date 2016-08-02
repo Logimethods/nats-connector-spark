@@ -14,8 +14,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.spark.api.java.function.VoidFunction;
 
-import com.logimethods.nats.connector.spark.Utilities;
-
 import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
 import io.nats.client.Message;
@@ -47,13 +45,6 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	protected SparkToStandardNatsConnectorImpl(Properties properties, ConnectionFactory connectionFactory, String... subjects) {
 		super(properties, subjects);
 		this.connectionFactory = connectionFactory;
-	}
-
-	public synchronized void closeConnection() {
-		if (connection != null) {
-			connection.close();
-			connection = null;
-		}
 	}
 
 	/**
@@ -107,6 +98,13 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	
 	protected Connection createConnection() throws IOException, TimeoutException, Exception {
 		return getConnectionFactory().createConnection();
+	}
+
+	public synchronized void closeConnection() {
+		if (connection != null) {
+			connection.close();
+			connection = null;
+		}
 	}
 
 }

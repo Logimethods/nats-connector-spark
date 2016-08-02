@@ -39,9 +39,10 @@ public class StreamingNatsSubscriber extends NatsSubscriber {
 
 //			AsyncSubscription s = c.subscribeAsync(subject, this);
 //			s.start();
-			Subscription sub = c.subscribe("foo", new MessageHandler() {
+			Subscription sub = c.subscribe(subject, new MessageHandler() {
 			    public void onMessage(Message m) {
-			        System.out.printf("Received a message: %s\n", m.getData());
+			        //System.out.printf("Received a message: %s\n", m.getData());
+			        logger.info("Received a message ({}) on subject: {}", m.getData(), subject);
 			    }
 			});
 

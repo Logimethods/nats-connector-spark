@@ -12,6 +12,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -46,7 +47,7 @@ import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
 
 // Call first $~/Applications/nats-streaming-server-darwin-amd64/nats-streaming-server -m 8222
-public class SparkToStreamingNatsConnectorPoolTest {
+public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
 
     static final String clusterName = "test-cluster"; //"my_test_cluster";
     static final String clientName = "me";
@@ -62,9 +63,10 @@ public class SparkToStreamingNatsConnectorPoolTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		UnitTestUtilities.setLogLevel(NatsToSparkConnector.class, Level.WARN);
-		UnitTestUtilities.setLogLevel(SparkToStreamingNatsConnectorPoolTest.class, Level.WARN);
-		UnitTestUtilities.setLogLevel(TestClient.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(NatsToSparkConnector.class, Level.TRACE);
+		UnitTestUtilities.setLogLevel(SparkToStreamingNatsConnectorPoolTest.class, Level.TRACE);
+		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, Level.TRACE);		
+		UnitTestUtilities.setLogLevel(TestClient.class, Level.TRACE);
 
 		logger = LoggerFactory.getLogger(SparkToStreamingNatsConnectorPoolTest.class);       
 	}
@@ -143,7 +145,7 @@ public class SparkToStreamingNatsConnectorPoolTest {
         }
     }
 
-    @Test(timeout=6000)
+    @Test(timeout=10000)
     public void testStreamingSparkToNatsPublish() {
         // Run a STAN server
         try (STANServer s = runServer(clusterName, false)) {

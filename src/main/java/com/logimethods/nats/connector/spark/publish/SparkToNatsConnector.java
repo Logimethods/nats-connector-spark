@@ -120,7 +120,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	public void publish(Object obj) throws Exception {
-		String str = obj.toString();
+		final String str = obj.toString();
 		publishToStr(str);
 	}
 
