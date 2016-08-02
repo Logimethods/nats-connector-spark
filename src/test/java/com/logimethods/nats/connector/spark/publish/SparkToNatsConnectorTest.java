@@ -7,7 +7,6 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark.publish;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -74,8 +73,6 @@ public class SparkToNatsConnectorTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-//		assertTrue(logger.isDebugEnabled());
-//		assertTrue(LoggerFactory.getLogger(SparkToNatsConnector.class).isWarnEnabled());
 	}
 
 	/**

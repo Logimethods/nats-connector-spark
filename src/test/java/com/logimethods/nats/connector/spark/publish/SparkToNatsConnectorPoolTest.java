@@ -7,8 +7,6 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark.publish;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -81,9 +79,6 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 	 */
 	@Before
 	public void setUp() throws Exception {
-//		assertTrue(logger.isDebugEnabled());
-//		assertTrue(LoggerFactory.getLogger(SparkToNatsConnector.class).isTraceEnabled());
-
 		// Create a local StreamingContext with two working thread and batch interval of 1 second
 		SparkConf conf = new SparkConf().setMaster("local[2]").setAppName("My Spark Streaming Job");
 		ssc = new JavaStreamingContext(conf, Durations.seconds(1));
@@ -134,24 +129,6 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 		return ns1;
 	}
 
-/*	@Test(timeout=6000)
-	public void testStaticSparkToNatsNoSubjects() throws Exception {   
-		final List<String> data = getData();
-
-		JavaRDD<String> rdd = sc.parallelize(data);
-
-		try {
-			rdd.foreach(SparkToNatsConnector.publishToNats());
-		} catch (Exception e) {
-			if (e.getMessage().contains("SparkToNatsConnector needs at least one NATS Subject"))
-				return;
-			else
-				throw e;
-		}	
-
-		fail("An Exception(\"SparkToNatsConnector needs at least one Subject\") should have been raised.");
-	}*/
-
 	@SuppressWarnings("deprecation")
 	@Test(timeout=8000)
 	public void testStaticSparkToNatsIncludingMultipleSubjects() throws Exception {   
@@ -165,11 +142,11 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 
 		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
-		final SparkToNatsConnectorPool connectorPool = new SparkToStandardNatsConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2);
+		final SparkToNatsConnectorPool<?> connectorPool = new SparkToStandardNatsConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2);
 		lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 			@Override
 			public Void call(JavaRDD<String> rdd) throws Exception {
-				final SparkToNatsConnector connector = connectorPool.getConnector();
+				final SparkToNatsConnector<?> connector = connectorPool.getConnector();
 				rdd.foreachPartition(new VoidFunction<Iterator<String>> (){
 					@Override
 					public void call(Iterator<String> strings) throws Exception {
@@ -184,8 +161,6 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 				return null;
 			}			
 		});
-
-//		lines.print();
 		
 		ssc.start();
 
@@ -197,8 +172,6 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 			writer.println(str);
 		}		
 		writer.close();
-
-//		Thread.sleep(6000);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
@@ -237,8 +210,6 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 				return null;
 			}			
 		});
-
-//		lines.print();
 		
 		ssc.start();
 
@@ -250,8 +221,6 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 			writer.println(str);
 		}		
 		writer.close();
-
-//		Thread.sleep(6000);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
@@ -293,8 +262,6 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 				return null;
 			}			
 		});
-
-//		lines.print();
 		
 		ssc.start();
 
@@ -307,45 +274,8 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 		}		
 		writer.close();
 
-//		Thread.sleep(6000);
-
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
 	}
-
-/*	@Test(timeout=6000)
-	public void testStaticSparkToNatsWithProperties() throws Exception {   
-		final List<String> data = getData();
-
-		NatsSubscriber ns1 = getNatsSubscriber(data, DEFAULT_SUBJECT);
-
-		JavaRDD<String> rdd = ssc.parallelize(data);
-
-		final Properties properties = new Properties();
-		properties.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
-		rdd.foreach(SparkToNatsConnector.publishToNats(properties));		
-
-		// wait for the subscribers to complete.
-		ns1.waitForCompletion();
-	}
-
-	@Test(timeout=6000)
-	public void testStaticSparkToNatsWithSystemProperties() throws Exception {   
-		final List<String> data = getData();
-
-		NatsSubscriber ns1 = getNatsSubscriber(data, DEFAULT_SUBJECT);
-
-		JavaRDD<String> rdd = ssc.parallelize(data);
-
-		System.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
-
-		try {
-			rdd.foreach(SparkToNatsConnector.publishToNats());
-			// wait for the subscribers to complete.
-			ns1.waitForCompletion();
-		} finally {
-			System.clearProperty(SparkToNatsConnector.NATS_SUBJECTS);
-		}		
-	}*/
 }
