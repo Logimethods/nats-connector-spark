@@ -163,25 +163,25 @@ public class SparkToNatsConnectorPoolTest implements Serializable {
 
 		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
-final SparkToNatsConnectorPool connectorPool = new SparkToNatsConnectorPool(DEFAULT_SUBJECT, subject1, subject2);
-lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
-	@Override
-	public Void call(JavaRDD<String> rdd) throws Exception {
-		final SparkToNatsConnector connector = connectorPool.getConnector();
-		rdd.foreachPartition(new VoidFunction<Iterator<String>> (){
+		final SparkToNatsConnectorPool connectorPool = new SparkToNatsConnectorPool(DEFAULT_SUBJECT, subject1, subject2);
+		lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 			@Override
-			public void call(Iterator<String> strings) throws Exception {
-				while(strings.hasNext()) {
-					final String str = strings.next();
-					logger.debug("Will publish " + str);
-					connector.publish(str);
-				}
-			}
+			public Void call(JavaRDD<String> rdd) throws Exception {
+				final SparkToNatsConnector connector = connectorPool.getConnector();
+				rdd.foreachPartition(new VoidFunction<Iterator<String>> (){
+					@Override
+					public void call(Iterator<String> strings) throws Exception {
+						while(strings.hasNext()) {
+							final String str = strings.next();
+							logger.debug("Will publish " + str);
+							connector.publish(str);
+						}
+					}
+				});
+				connectorPool.returnConnector(connector);  // return to the pool for future reuse
+				return null;
+			}			
 		});
-		connectorPool.returnConnector(connector);  // return to the pool for future reuse
-		return null;
-	}			
-});
 
 //		lines.print();
 		
