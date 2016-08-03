@@ -44,7 +44,7 @@ import com.logimethods.nats.connector.spark.publish.SparkToStandardNatsConnector
 import com.logimethods.nats.connector.spark.publish.SparkToStandardNatsConnectorImpl;
 import com.logimethods.nats.connector.spark.subscribe.NatsToSparkConnector;
 
-public class NatsToStandardSparkConnectorTest {
+public class StandardNatsToSparkConnectorTest {
 
 	protected static String DEFAULT_SUBJECT_ROOT = "nats2sparkSubject";
 	protected static int DEFAULT_SUBJECT_INR = 0;
@@ -63,10 +63,10 @@ public class NatsToStandardSparkConnectorTest {
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
 		UnitTestUtilities.setLogLevel(NatsToSparkConnector.class, Level.WARN);
-		UnitTestUtilities.setLogLevel(NatsToStandardSparkConnectorTest.class, Level.WARN);
+		UnitTestUtilities.setLogLevel(StandardNatsToSparkConnectorTest.class, Level.WARN);
 		UnitTestUtilities.setLogLevel(TestClient.class, Level.WARN);
 
-		logger = LoggerFactory.getLogger(NatsToStandardSparkConnectorTest.class);       
+		logger = LoggerFactory.getLogger(StandardNatsToSparkConnectorTest.class);       
 
 		UnitTestUtilities.startDefaultServer();
 	}
