@@ -9,12 +9,10 @@ package com.logimethods.nats.connector.spark;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.nats.client.ConnectionFactory;
-
 /**
  * Simulates a simple NATS publisher.
  */
-public class NatsPublisher extends TestClient implements Runnable
+public abstract class NatsPublisher extends TestClient implements Runnable
 {
 	public static final String NATS_PAYLOAD = "Hello from NATS! ";
 	protected static final AtomicInteger INCR = new AtomicInteger();
@@ -27,36 +25,5 @@ public class NatsPublisher extends TestClient implements Runnable
 		this.subject = subject;
 
 		logger.debug("Creating NATS Publisher ({})", id);
-	}
-
-	@Override
-	public void run() {
-
-		try {
-
-			logger.debug("NATS Publisher ({}):  Starting", id);
-
-			io.nats.client.Connection c = new ConnectionFactory().createConnection();
-			
-			logger.debug("A NATS Connection to '{}' has been created.", c.getConnectedUrl());
-			
-			setReady();
-
-			for (int i = 0; i < testCount; i++) {
-				final String payload = NATS_PAYLOAD + INCR.getAndIncrement();
-				c.publish(subject, payload.getBytes());
-				logger.trace("Publish '{}' to '{}'.", payload, subject);
-				tallyMessage();
-			}
-			c.flush();
-
-			logger.debug("NATS Publisher ({}):  Published {} messages.", id, testCount);
-
-			setComplete();
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-		}
 	}
 }

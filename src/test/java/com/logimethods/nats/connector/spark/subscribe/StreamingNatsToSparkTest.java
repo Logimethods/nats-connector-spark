@@ -7,17 +7,19 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark.subscribe;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.apache.spark.storage.StorageLevel;
+import org.apache.spark.streaming.Duration;
+import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
+import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.junit.Test;
 
+import com.logimethods.nats.connector.spark.NatsPublisher;
 import com.logimethods.nats.connector.spark.STANServer;
 
 import io.nats.stan.Connection;
@@ -27,44 +29,26 @@ import io.nats.stan.MessageHandler;
 import io.nats.stan.Subscription;
 import io.nats.stan.SubscriptionOptions;
 
-public class StreamingNatsToSparkTest {
+public class StreamingNatsToSparkTest extends AbstractNatsToSparkTest {
 	protected final static String CLUSTER_ID = "test-cluster";
 	protected final static String CLIENT_ID = "CLIENT_ID";
+	
+//	@Test
+	public void testNatsToSparkConnectorWithAdditionalSubjects() throws InterruptedException {
+		
+		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
+		final JavaReceiverInputDStream<String> messages = 
+				ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withSubjects(DEFAULT_SUBJECT));
+
+		validateTheReceptionOfMessages(ssc, messages);
 	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@After
-	public void tearDown() throws Exception {
-	}
-
 
     @Test
     public void testBasicSubscription() {
         // Run a STAN server
         try (STANServer s = runServer(CLUSTER_ID, false)) {
-            ConnectionFactory cf = new ConnectionFactory(CLUSTER_ID, CLIENT_ID);
+            ConnectionFactory cf = new ConnectionFactory(CLUSTER_ID, CLIENT_ID + (new Date().getTime()));
             try (Connection sc = cf.createConnection()) {
                 SubscriptionOptions sopts = new SubscriptionOptions.Builder().build();
                 try (Subscription sub = sc.subscribe("foo", new MessageHandler() {
@@ -94,4 +78,10 @@ public class StreamingNatsToSparkTest {
         }
         return srv;
     }
+
+	@Override
+	protected NatsPublisher getNatsPublisher(int nbOfMessages) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

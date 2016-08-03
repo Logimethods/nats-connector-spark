@@ -1,6 +1,10 @@
-/**
- * 
- */
+/*******************************************************************************
+ * Copyright (c) 2016 Logimethods
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the MIT License (MIT)
+ * which accompanies this distribution, and is available at
+ * http://opensource.org/licenses/MIT
+ *******************************************************************************/
 package com.logimethods.nats.connector.spark.subscribe;
 
 import static com.logimethods.nats.connector.spark.subscribe.NatsToSparkConnector.NATS_SUBJECTS;
@@ -19,10 +23,6 @@ import com.logimethods.nats.connector.spark.subscribe.NatsToSparkConnector;
 
 import io.nats.stan.SubscriptionOptions;
 
-/**
- * @author laugimethods
- *
- */
 public class StandardNatsToSparkWithAttributesTest {
 	protected final static String CLUSTER_ID = "CLUSTER_ID";
 	protected final static String CLIENT_ID = "CLIENT_ID";
