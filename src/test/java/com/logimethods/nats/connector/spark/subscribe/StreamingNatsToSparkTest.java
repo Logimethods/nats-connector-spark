@@ -32,6 +32,8 @@ import io.nats.stan.SubscriptionOptions;
 public class StreamingNatsToSparkTest extends AbstractNatsToSparkTest {
 	protected final static String CLUSTER_ID = "test-cluster";
 	protected final static String CLIENT_ID = "CLIENT_ID";
+	private static final int STANServerPORT = 4223;
+	private static final String STAN_URL = "nats://localhost:" + STANServerPORT;
 	
 //	@Test
 	public void testNatsToSparkConnectorWithAdditionalSubjects() throws InterruptedException {
@@ -49,6 +51,7 @@ public class StreamingNatsToSparkTest extends AbstractNatsToSparkTest {
         // Run a STAN server
         try (STANServer s = runServer(CLUSTER_ID, false)) {
             ConnectionFactory cf = new ConnectionFactory(CLUSTER_ID, CLIENT_ID + (new Date().getTime()));
+            cf.setNatsUrl(STAN_URL);
             try (Connection sc = cf.createConnection()) {
                 SubscriptionOptions sopts = new SubscriptionOptions.Builder().build();
                 try (Subscription sub = sc.subscribe("foo", new MessageHandler() {
