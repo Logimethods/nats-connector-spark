@@ -32,8 +32,17 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToStandardNatsConnectorImpl(Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
-		super(properties, subjects);
+	protected SparkToStandardNatsConnectorImpl() {
+		super();
+	}
+	
+	/**
+	 * @param properties
+	 * @param connectionFactory
+	 * @param subjects
+	 */
+	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
+		super(natsURL, properties, subjects);
 		this.connectionFactory = connectionFactory;
 	}
 
@@ -42,8 +51,8 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToStandardNatsConnectorImpl(Properties properties, ConnectionFactory connectionFactory, String... subjects) {
-		super(properties, subjects);
+	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, String... subjects) {
+		super(natsURL, properties, subjects);
 		this.connectionFactory = connectionFactory;
 	}
 

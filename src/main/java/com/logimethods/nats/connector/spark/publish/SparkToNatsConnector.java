@@ -27,8 +27,9 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 
 	public static final String CLOSE_CONNECTION = "___Cl0seConnectION___";
 
-	protected Properties properties = null;
-	protected Collection<String> subjects;
+	protected Properties properties 		= null;
+	protected Collection<String> subjects 	= null;
+	protected String natsURL 				= null;
 
 	/**
 	 * 
@@ -42,39 +43,33 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @param subjects
 	 */
 	protected SparkToNatsConnector() {
-		super();
+		super(null, null, (Collection<String>)null);
 		logger.info("CREATE SparkToNatsConnector: " + this);
 	}
 
-	protected SparkToNatsConnector(Properties properties, String... subjects) {
-		super();
-		this.properties = properties;
-		this.subjects = Utilities.transformIntoAList(subjects);
+	protected SparkToNatsConnector(String natsURL, Properties properties, String... subjects) {
+		super(natsURL, properties, subjects);
 		logger.info("CREATE SparkToNatsConnector {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
-	protected SparkToNatsConnector(Properties properties, Collection<String> subjects) {
-		super();
-		this.properties = properties;
-		this.subjects = subjects;
+	protected SparkToNatsConnector(String natsURL, Properties properties, Collection<String> subjects) {
+		super(natsURL, properties, subjects);
 		logger.info("CREATE SparkToNatsConnector {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
 	/**
 	 * @param properties
 	 */
-	protected SparkToNatsConnector(Properties properties) {
-		super();
-		this.properties = properties;
+	protected SparkToNatsConnector(String natsURL, Properties properties) {
+		super(natsURL, properties, (Collection<String>)null);
 		logger.info("CREATE SparkToNatsConnector {} with Properties '{}'.", this, properties);
 	}
 
 	/**
 	 * @param subjects
 	 */
-	protected SparkToNatsConnector(String... subjects) {
-		super();
-		this.subjects = Utilities.transformIntoAList(subjects);
+	protected SparkToNatsConnector(String natsURL, String... subjects) {
+		super(natsURL, null, subjects);
 		logger.info("CREATE SparkToNatsConnector {} with NATS Subjects '{}'.", this, subjects);
 	}
 
@@ -86,8 +81,8 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @return a VoidFunction&lt;String&gt;, backed by a SparkToNatsConnector, that can be called to publish messages to NATS.
 	 */
 	@Deprecated
-	public static VoidFunction<String> publishToNats(Properties properties, String... subjects) {
-		return new SparkToStandardNatsConnectorImpl(properties, null, subjects).publishToNats;
+	public static VoidFunction<String> publishToNats(String natsURL, Properties properties, String... subjects) {
+		return new SparkToStandardNatsConnectorImpl(natsURL, properties, null, subjects).publishToNats;
 	}
 
 	/**
@@ -98,8 +93,8 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @return a VoidFunction&lt;String&gt;, backed by a SparkToNatsConnector, that can be called to publish messages to NATS.
 	 */
 	@Deprecated
-	public static VoidFunction<String> publishToNats(Properties properties) {
-		return new SparkToStandardNatsConnectorImpl(properties, null).publishToNats;
+	public static VoidFunction<String> publishToNats(String natsURL, Properties properties) {
+		return new SparkToStandardNatsConnectorImpl(natsURL, properties, null).publishToNats;
 	}
 
 	/**
@@ -110,8 +105,8 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @return a VoidFunction&lt;String&gt;, backed by a SparkToNatsConnector, that can be called to publish messages to NATS.
 	 */
 	@Deprecated
-	public static VoidFunction<String> publishToNats(String... subjects) {
-		return new SparkToStandardNatsConnectorImpl(null, null, subjects).publishToNats;
+	public static VoidFunction<String> publishToNats(String natsURL, String... subjects) {
+		return new SparkToStandardNatsConnectorImpl(natsURL, null, null, subjects).publishToNats;
 	}
 
 	/**
@@ -127,7 +122,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	/**
 	 */
 	public static SparkToStandardNatsConnectorImpl newConnection() {
-		return new SparkToStandardNatsConnectorImpl(null, null);
+		return new SparkToStandardNatsConnectorImpl(null, null, null);
 	}
 
 	/**
@@ -160,6 +155,13 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	}
 
 	/**
+	 * @param natsURL the natsURL to set
+	 */
+	protected void setNatsURL(String natsURL) {
+		this.natsURL = natsURL;
+	}
+
+	/**
 	 * @return the properties
 	 */
 	protected Properties getProperties() {
@@ -171,6 +173,13 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 */
 	protected Collection<String> getSubjects() {
 		return subjects;
+	}
+
+	/**
+	 * @return the natsURL
+	 */
+	protected String getNatsURL() {
+		return natsURL;
 	}
 
 	/**

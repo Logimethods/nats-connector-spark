@@ -37,6 +37,7 @@ import com.logimethods.nats.connector.spark.publish.SparkToNatsConnector;
 public class SparkToStandardNatsConnectorTest {
 
 	protected static final String DEFAULT_SUBJECT = "spark2natsSubject";
+	protected static final String DEFAULT_NATS_URL = "nats://localhost:4222";
 	protected static JavaSparkContext sc;
 	static Logger logger = null;
 
@@ -181,7 +182,7 @@ public class SparkToStandardNatsConnectorTest {
 
 		final Properties properties = new Properties();
 		properties.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
-		rdd.foreach(SparkToNatsConnector.publishToNats(properties));		
+		rdd.foreach(SparkToNatsConnector.publishToNats(DEFAULT_NATS_URL, properties));		
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();

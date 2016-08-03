@@ -28,12 +28,19 @@ public class SparkToStreamingNatsConnectorImpl extends SparkToNatsConnector<Spar
 	protected transient Connection connection = null;
 
 	/**
+	 * 
+	 */
+	protected SparkToStreamingNatsConnectorImpl() {
+		super();
+	}
+
+	/**
 	 * @param properties
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToStreamingNatsConnectorImpl(Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
-		super(properties, subjects);
+	protected SparkToStreamingNatsConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
+		super(natsURL, properties, subjects);
 		this.connectionFactory = connectionFactory;
 	}
 
@@ -42,8 +49,8 @@ public class SparkToStreamingNatsConnectorImpl extends SparkToNatsConnector<Spar
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToStreamingNatsConnectorImpl(Properties properties, ConnectionFactory connectionFactory, String... subjects) {
-		super(properties, subjects);
+	protected SparkToStreamingNatsConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, String... subjects) {
+		super(natsURL, properties, subjects);
 		this.connectionFactory = connectionFactory;
 	}
 

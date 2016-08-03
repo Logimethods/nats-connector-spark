@@ -19,6 +19,13 @@ public class SparkToStreamingNatsConnectorPool extends SparkToNatsConnectorPool<
 	protected ConnectionFactory 	connectionFactory = null;
 	
 	/**
+	 * 
+	 */
+	protected SparkToStreamingNatsConnectorPool() {
+		super();
+	}
+
+	/**
 	 * @return a SparkToNatsConnector from the Pool of Connectors (if not empty), otherwise create and return a new one.
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
@@ -29,7 +36,7 @@ public class SparkToStreamingNatsConnectorPool extends SparkToNatsConnectorPool<
 			}
 		}
 		
-		return new SparkToStreamingNatsConnectorImpl(getDefinedProperties(), getConnectionFactory(), getDefinedSubjects());
+		return new SparkToStreamingNatsConnectorImpl(getNatsURL(), getDefinedProperties(), getConnectionFactory(), getDefinedSubjects());
 	}
 
 	/**

@@ -31,6 +31,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	
 	protected Properties				properties		= null;
 	protected Collection<String>		subjects 		= null;
+	protected String 					natsURL			= null;
 	protected static LinkedList<SparkToNatsConnector<?>> connectorsPool = new LinkedList<SparkToNatsConnector<?>>();
 
 	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnectorPool.class);
@@ -52,10 +53,8 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @param subjects defines the NATS subjects to which the messages will be pushed.
 	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
 	 */
-	public SparkToNatsConnectorPool(Properties properties, String... subjects) {
-		super();
-		this.properties = properties;
-		this.subjects = Utilities.transformIntoAList(subjects);
+	public SparkToNatsConnectorPool(String natsURL, Properties properties, String... subjects) {
+		super(natsURL, properties, subjects);
 		logger.debug("CREATE SparkToNatsConnectorPool {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
@@ -66,8 +65,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
 	 */
 	public SparkToNatsConnectorPool(Properties properties) {
-		super();
-		this.properties = properties;
+		super(null, properties, (Collection<String>)null);
 		logger.debug("CREATE SparkToNatsConnectorPool {} with Properties '{}'.", this, properties);
 	}
 
@@ -78,8 +76,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
 	 */
 	public SparkToNatsConnectorPool(String... subjects) {
-		super();
-		this.subjects = Utilities.transformIntoAList(subjects);
+		super(null, null, subjects);
 		logger.debug("CREATE SparkToNatsConnectorPool {} with NATS Subjects '{}'.", this, subjects);
 	}
 	
@@ -117,6 +114,13 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	}
 
 	/**
+	 * @param natsURL the natsURL to set
+	 */
+	protected void setNatsURL(String natsURL) {
+		this.natsURL = natsURL;
+	}
+
+	/**
 	 * @return the subjects
 	 */
 	protected Collection<String> getSubjects() {
@@ -128,6 +132,13 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 */
 	protected void setSubjects(Collection<String> subjects) {
 		this.subjects = subjects;
+	}
+
+	/**
+	 * @return the natsURL
+	 */
+	protected String getNatsURL() {
+		return natsURL;
 	}
 
 	/**

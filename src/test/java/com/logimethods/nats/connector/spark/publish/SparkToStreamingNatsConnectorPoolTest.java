@@ -157,9 +157,10 @@ public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
     public void testStreamingSparkToNatsPublish() {
         // Run a STAN server
         try (STANServer s = runServer(clusterName, false)) {
-        	logger.debug("STANServer started: " + s);
-            try (Connection stanc =
-                    new ConnectionFactory(clusterName, clientName).createConnection()) {
+        	ConnectionFactory connectionFactory = new ConnectionFactory(clusterName, getClientName());
+        	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
+            try ( Connection stanc =
+            		connectionFactory.createConnection()) {
             	logger.debug("ConnectionFactory ready: " + stanc);
         		final List<String> data = getData();
 

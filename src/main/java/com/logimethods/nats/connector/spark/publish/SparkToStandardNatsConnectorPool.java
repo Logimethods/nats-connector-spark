@@ -19,6 +19,13 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 	protected ConnectionFactory 	connectionFactory = null;
 	
 	/**
+	 * 
+	 */
+	protected SparkToStandardNatsConnectorPool() {
+		super();
+	}
+
+	/**
 	 * @return a SparkToNatsConnector from the Pool of Connectors (if not empty), otherwise create and return a new one.
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
@@ -29,7 +36,7 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 			}
 		}
 		
-		return new SparkToStandardNatsConnectorImpl(getDefinedProperties(), getConnectionFactory(), getDefinedSubjects());
+		return new SparkToStandardNatsConnectorImpl(getNatsURL(), getDefinedProperties(), getConnectionFactory(), getDefinedSubjects());
 	}
 
 	/**

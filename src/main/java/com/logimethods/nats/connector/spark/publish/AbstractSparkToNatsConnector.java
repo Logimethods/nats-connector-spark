@@ -18,8 +18,25 @@ public abstract class AbstractSparkToNatsConnector<T> {
 	
 	public static final String NATS_SUBJECTS = "nats.io.connector.spark2nats.subjects";
 
-	public AbstractSparkToNatsConnector() {
+	/**
+	 * 
+	 */
+	protected AbstractSparkToNatsConnector() {
 		super();
+	}
+
+	public AbstractSparkToNatsConnector(String natsURL, Properties properties, String... subjects) {
+		super();
+		setProperties(properties);
+		setSubjects(Utilities.transformIntoAList(subjects));
+		setNatsURL(natsURL);		
+	}
+
+	public AbstractSparkToNatsConnector(String natsURL, Properties properties, Collection<String> subjects) {
+		super();
+		setProperties(properties);
+		setSubjects(subjects);
+		setNatsURL(natsURL);		
 	}
 	
 	protected abstract Logger getLogger();
@@ -43,6 +60,12 @@ public abstract class AbstractSparkToNatsConnector<T> {
 	protected abstract Collection<String> getSubjects();
 
 	/**
+	 * @param subjects the subjects to set
+	 */
+	protected abstract void setNatsURL(String natsURL);	
+	protected abstract String getNatsURL();
+
+	/**
 	 * @param properties the properties to set
 	 */
 	@SuppressWarnings("unchecked")
@@ -57,6 +80,15 @@ public abstract class AbstractSparkToNatsConnector<T> {
 	@SuppressWarnings("unchecked")
 	public T withSubjects(String... subjects) {
 		setSubjects(Utilities.transformIntoAList(subjects));
+		return (T)this;
+	}
+
+	/**
+	 * @param natsURL the NATS URL to set
+	 */
+	@SuppressWarnings("unchecked")
+	public T withNatsURL(String natsURL) {
+		setNatsURL(natsURL);
 		return (T)this;
 	}
 
