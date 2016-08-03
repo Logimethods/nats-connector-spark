@@ -106,7 +106,7 @@ public class SparkToStandardNatsConnectorTest {
 	protected StandardNatsSubscriber getStandardNatsSubscriber(final List<String> data, String subject) {
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 
-		StandardNatsSubscriber ns1 = new StandardNatsSubscriber(subject + "_id", subject, data.size());
+		StandardNatsSubscriber ns1 = new StandardNatsSubscriber(DEFAULT_NATS_URL, subject + "_id", subject, data.size());
 
 		// start the subscribers apps
 		executor.execute(ns1);

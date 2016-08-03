@@ -45,6 +45,7 @@ import com.logimethods.nats.connector.spark.publish.SparkToNatsConnectorPool;
 public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 
 	protected static final String DEFAULT_SUBJECT = "spark2natsSubject";
+	public static final String NATS_URL = "nats://localhost:4222";
 	static JavaStreamingContext ssc;
 	static Logger logger = null;
 	File tempDir;
@@ -119,7 +120,7 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 	protected StandardNatsSubscriber getStandardNatsSubscriber(final List<String> data, String subject) {
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 
-		StandardNatsSubscriber ns1 = new StandardNatsSubscriber(subject + "_id", subject, data.size());
+		StandardNatsSubscriber ns1 = new StandardNatsSubscriber(NATS_URL, subject + "_id", subject, data.size());
 
 		// start the subscribers apps
 		executor.execute(ns1);

@@ -97,6 +97,7 @@ public class SparkToStreamingNatsConnectorImpl extends SparkToNatsConnector<Spar
 	protected ConnectionFactory getConnectionFactory() throws Exception {
 		if (connectionFactory == null) {
 			connectionFactory = new ConnectionFactory(getClusterID(), getClientID());
+			connectionFactory.setNatsUrl(getNatsURL());
 		}		
 		return connectionFactory;
 	}

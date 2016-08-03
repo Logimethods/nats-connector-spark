@@ -17,8 +17,8 @@ public class StandardNatsSubscriber extends NatsSubscriber {
 	 * @param subject
 	 * @param count
 	 */
-	public StandardNatsSubscriber(String id, String subject, int count) {
-		super(id, subject, count);
+	public StandardNatsSubscriber(String natsUrl, String id, String subject, int count) {
+		super(natsUrl, id, subject, count);
 	}
 
 	@Override
@@ -27,7 +27,7 @@ public class StandardNatsSubscriber extends NatsSubscriber {
 		try {
 			logger.info("NATS Subscriber ({}):  Subscribing to subject: {}", id, subject); //trace
 
-			io.nats.client.Connection c = new ConnectionFactory().createConnection();
+			io.nats.client.Connection c = new ConnectionFactory(natsUrl).createConnection();
 
 			AsyncSubscription s = c.subscribeAsync(subject, this);
 			s.start();

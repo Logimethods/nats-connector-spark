@@ -15,12 +15,14 @@ import io.nats.client.MessageHandler;
  */
 public abstract class NatsSubscriber extends TestClient implements Runnable, MessageHandler
 {
-	String subject = null;
-	boolean checkPayload = true;
+	protected String subject = null;
+	protected String natsUrl;
+	protected boolean checkPayload = true;
 
-	public NatsSubscriber(String id, String subject, int count)
+	public NatsSubscriber(String natsUrl, String id, String subject, int count)
 	{
 		super(id, count);
+		this.natsUrl = natsUrl;
 		this.subject = subject;
 
 		logger.info("Creating NATS Subscriber ({})", id);

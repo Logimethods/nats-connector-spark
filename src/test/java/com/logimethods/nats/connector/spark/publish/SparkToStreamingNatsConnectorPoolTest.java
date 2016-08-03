@@ -59,6 +59,7 @@ public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
 
 	protected static final String DEFAULT_SUBJECT = "spark2natsStreamingSubject";
 	private static final int STANServerPORT = 4223;
+	private static final String STAN_URL = "nats://localhost:" + STANServerPORT;
 	static JavaStreamingContext ssc;
 	static Logger logger = null;
 	File tempDir;
@@ -128,7 +129,7 @@ public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
 	protected StreamingNatsSubscriber getStreamingNatsSubscriber(final List<String> data, String subject, String clusterName, String clientName) {
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 
-		StreamingNatsSubscriber ns = new StreamingNatsSubscriber(subject + "_id", subject, clusterName, clientName, data.size());
+		StreamingNatsSubscriber ns = new StreamingNatsSubscriber(STAN_URL, subject + "_id", subject, clusterName, clientName, data.size());
 
 		// start the subscribers apps
 		executor.execute(ns);
@@ -174,7 +175,7 @@ public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
 
         		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
-        		final SparkToNatsConnectorPool<?> connectorPool = new SparkToStreamingNatsConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2);
+        		final SparkToNatsConnectorPool<?> connectorPool = new SparkToStreamingNatsConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
         		lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
         			@Override
         			public Void call(JavaRDD<String> rdd) throws Exception {

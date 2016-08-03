@@ -7,7 +7,6 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark;
 
-//import io.nats.stan.AsyncSubscription;
 import io.nats.stan.ConnectionFactory;
 import io.nats.stan.Message;
 import io.nats.stan.MessageHandler;
@@ -23,8 +22,8 @@ public class StreamingNatsSubscriber extends NatsSubscriber {
 	 * @param subject
 	 * @param count
 	 */
-	public StreamingNatsSubscriber(String id, String subject, String clusterName, String clientName, int count) {
-		super(id, subject, count);
+	public StreamingNatsSubscriber(String natsUrl, String id, String subject, String clusterName, String clientName, int count) {
+		super(natsUrl, id, subject, count);
 		this.clusterName = clusterName;
 		this.clientName = clientName;
 	}
@@ -35,7 +34,12 @@ public class StreamingNatsSubscriber extends NatsSubscriber {
 		try {
 			logger.info("NATS Subscriber ({}):  Subscribing to subject: {}", id, subject); //trace
 
-			io.nats.stan.Connection c = new ConnectionFactory(clusterName, clientName).createConnection();
+        	final ConnectionFactory connectionFactory = new ConnectionFactory(clusterName, clientName);
+        	if (natsUrl != null) {
+        		connectionFactory.setNatsUrl(natsUrl);
+        	}
+
+			io.nats.stan.Connection c = connectionFactory.createConnection();
 
 //			AsyncSubscription s = c.subscribeAsync(subject, this);
 //			s.start();
