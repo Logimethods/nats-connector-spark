@@ -16,7 +16,7 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 	 */
 	private static final long serialVersionUID = 1L;
 	// TODO No more static, needs to be checked on a cluster
-	protected ConnectionFactory 	connectionFactory = null;
+	protected ConnectionFactory 	connectionFactory;
 	
 	/**
 	 * 

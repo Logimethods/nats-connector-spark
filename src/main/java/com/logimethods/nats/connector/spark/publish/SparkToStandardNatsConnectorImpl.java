@@ -24,8 +24,8 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected transient ConnectionFactory connectionFactory = null;
-	protected transient Connection connection = null;
+	protected transient ConnectionFactory connectionFactory;
+	protected transient Connection connection;
 
 	/**
 	 * @param properties
@@ -114,6 +114,20 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 			connection.close();
 			connection = null;
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SparkToStandardNatsConnectorImpl ["
+				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
+				+ (connection != null ? "connection=" + connection + ", " : "")
+				+ (properties != null ? "properties=" + properties + ", " : "")
+				+ (subjects != null ? "subjects=" + subjects + ", " : "")
+				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
+				+ (publishToNats != null ? "publishToNats=" + publishToNats : "") + "]";
 	}
 
 }

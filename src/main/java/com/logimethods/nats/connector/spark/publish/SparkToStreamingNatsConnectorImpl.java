@@ -24,8 +24,8 @@ public class SparkToStreamingNatsConnectorImpl extends SparkToNatsConnector<Spar
 	private static final long serialVersionUID = 1L;
 	protected final String clusterID = "test-cluster";
 	protected String clientID;
-	protected transient ConnectionFactory connectionFactory = null;
-	protected transient Connection connection = null;
+	protected transient ConnectionFactory connectionFactory;
+	protected transient Connection connection;
 
 	/**
 	 * 

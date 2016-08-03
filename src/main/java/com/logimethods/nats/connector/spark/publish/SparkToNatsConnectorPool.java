@@ -22,16 +22,16 @@ import com.logimethods.nats.connector.spark.Utilities;
  * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
  * @see <a href="https://github.com/Logimethods/nats-connector-spark/blob/master/README.md">NATS / Spark Connectors README (on Github)</a>
  */
-public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsConnector<T> implements Serializable {
+public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsConnector<T> {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5772600382175265781L;
 	
-	protected Properties				properties		= null;
-	protected Collection<String>		subjects 		= null;
-	protected String 					natsURL			= null;
+	protected Properties				properties;
+	protected Collection<String>		subjects;
+	protected String 					natsURL;
 	protected static LinkedList<SparkToNatsConnector<?>> connectorsPool = new LinkedList<SparkToNatsConnector<?>>();
 
 	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnectorPool.class);

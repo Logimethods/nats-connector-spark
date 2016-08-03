@@ -48,8 +48,8 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 	static final Logger logger = LoggerFactory.getLogger(NatsStreamingToSparkConnectorImpl.class);
 
 	protected String clusterID, clientID;
-	protected SubscriptionOptions opts = null;
-	protected SubscriptionOptions.Builder optsBuilder = null;
+	protected SubscriptionOptions opts;
+	protected SubscriptionOptions.Builder optsBuilder;
 
 	/* Constructors with subjects provided by the environment */
 	

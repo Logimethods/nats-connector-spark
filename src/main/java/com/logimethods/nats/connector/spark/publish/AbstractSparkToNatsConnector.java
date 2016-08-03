@@ -7,6 +7,7 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark.publish;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Properties;
 
@@ -14,7 +15,7 @@ import org.slf4j.Logger;
 
 import com.logimethods.nats.connector.spark.Utilities;
 
-public abstract class AbstractSparkToNatsConnector<T> {
+public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	
 	public static final String NATS_SUBJECTS = "nats.io.connector.spark2nats.subjects";
 

@@ -37,8 +37,8 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 
 	static final Logger logger = LoggerFactory.getLogger(NatsToSparkConnector.class);
 	
-	protected Collection<String> subjects = null;
-	protected Properties		 properties = null;
+	protected Collection<String> subjects;
+	protected Properties		 properties;
 	protected String 			 queue;
 
 	public static final String NATS_SUBJECTS = "nats.io.connector.nats2spark.subjects";
