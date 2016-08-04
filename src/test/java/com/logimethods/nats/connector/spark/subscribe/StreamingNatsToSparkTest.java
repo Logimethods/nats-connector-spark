@@ -65,18 +65,18 @@ public class StreamingNatsToSparkTest extends AbstractNatsToSparkTest {
 		return new StreamingNatsPublisher("np", CLUSTER_ID, CLIENT_ID, STAN_URL, DEFAULT_SUBJECT,  nbOfMessages);
 	}
 	
-	@Test
+	@Test(timeout = 8000)
 	public void testNatsToSparkConnectorWithAdditionalSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final JavaReceiverInputDStream<String> messages = 
-				ssc.receiverStream(NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID, CLIENT_ID).withSubjects(DEFAULT_SUBJECT));
+				ssc.receiverStream(NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), STAN_URL, CLUSTER_ID, CLIENT_ID).withSubjects(DEFAULT_SUBJECT));
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}
 
-    @Test
+    @Test(timeout = 5000)
     public void testBasicSubscription() {
         // Run a STAN server
         try (STANServer s = runServer(CLUSTER_ID, false)) {

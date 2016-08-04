@@ -50,13 +50,15 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 	protected String clusterID, clientID;
 	protected SubscriptionOptions opts;
 	protected SubscriptionOptions.Builder optsBuilder;
+	protected String natsUrl;
 
 	/* Constructors with subjects provided by the environment */
 	
-	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID) {
+	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String natsURL, String clusterID, String clientID) {
 		super(storageLevel);
 		this.clusterID = clusterID;
 		this.clientID = clientID;
+		this.natsUrl = natsURL;
 		setQueue();
 //		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
@@ -66,6 +68,14 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 		return this;
 	}
 
+	/**
+	 * @param natsURL the NATS URL to set
+	 */
+/*	public NatsStreamingToSparkConnectorImpl withNatsURL(String natsURL) {
+		this.natsUrl = natsURL;
+		return this;
+	}
+*/
     /**
      * Sets the durable subscriber name for the subscription.
      * 
@@ -217,6 +227,9 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 
 		// Make connection and initialize streams			  
 		final ConnectionFactory connectionFactory = new ConnectionFactory(clusterID, clientID);
+		if (natsUrl != null) {
+			connectionFactory.setNatsUrl(natsUrl);
+		}
 		final Connection connection = connectionFactory.createConnection();
 //		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);
 		
