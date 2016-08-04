@@ -32,6 +32,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	protected Properties				properties;
 	protected Collection<String>		subjects;
 	protected String 					natsURL;
+	// TODO ? Map of connectorsPool by characteristic (hash code based on Streaming or not, natsurl, etc.)
 	protected LinkedList<SparkToNatsConnector<?>> connectorsPool = new LinkedList<SparkToNatsConnector<?>>();
 
 	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnectorPool.class);

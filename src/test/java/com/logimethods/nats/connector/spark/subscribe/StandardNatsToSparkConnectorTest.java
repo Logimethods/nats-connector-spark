@@ -22,9 +22,12 @@ import com.logimethods.nats.connector.spark.NatsPublisher;
 import com.logimethods.nats.connector.spark.StandardNatsPublisher;
 
 public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
+	
+	private static final String DEFAULT_NATS_URL = null;
 
+	@Override
 	protected NatsPublisher getNatsPublisher(final int nbOfMessages) {
-		return new StandardNatsPublisher("np", DEFAULT_SUBJECT,  nbOfMessages);
+		return new StandardNatsPublisher("np", DEFAULT_NATS_URL, DEFAULT_SUBJECT,  nbOfMessages);
 	}
 
 	/**

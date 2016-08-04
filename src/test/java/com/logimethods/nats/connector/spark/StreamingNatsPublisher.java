@@ -7,12 +7,25 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark;
 
-import io.nats.client.ConnectionFactory;
+import io.nats.stan.Connection;
+import io.nats.stan.ConnectionFactory;
 
-public class StandardNatsPublisher extends NatsPublisher {
+public class StreamingNatsPublisher extends NatsPublisher {
 
-	public StandardNatsPublisher(String id, String natsUrl, String subject, int count) {
+	protected final String clusterID, clientID;
+	
+	/**
+	 * @param clusterID
+	 * @param clientID
+	 * @param natsUrl
+	 * @param id
+	 * @param subject
+	 * @param count
+	 */
+	public StreamingNatsPublisher(String id, String clusterID, String clientID, String natsUrl, String subject, int count) {
 		super(id, natsUrl, subject, count);
+		this.clusterID = clusterID;
+		this.clientID = clientID;
 	}
 
 	@Override
@@ -22,10 +35,13 @@ public class StandardNatsPublisher extends NatsPublisher {
 
 			logger.debug("NATS Publisher ({}):  Starting", id);
 
-			ConnectionFactory cf = new ConnectionFactory(natsUrl);
-			io.nats.client.Connection c = cf.createConnection();
+			final ConnectionFactory cf = new ConnectionFactory(clusterID, clientID);
+			if (natsUrl != null) {
+				cf.setNatsUrl(natsUrl);
+			}
+			Connection c = cf.createConnection();
 			
-			logger.debug("A NATS Connection to '{}' has been created.", c.getConnectedUrl());
+			logger.debug("A NATS Connection to '{}' has been created.", c);
 			
 			setReady();
 
@@ -35,7 +51,6 @@ public class StandardNatsPublisher extends NatsPublisher {
 				logger.trace("Publish '{}' to '{}'.", payload, subject);
 				tallyMessage();
 			}
-			c.flush();
 
 			logger.debug("NATS Publisher ({}):  Published {} messages.", id, testCount);
 

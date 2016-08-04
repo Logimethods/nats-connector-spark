@@ -17,12 +17,14 @@ public abstract class NatsPublisher extends TestClient implements Runnable
 	public static final String NATS_PAYLOAD = "Hello from NATS! ";
 	protected static final AtomicInteger INCR = new AtomicInteger();
 
-	String subject = null;
+	String subject;
+	String natsUrl;
 
-	public NatsPublisher(String id, String subject, int count)
+	public NatsPublisher(String id, String natsUrl, String subject, int count)
 	{
 		super(id, count);
 		this.subject = subject;
+		this.natsUrl = natsUrl;
 
 		logger.debug("Creating NATS Publisher ({})", id);
 	}
