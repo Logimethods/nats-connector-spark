@@ -47,7 +47,7 @@ import com.logimethods.nats.connector.spark.subscribe.NatsToSparkConnector;
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
 
-// Call first $~/Applications/nats-streaming-server-darwin-amd64/nats-streaming-server -m 8222 -p 4223
+// Call first $ nats-streaming-server -m 8222 -p 4223
 public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
 
     /**

@@ -15,8 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class STANServer implements Runnable, AutoCloseable {
-    static final String STAN_SERVER = "~/Applications/nats-streaming-server-darwin-amd64/nats-streaming-server";
-    		//"stan-server";
+    static final String STAN_SERVER = "nats-streaming-server";
     // Enable this for additional server debugging info.
     boolean debug = false;
 
