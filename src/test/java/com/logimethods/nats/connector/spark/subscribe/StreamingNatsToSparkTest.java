@@ -62,7 +62,7 @@ public class StreamingNatsToSparkTest extends AbstractNatsToSparkTest {
 
 	@Override
 	protected NatsPublisher getNatsPublisher(int nbOfMessages) {
-		return new StreamingNatsPublisher("np", CLUSTER_ID, CLIENT_ID, STAN_URL, DEFAULT_SUBJECT,  nbOfMessages);
+		return new StreamingNatsPublisher("np", CLUSTER_ID, getUniqueClientName(), STAN_URL, DEFAULT_SUBJECT,  nbOfMessages);
 	}
 	
 	@Test(timeout = 8000)
@@ -71,7 +71,7 @@ public class StreamingNatsToSparkTest extends AbstractNatsToSparkTest {
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final JavaReceiverInputDStream<String> messages = 
-				ssc.receiverStream(NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), STAN_URL, CLUSTER_ID, CLIENT_ID).withSubjects(DEFAULT_SUBJECT));
+				ssc.receiverStream(NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), STAN_URL, CLUSTER_ID, getUniqueClientName()).withSubjects(DEFAULT_SUBJECT));
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}
@@ -79,8 +79,9 @@ public class StreamingNatsToSparkTest extends AbstractNatsToSparkTest {
     @Test(timeout = 5000)
     public void testBasicSubscription() {
         // Run a STAN server
+    	
         try (STANServer s = runServer(CLUSTER_ID, false)) {
-            ConnectionFactory cf = new ConnectionFactory(CLUSTER_ID, CLIENT_ID + (new Date().getTime()));
+            ConnectionFactory cf = new ConnectionFactory(CLUSTER_ID, getUniqueClientName());
             cf.setNatsUrl(STAN_URL);
             try (Connection sc = cf.createConnection()) {
                 SubscriptionOptions sopts = new SubscriptionOptions.Builder().build();
@@ -111,4 +112,8 @@ public class StreamingNatsToSparkTest extends AbstractNatsToSparkTest {
         }
         return srv;
     }
+      
+    static String getUniqueClientName() {
+    	return CLIENT_ID +  + (new Date().getTime());
+    }    
 }

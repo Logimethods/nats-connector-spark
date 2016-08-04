@@ -145,7 +145,7 @@ public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
     public void testBasicPublish() {
         // Run a STAN server
         try (STANServer s = runServer(clusterName, false)) {
-        	ConnectionFactory connectionFactory = new ConnectionFactory(clusterName, getClientName());
+        	ConnectionFactory connectionFactory = new ConnectionFactory(clusterName, getUniqueClientName());
         	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
             try ( Connection sc =
             		connectionFactory.createConnection()) {
@@ -160,7 +160,7 @@ public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
     public void testStreamingSparkToNatsPublish() {
         // Run a STAN server
         try (STANServer s = runServer(clusterName, false)) {
-        	ConnectionFactory connectionFactory = new ConnectionFactory(clusterName, getClientName());
+        	ConnectionFactory connectionFactory = new ConnectionFactory(clusterName, getUniqueClientName());
         	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
             try ( Connection stanc =
             		connectionFactory.createConnection()) {
@@ -168,11 +168,11 @@ public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
         		final List<String> data = getData();
 
         		String subject1 = "subject1";
-        		StreamingNatsSubscriber ns1 = getStreamingNatsSubscriber(data, subject1, clusterName, getClientName() + "_SUB1");
+        		StreamingNatsSubscriber ns1 = getStreamingNatsSubscriber(data, subject1, clusterName, getUniqueClientName() + "_SUB1");
             	logger.debug("ns1 StreamingNatsSubscriber ready");
 
         		String subject2 = "subject2";
-        		StreamingNatsSubscriber ns2 = getStreamingNatsSubscriber(data, subject2, clusterName, getClientName() + "_SUB2");
+        		StreamingNatsSubscriber ns2 = getStreamingNatsSubscriber(data, subject2, clusterName, getUniqueClientName() + "_SUB2");
             	logger.debug("ns2 StreamingNatsSubscriber ready");
 
         		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
@@ -231,7 +231,7 @@ public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
         return srv;
     }
     
-    static String getClientName() {
+    static String getUniqueClientName() {
     	return clientName +  + (new Date().getTime());
     }
 }
