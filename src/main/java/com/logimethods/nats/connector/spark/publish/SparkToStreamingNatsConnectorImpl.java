@@ -113,4 +113,19 @@ public class SparkToStreamingNatsConnectorImpl extends SparkToNatsConnector<Spar
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SparkToStreamingNatsConnectorImpl [" + (clusterID != null ? "clusterID=" + clusterID + ", " : "")
+				+ (clientID != null ? "clientID=" + clientID + ", " : "")
+				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
+				+ (connection != null ? "connection=" + connection + ", " : "")
+				+ (properties != null ? "properties=" + properties + ", " : "")
+				+ (subjects != null ? "subjects=" + subjects + ", " : "")
+				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
+				+ (publishToNats != null ? "publishToNats=" + publishToNats : "") + "]";
+	}
+
 }

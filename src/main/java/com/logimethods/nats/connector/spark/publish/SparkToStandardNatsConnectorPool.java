@@ -52,4 +52,17 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 	protected void setConnectionFactory(ConnectionFactory factory) {
 		connectionFactory = factory;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SparkToStandardNatsConnectorPool ["
+				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
+				+ (properties != null ? "properties=" + properties + ", " : "")
+				+ (subjects != null ? "subjects=" + subjects + ", " : "")
+				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
+				+ (connectorsPool != null ? "connectorsPool=" + connectorsPool : "") + "]";
+	}
 }

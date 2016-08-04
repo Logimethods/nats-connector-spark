@@ -56,7 +56,7 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, TRACE);
+		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, INFO);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, INFO);
 		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, INFO);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorPoolTest.class, INFO);
