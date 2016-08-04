@@ -8,15 +8,11 @@
 package com.logimethods.nats.connector.spark.subscribe;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.logimethods.nats.connector.spark.Utilities;
 
 import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;

@@ -1,4 +1,4 @@
-box: lmagnin/docker-maven-nats
+box: logimethods/maven-nats
 
 build:
   steps:

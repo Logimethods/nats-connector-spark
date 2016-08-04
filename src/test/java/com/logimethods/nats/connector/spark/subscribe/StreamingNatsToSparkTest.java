@@ -49,7 +49,7 @@ public class StreamingNatsToSparkTest extends AbstractNatsToSparkTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		Level level = Level.TRACE;
+		Level level = Level.WARN;
 		UnitTestUtilities.setLogLevel(NatsPublisher.class, level);
 		UnitTestUtilities.setLogLevel(StreamingNatsPublisher.class, level);
 		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
