@@ -50,7 +50,6 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 	protected String clusterID, clientID;
 	protected SubscriptionOptions opts;
 	protected SubscriptionOptions.Builder optsBuilder;
-	protected String natsUrl;
 
 	/* Constructors with subjects provided by the environment */
 	
@@ -64,14 +63,6 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 
 	public NatsStreamingToSparkConnectorImpl withSubscriptionOptionsBuilder(SubscriptionOptions.Builder optsBuilder) {
 		this.optsBuilder = optsBuilder;
-		return this;
-	}
-
-	/**
-	 * @param natsURL the NATS URL to set
-	 */
-	public NatsStreamingToSparkConnectorImpl withNatsURL(String natsURL) {
-		this.natsUrl = natsURL;
 		return this;
 	}
 

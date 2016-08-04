@@ -7,6 +7,8 @@
  *******************************************************************************/
 package com.logimethods.nats.connector.spark.subscribe;
 
+import static io.nats.client.Constants.PROP_URL;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
@@ -40,6 +42,7 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 	protected Collection<String> subjects;
 	protected Properties		 properties;
 	protected String 			 queue;
+	protected String natsUrl;
 
 	public static final String NATS_SUBJECTS = "nats.io.connector.nats2spark.subjects";
 
@@ -69,6 +72,15 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 	@SuppressWarnings("unchecked")
 	public T withProperties(Properties properties) {
 		this.properties = properties;
+		return (T)this;
+	}
+
+	/**
+	 * @param natsURL the NATS URL to set
+	 */
+	@SuppressWarnings("unchecked")
+	public T withNatsURL(String natsURL) {
+		this.natsUrl = natsURL;
 		return (T)this;
 	}
 
@@ -162,6 +174,10 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 	protected Properties getProperties(){
 		if (properties == null) {
 			properties = new Properties(System.getProperties());
+	        // PROP_URL
+	        if ((natsUrl != null) && (properties.containsKey(PROP_URL))) {
+	            properties.setProperty(PROP_URL, natsUrl);
+	        }
 		}
 		return properties;
 	}
