@@ -16,8 +16,6 @@ import java.net.URL;
 
 import org.apache.log4j.Level;
 
-import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
-
 public class UnitTestUtilities {
 
 	private static final String ORG_SLF4J_SIMPLE_LOGGER_LOG = "org.slf4j.simpleLogger.log.";

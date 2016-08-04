@@ -7,15 +7,12 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Properties;
 
 import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.logimethods.connector.nats_spark.Utilities;
 
 /**
  * A Spark to NATS connector.
