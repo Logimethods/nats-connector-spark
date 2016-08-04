@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.connector.nats.spark.subscribe;
+package com.logimethods.connector.nats.to_spark;
 
 import static org.junit.Assert.fail;
 
@@ -27,10 +27,9 @@ import com.logimethods.connector.nats.spark.NatsStreamingPublisher;
 import com.logimethods.connector.nats.spark.STANServer;
 import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
-import com.logimethods.connector.nats.spark.publish.SparkToNatsConnector;
-import com.logimethods.connector.nats.spark.publish.SparkToNatsStreamingConnectorPoolTest;
-import com.logimethods.connector.nats.spark.subscribe.NatsStreamingToSparkConnectorImpl;
-import com.logimethods.connector.nats.spark.subscribe.NatsToSparkConnector;
+import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
+import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
+import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorPoolTest;
 
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;

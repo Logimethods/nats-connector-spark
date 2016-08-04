@@ -1,4 +1,4 @@
-package com.logimethods.connector.nats.spark.subscribe;
+package com.logimethods.connector.nats.to_spark;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.logimethods.connector.nats.spark.NatsPublisher;
 import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
-import com.logimethods.connector.nats.spark.subscribe.NatsToSparkConnector;
+import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 
 public abstract class AbstractNatsToSparkTest {
 	protected static String DEFAULT_SUBJECT_ROOT = "nats2sparkSubject";

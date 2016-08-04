@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.connector.nats.spark.publish;
+package com.logimethods.connector.spark.to_nats;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -13,7 +13,7 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 
-import com.logimethods.connector.nats.spark.Utilities;
+import com.logimethods.connector.nats_spark.Utilities;
 
 public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	

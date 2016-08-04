@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.connector.nats.spark.publish;
+package com.logimethods.connector.spark.to_nats;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -39,10 +39,10 @@ import com.google.common.io.Files;
 import com.logimethods.connector.nats.spark.StandardNatsSubscriber;
 import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
-import com.logimethods.connector.nats.spark.publish.SparkToNatsConnector;
-import com.logimethods.connector.nats.spark.publish.SparkToNatsConnectorPool;
-import com.logimethods.connector.nats.spark.publish.SparkToStandardNatsConnectorImpl;
-import com.logimethods.connector.nats.spark.publish.SparkToStandardNatsConnectorPool;
+import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
+import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
+import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
+import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorPool;
 
 //@Ignore
 @SuppressWarnings("serial")

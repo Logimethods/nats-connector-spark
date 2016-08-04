@@ -5,9 +5,9 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.connector.nats.spark.subscribe;
+package com.logimethods.connector.nats.to_spark;
 
-import static com.logimethods.connector.nats.spark.subscribe.NatsToSparkConnector.NATS_SUBJECTS;
+import static com.logimethods.connector.nats.to_spark.NatsToSparkConnector.NATS_SUBJECTS;
 import static org.junit.Assert.fail;
 
 import java.util.Properties;
@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import com.logimethods.connector.nats.spark.NatsPublisher;
 import com.logimethods.connector.nats.spark.StandardNatsPublisher;
-import com.logimethods.connector.nats.spark.subscribe.NatsToSparkConnector;
+import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 
 public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 	
@@ -32,7 +32,7 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 	}
 
 	/**
-	 * Test method for {@link com.logimethods.connector.nats.spark.subscribe.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String, java.lang.String)}.
+	 * Test method for {@link com.logimethods.connector.nats.to_spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String, java.lang.String)}.
 	 * @throws InterruptedException 
 	 */
 	@Test
@@ -103,7 +103,7 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 	}
 	
 	/**
-	 * Test method for {@link com.logimethods.connector.nats.spark.subscribe.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
+	 * Test method for {@link com.logimethods.connector.nats.to_spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
 	 * @throws InterruptedException 
 	 */
 	@Test
@@ -131,7 +131,7 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 	}
 	
 	/**
-	 * Test method for {@link com.logimethods.connector.nats.spark.subscribe.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
+	 * Test method for {@link com.logimethods.connector.nats.to_spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
 	 * @throws Exception 
 	 */
 	@Test

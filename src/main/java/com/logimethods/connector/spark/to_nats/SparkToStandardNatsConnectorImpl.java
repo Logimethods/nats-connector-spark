@@ -5,41 +5,43 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.connector.nats.spark.publish;
+package com.logimethods.connector.spark.to_nats;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
-import io.nats.stan.Connection;
-import io.nats.stan.ConnectionFactory;
+import org.apache.spark.api.java.function.VoidFunction;
 
-public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNatsStreamingConnectorImpl> {
+import io.nats.client.Connection;
+import io.nats.client.ConnectionFactory;
+import io.nats.client.Message;
+
+public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStandardNatsConnectorImpl> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected final String clusterID = "test-cluster";
-	protected String clientID;
 	protected transient ConnectionFactory connectionFactory;
 	protected transient Connection connection;
 
 	/**
-	 * 
+	 * @param properties
+	 * @param connectionFactory
+	 * @param subjects
 	 */
-	protected SparkToNatsStreamingConnectorImpl() {
+	protected SparkToStandardNatsConnectorImpl() {
 		super();
 	}
-
+	
 	/**
 	 * @param properties
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToNatsStreamingConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
+	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
 		super(natsURL, properties, subjects);
 		this.connectionFactory = connectionFactory;
 	}
@@ -49,40 +51,42 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToNatsStreamingConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, String... subjects) {
+	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, String... subjects) {
 		super(natsURL, properties, subjects);
 		this.connectionFactory = connectionFactory;
 	}
 
 	/**
-	 * @return the clusterID
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	protected String getClusterID() {
-		return clusterID;
+	public VoidFunction<String> publishToNats() throws Exception {
+		return publishToNats;
 	}
 
 	/**
-	 * @return the clientID
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param obj the String that will be published to NATS.
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	protected String getClientID() {
-		return "Client" + new Date().getTime();
-	}
-
-	@Override
 	protected void publishToStr(String str) throws Exception {
-		logger.debug("Received '{}' from Spark", str);
-
 		if (CLOSE_CONNECTION.equals(str)) {
 			closeConnection();
 			return;
 		}
 		
+		final Message natsMessage = new Message();
+	
 		final byte[] payload = str.getBytes();
+		natsMessage.setData(payload, 0, payload.length);
+	
 		final Connection localConnection = getConnection();
 		for (String subject : getDefinedSubjects()) {
-			localConnection.publish(subject, payload);
+			natsMessage.setSubject(subject);
+			localConnection.publish(natsMessage);
 	
-			logger.trace("Publish '{}' from Spark to NATS STREAMING ({})", str, subject);
+			logger.trace("Send '{}' from Spark to NATS ({})", str, subject);
 		}
 	}
 
@@ -96,8 +100,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 
 	protected ConnectionFactory getConnectionFactory() throws Exception {
 		if (connectionFactory == null) {
-			connectionFactory = new ConnectionFactory(getClusterID(), getClientID());
-			connectionFactory.setNatsUrl(getNatsURL());
+			connectionFactory = new ConnectionFactory(getDefinedProperties());
 		}		
 		return connectionFactory;
 	}
@@ -106,7 +109,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 		return getConnectionFactory().createConnection();
 	}
 
-	public synchronized void closeConnection() throws IOException, TimeoutException {
+	public synchronized void closeConnection() {
 		if (connection != null) {
 			connection.close();
 			connection = null;
@@ -118,8 +121,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 */
 	@Override
 	public String toString() {
-		return "SparkToNatsStreamingConnectorImpl [" + (clusterID != null ? "clusterID=" + clusterID + ", " : "")
-				+ (clientID != null ? "clientID=" + clientID + ", " : "")
+		return "SparkToStandardNatsConnectorImpl ["
 				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
 				+ (connection != null ? "connection=" + connection + ", " : "")
 				+ (properties != null ? "properties=" + properties + ", " : "")

@@ -16,7 +16,7 @@ import java.net.URL;
 
 import org.apache.log4j.Level;
 
-import com.logimethods.connector.nats.spark.publish.SparkToNatsConnector;
+import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 
 public class UnitTestUtilities {
 

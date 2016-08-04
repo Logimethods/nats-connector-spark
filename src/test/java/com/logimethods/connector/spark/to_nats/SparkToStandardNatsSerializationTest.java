@@ -1,4 +1,4 @@
-package com.logimethods.connector.nats.spark.publish;
+package com.logimethods.connector.spark.to_nats;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,7 +11,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.logimethods.connector.nats.spark.publish.SparkToStandardNatsConnectorImpl;
+import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
 
 import io.nats.client.ConnectionFactory;
 

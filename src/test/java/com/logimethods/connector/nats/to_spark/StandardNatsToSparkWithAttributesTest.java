@@ -5,9 +5,9 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.connector.nats.spark.subscribe;
+package com.logimethods.connector.nats.to_spark;
 
-import static com.logimethods.connector.nats.spark.subscribe.NatsToSparkConnector.NATS_SUBJECTS;
+import static com.logimethods.connector.nats.to_spark.NatsToSparkConnector.NATS_SUBJECTS;
 import static org.junit.Assert.*;
 
 import java.time.Instant;
@@ -17,9 +17,8 @@ import java.util.Properties;
 import org.apache.spark.storage.StorageLevel;
 import org.junit.Test;
 
-import com.logimethods.connector.nats.spark.subscribe.NatsStandardToSparkConnectorImpl;
-import com.logimethods.connector.nats.spark.subscribe.NatsStreamingToSparkConnectorImpl;
-import com.logimethods.connector.nats.spark.subscribe.NatsToSparkConnector;
+import com.logimethods.connector.nats.to_spark.StandardNatsToSparkConnectorImpl;
+import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 
 import io.nats.stan.SubscriptionOptions;
 
@@ -37,16 +36,16 @@ public class StandardNatsToSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStandardToSparkConnectorImpl_1() {
-		NatsStandardToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY())
+		StandardNatsToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY())
 				.withProperties(PROPERTIES).withSubjects("SUBJECT");
-		assertTrue(connector instanceof NatsStandardToSparkConnectorImpl);
+		assertTrue(connector instanceof StandardNatsToSparkConnectorImpl);
 	}
 
 	@Test
 	public void testNatsStandardToSparkConnectorImpl_2() {
-		NatsStandardToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY())
+		StandardNatsToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY())
 			.withSubjects("SUBJECT").withProperties(PROPERTIES);
-		assertTrue(connector instanceof NatsStandardToSparkConnectorImpl);
+		assertTrue(connector instanceof StandardNatsToSparkConnectorImpl);
 	}
 
 	@Test

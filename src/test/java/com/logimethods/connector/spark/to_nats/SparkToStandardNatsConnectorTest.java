@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.connector.nats.spark.publish;
+package com.logimethods.connector.spark.to_nats;
 
 import static org.junit.Assert.fail;
 
@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 import com.logimethods.connector.nats.spark.StandardNatsSubscriber;
 import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
-import com.logimethods.connector.nats.spark.publish.SparkToNatsConnector;
-import com.logimethods.connector.nats.spark.publish.SparkToStandardNatsConnectorImpl;
+import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
+import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
 
 //@Ignore
 public class SparkToStandardNatsConnectorTest {
