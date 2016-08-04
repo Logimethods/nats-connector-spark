@@ -54,11 +54,10 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 
 	/* Constructors with subjects provided by the environment */
 	
-	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String natsURL, String clusterID, String clientID) {
+	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID) {
 		super(storageLevel);
 		this.clusterID = clusterID;
 		this.clientID = clientID;
-		this.natsUrl = natsURL;
 		setQueue();
 //		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
@@ -71,11 +70,11 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 	/**
 	 * @param natsURL the NATS URL to set
 	 */
-/*	public NatsStreamingToSparkConnectorImpl withNatsURL(String natsURL) {
+	public NatsStreamingToSparkConnectorImpl withNatsURL(String natsURL) {
 		this.natsUrl = natsURL;
 		return this;
 	}
-*/
+
     /**
      * Sets the durable subscriber name for the subscription.
      * 

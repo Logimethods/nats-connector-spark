@@ -51,24 +51,24 @@ public class StandardNatsToSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStreamingToSparkConnectorImpl_1() {
-		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), STAN_URL, CLUSTER_ID, CLIENT_ID)
-				.withProperties(PROPERTIES).withSubjects("SUBJECT");
+		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID, CLIENT_ID)
+				.withNatsURL(STAN_URL).withProperties(PROPERTIES).withSubjects("SUBJECT");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
 	}
 
 	@Test
 	public void testNatsStreamingToSparkConnectorImpl_2() {
 		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME);
-		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), STAN_URL, CLUSTER_ID, CLIENT_ID)
-				.withProperties(PROPERTIES).withSubscriptionOptionsBuilder(optsBuilder).withSubjects("SUBJECT");
+		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID, CLIENT_ID)
+				.withNatsURL(STAN_URL).withProperties(PROPERTIES).withSubscriptionOptionsBuilder(optsBuilder).withSubjects("SUBJECT");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
 		assertEquals(DURABLE_NAME, connector.getSubscriptionOptions().getDurableName());
 	}
 
 	@Test
 	public void testNatsStreamingToSparkConnectorImpl_3() {
-		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), STAN_URL, CLUSTER_ID, CLIENT_ID)
-				.startWithLastReceived().setDurableName(DURABLE_NAME ).withSubjects("SUBJECT");
+		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID, CLIENT_ID)
+				.withNatsURL(STAN_URL).startWithLastReceived().setDurableName(DURABLE_NAME ).withSubjects("SUBJECT");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
 		assertEquals(DURABLE_NAME, connector.getSubscriptionOptions().getDurableName());
 	}
@@ -78,8 +78,8 @@ public class StandardNatsToSparkWithAttributesTest {
 		final Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
 		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME).startAtTime(start);
 		final String newName = "NEW NAME";
-		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), STAN_URL, CLUSTER_ID, CLIENT_ID)
-				.withProperties(PROPERTIES).withSubscriptionOptionsBuilder(optsBuilder).setDurableName(newName).withSubjects("SUBJECT");
+		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID, CLIENT_ID)
+				.withNatsURL(STAN_URL).withProperties(PROPERTIES).withSubscriptionOptionsBuilder(optsBuilder).setDurableName(newName).withSubjects("SUBJECT");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
 		assertEquals(newName, connector.getSubscriptionOptions().getDurableName());
 		assertEquals(start, connector.getSubscriptionOptions().getStartTime());

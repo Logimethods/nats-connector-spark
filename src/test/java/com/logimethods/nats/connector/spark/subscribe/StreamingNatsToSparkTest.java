@@ -71,7 +71,8 @@ public class StreamingNatsToSparkTest extends AbstractNatsToSparkTest {
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final JavaReceiverInputDStream<String> messages = 
-				ssc.receiverStream(NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), STAN_URL, CLUSTER_ID, getUniqueClientName()).withSubjects(DEFAULT_SUBJECT));
+				ssc.receiverStream(NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID, getUniqueClientName())
+						.withNatsURL(STAN_URL).withSubjects(DEFAULT_SUBJECT));
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}
