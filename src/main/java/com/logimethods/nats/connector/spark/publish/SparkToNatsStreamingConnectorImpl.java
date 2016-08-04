@@ -16,7 +16,7 @@ import java.util.concurrent.TimeoutException;
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
 
-public class SparkToStreamingNatsConnectorImpl extends SparkToNatsConnector<SparkToStreamingNatsConnectorImpl> {
+public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNatsStreamingConnectorImpl> {
 
 	/**
 	 * 
@@ -30,7 +30,7 @@ public class SparkToStreamingNatsConnectorImpl extends SparkToNatsConnector<Spar
 	/**
 	 * 
 	 */
-	protected SparkToStreamingNatsConnectorImpl() {
+	protected SparkToNatsStreamingConnectorImpl() {
 		super();
 	}
 
@@ -39,7 +39,7 @@ public class SparkToStreamingNatsConnectorImpl extends SparkToNatsConnector<Spar
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToStreamingNatsConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
+	protected SparkToNatsStreamingConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
 		super(natsURL, properties, subjects);
 		this.connectionFactory = connectionFactory;
 	}
@@ -49,7 +49,7 @@ public class SparkToStreamingNatsConnectorImpl extends SparkToNatsConnector<Spar
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToStreamingNatsConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, String... subjects) {
+	protected SparkToNatsStreamingConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, String... subjects) {
 		super(natsURL, properties, subjects);
 		this.connectionFactory = connectionFactory;
 	}
@@ -118,7 +118,7 @@ public class SparkToStreamingNatsConnectorImpl extends SparkToNatsConnector<Spar
 	 */
 	@Override
 	public String toString() {
-		return "SparkToStreamingNatsConnectorImpl [" + (clusterID != null ? "clusterID=" + clusterID + ", " : "")
+		return "SparkToNatsStreamingConnectorImpl [" + (clusterID != null ? "clusterID=" + clusterID + ", " : "")
 				+ (clientID != null ? "clientID=" + clientID + ", " : "")
 				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
 				+ (connection != null ? "connection=" + connection + ", " : "")

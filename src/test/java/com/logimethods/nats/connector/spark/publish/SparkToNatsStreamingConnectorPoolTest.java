@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
-import com.logimethods.nats.connector.spark.StreamingNatsSubscriber;
+import com.logimethods.nats.connector.spark.NatsStreamingSubscriber;
 import com.logimethods.nats.connector.spark.STANServer;
 import com.logimethods.nats.connector.spark.TestClient;
 import com.logimethods.nats.connector.spark.UnitTestUtilities;
@@ -48,7 +48,7 @@ import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
 
 // Call first $ nats-streaming-server -m 8222 -p 4223
-public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
+public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 
     /**
 	 * 
@@ -72,14 +72,14 @@ public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
 		// Enable tracing for debugging as necessary.
 		Level level = Level.WARN;
 		UnitTestUtilities.setLogLevel(NatsToSparkConnector.class, level);
-		UnitTestUtilities.setLogLevel(SparkToStreamingNatsConnectorPoolTest.class, level);
-		UnitTestUtilities.setLogLevel(SparkToStreamingNatsConnectorImpl.class, level);		
+		UnitTestUtilities.setLogLevel(SparkToNatsStreamingConnectorPoolTest.class, level);
+		UnitTestUtilities.setLogLevel(SparkToNatsStreamingConnectorImpl.class, level);		
 		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);		
 		UnitTestUtilities.setLogLevel(TestClient.class, level);
 		UnitTestUtilities.setLogLevel("org.apache.spark", level);
 		UnitTestUtilities.setLogLevel("org.spark-project", level);
 
-		logger = LoggerFactory.getLogger(SparkToStreamingNatsConnectorPoolTest.class);       
+		logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorPoolTest.class);       
 	}
 
 	/**
@@ -130,10 +130,10 @@ public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
 	 * @param data
 	 * @return
 	 */
-	protected StreamingNatsSubscriber getStreamingNatsSubscriber(final List<String> data, String subject, String clusterName, String clientName) {
+	protected NatsStreamingSubscriber getNatsStreamingSubscriber(final List<String> data, String subject, String clusterName, String clientName) {
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 
-		StreamingNatsSubscriber ns = new StreamingNatsSubscriber(STAN_URL, subject + "_id", subject, clusterName, clientName, data.size());
+		NatsStreamingSubscriber ns = new NatsStreamingSubscriber(STAN_URL, subject + "_id", subject, clusterName, clientName, data.size());
 
 		// start the subscribers apps
 		executor.execute(ns);
@@ -170,16 +170,16 @@ public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
         		final List<String> data = getData();
 
         		String subject1 = "subject1";
-        		StreamingNatsSubscriber ns1 = getStreamingNatsSubscriber(data, subject1, clusterName, getUniqueClientName() + "_SUB1");
-            	logger.debug("ns1 StreamingNatsSubscriber ready");
+        		NatsStreamingSubscriber ns1 = getNatsStreamingSubscriber(data, subject1, clusterName, getUniqueClientName() + "_SUB1");
+            	logger.debug("ns1 NatsStreamingSubscriber ready");
 
         		String subject2 = "subject2";
-        		StreamingNatsSubscriber ns2 = getStreamingNatsSubscriber(data, subject2, clusterName, getUniqueClientName() + "_SUB2");
-            	logger.debug("ns2 StreamingNatsSubscriber ready");
+        		NatsStreamingSubscriber ns2 = getNatsStreamingSubscriber(data, subject2, clusterName, getUniqueClientName() + "_SUB2");
+            	logger.debug("ns2 NatsStreamingSubscriber ready");
 
         		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
-        		final SparkToNatsConnectorPool<?> connectorPool = new SparkToStreamingNatsConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
+        		final SparkToNatsConnectorPool<?> connectorPool = new SparkToNatsStreamingConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
         		lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
         			@Override
         			public Void call(JavaRDD<String> rdd) throws Exception {

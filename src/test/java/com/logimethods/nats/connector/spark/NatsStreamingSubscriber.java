@@ -12,7 +12,7 @@ import io.nats.stan.Message;
 import io.nats.stan.MessageHandler;
 import io.nats.stan.Subscription;
 
-public class StreamingNatsSubscriber extends NatsSubscriber {
+public class NatsStreamingSubscriber extends NatsSubscriber {
 
 	private String clusterName;
 	private String clientName;
@@ -22,7 +22,7 @@ public class StreamingNatsSubscriber extends NatsSubscriber {
 	 * @param subject
 	 * @param count
 	 */
-	public StreamingNatsSubscriber(String natsUrl, String id, String subject, String clusterName, String clientName, int count) {
+	public NatsStreamingSubscriber(String natsUrl, String id, String subject, String clusterName, String clientName, int count) {
 		super(natsUrl, id, subject, count);
 		this.clusterName = clusterName;
 		this.clientName = clientName;

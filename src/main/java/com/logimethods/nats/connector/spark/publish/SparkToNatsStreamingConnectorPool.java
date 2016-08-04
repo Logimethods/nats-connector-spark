@@ -9,7 +9,7 @@ package com.logimethods.nats.connector.spark.publish;
 
 import io.nats.stan.ConnectionFactory;
 
-public class SparkToStreamingNatsConnectorPool extends SparkToNatsConnectorPool<SparkToStreamingNatsConnectorPool> {
+public class SparkToNatsStreamingConnectorPool extends SparkToNatsConnectorPool<SparkToNatsStreamingConnectorPool> {
 
 	/**
 	 * 
@@ -21,7 +21,7 @@ public class SparkToStreamingNatsConnectorPool extends SparkToNatsConnectorPool<
 	/**
 	 * 
 	 */
-	protected SparkToStreamingNatsConnectorPool() {
+	protected SparkToNatsStreamingConnectorPool() {
 		super();
 	}
 
@@ -36,7 +36,7 @@ public class SparkToStreamingNatsConnectorPool extends SparkToNatsConnectorPool<
 			}
 		}
 		
-		return new SparkToStreamingNatsConnectorImpl(getNatsURL(), getDefinedProperties(), getConnectionFactory(), getDefinedSubjects());
+		return new SparkToNatsStreamingConnectorImpl(getNatsURL(), getDefinedProperties(), getConnectionFactory(), getDefinedSubjects());
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class SparkToStreamingNatsConnectorPool extends SparkToNatsConnectorPool<
 	 */
 	@Override
 	public String toString() {
-		return "SparkToStreamingNatsConnectorPool ["
+		return "SparkToNatsStreamingConnectorPool ["
 				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")

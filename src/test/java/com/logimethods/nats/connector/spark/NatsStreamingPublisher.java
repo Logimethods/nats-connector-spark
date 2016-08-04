@@ -10,7 +10,7 @@ package com.logimethods.nats.connector.spark;
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
 
-public class StreamingNatsPublisher extends NatsPublisher {
+public class NatsStreamingPublisher extends NatsPublisher {
 
 	protected final String clusterID, clientID;
 	
@@ -22,7 +22,7 @@ public class StreamingNatsPublisher extends NatsPublisher {
 	 * @param subject
 	 * @param count
 	 */
-	public StreamingNatsPublisher(String id, String clusterID, String clientID, String natsUrl, String subject, int count) {
+	public NatsStreamingPublisher(String id, String clusterID, String clientID, String natsUrl, String subject, int count) {
 		super(id, natsUrl, subject, count);
 		this.clusterID = clusterID;
 		this.clientID = clientID;

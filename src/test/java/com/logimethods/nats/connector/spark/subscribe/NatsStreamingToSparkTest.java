@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory;
 
 import com.logimethods.nats.connector.spark.NatsPublisher;
 import com.logimethods.nats.connector.spark.STANServer;
-import com.logimethods.nats.connector.spark.StreamingNatsPublisher;
+import com.logimethods.nats.connector.spark.NatsStreamingPublisher;
 import com.logimethods.nats.connector.spark.TestClient;
 import com.logimethods.nats.connector.spark.UnitTestUtilities;
 import com.logimethods.nats.connector.spark.publish.SparkToNatsConnector;
-import com.logimethods.nats.connector.spark.publish.SparkToStreamingNatsConnectorPoolTest;
+import com.logimethods.nats.connector.spark.publish.SparkToNatsStreamingConnectorPoolTest;
 
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
@@ -37,7 +37,7 @@ import io.nats.stan.MessageHandler;
 import io.nats.stan.Subscription;
 import io.nats.stan.SubscriptionOptions;
 
-public class StreamingNatsToSparkTest extends AbstractNatsToSparkTest {
+public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 	protected final static String CLUSTER_ID = "test-cluster";
 	protected final static String CLIENT_ID = "CLIENT_ID";
 	private static final int STANServerPORT = 4223;
@@ -51,20 +51,20 @@ public class StreamingNatsToSparkTest extends AbstractNatsToSparkTest {
 		// Enable tracing for debugging as necessary.
 		Level level = Level.WARN;
 		UnitTestUtilities.setLogLevel(NatsPublisher.class, level);
-		UnitTestUtilities.setLogLevel(StreamingNatsPublisher.class, level);
+		UnitTestUtilities.setLogLevel(NatsStreamingPublisher.class, level);
 		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
 		UnitTestUtilities.setLogLevel(NatsStreamingToSparkConnectorImpl.class, level);		
-		UnitTestUtilities.setLogLevel(StreamingNatsToSparkTest.class, level);		
+		UnitTestUtilities.setLogLevel(NatsStreamingToSparkTest.class, level);		
 		UnitTestUtilities.setLogLevel(TestClient.class, level);
 		UnitTestUtilities.setLogLevel("org.apache.spark", level);
 		UnitTestUtilities.setLogLevel("org.spark-project", level);
 
-		logger = LoggerFactory.getLogger(SparkToStreamingNatsConnectorPoolTest.class);       
+		logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorPoolTest.class);       
 	}
 
 	@Override
 	protected NatsPublisher getNatsPublisher(int nbOfMessages) {
-		return new StreamingNatsPublisher("np", CLUSTER_ID, getUniqueClientName(), STAN_URL, DEFAULT_SUBJECT,  nbOfMessages);
+		return new NatsStreamingPublisher("np", CLUSTER_ID, getUniqueClientName(), STAN_URL, DEFAULT_SUBJECT,  nbOfMessages);
 	}
 	
 	@Test(timeout = 8000)
