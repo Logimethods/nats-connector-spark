@@ -56,6 +56,8 @@ public class StreamingNatsToSparkTest extends AbstractNatsToSparkTest {
 		UnitTestUtilities.setLogLevel(NatsStreamingToSparkConnectorImpl.class, level);		
 		UnitTestUtilities.setLogLevel(StreamingNatsToSparkTest.class, level);		
 		UnitTestUtilities.setLogLevel(TestClient.class, level);
+		UnitTestUtilities.setLogLevel("org.apache.spark", level);
+		UnitTestUtilities.setLogLevel("org.spark-project", level);
 
 		logger = LoggerFactory.getLogger(SparkToStreamingNatsConnectorPoolTest.class);       
 	}

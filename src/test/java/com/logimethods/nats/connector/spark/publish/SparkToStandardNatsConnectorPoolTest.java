@@ -18,6 +18,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.apache.log4j.Level.*;
+
+import org.apache.log4j.Level;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
@@ -56,11 +58,14 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, INFO);
-		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, INFO);
-		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, INFO);
-		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorPoolTest.class, INFO);
-		UnitTestUtilities.setLogLevel(TestClient.class, INFO);
+		Level level = Level.WARN;
+		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, level);
+		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, level);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorPoolTest.class, level);
+		UnitTestUtilities.setLogLevel(TestClient.class, level);
+		UnitTestUtilities.setLogLevel("org.apache.spark", level);
+		UnitTestUtilities.setLogLevel("org.spark-project", level);
 
 		logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorPoolTest.class);       
 		

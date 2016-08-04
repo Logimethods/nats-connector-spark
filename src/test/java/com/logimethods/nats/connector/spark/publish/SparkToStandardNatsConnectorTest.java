@@ -47,10 +47,13 @@ public class SparkToStandardNatsConnectorTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, Level.WARN);
-		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, Level.WARN);
-		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorTest.class, Level.WARN);
-		UnitTestUtilities.setLogLevel(TestClient.class, Level.WARN);
+		Level level = Level.WARN;
+		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class,level);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorTest.class, level);
+		UnitTestUtilities.setLogLevel(TestClient.class, level);
+		UnitTestUtilities.setLogLevel("org.apache.spark", level);
+		UnitTestUtilities.setLogLevel("org.spark-project", level);
 		
 		logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorTest.class);       
 

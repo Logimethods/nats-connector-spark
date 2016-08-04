@@ -164,6 +164,10 @@ public class UnitTestUtilities {
 	}
 	
 	public static void setLogLevel(@SuppressWarnings("rawtypes") Class clazz, Level level){
-		System.setProperty(ORG_SLF4J_SIMPLE_LOGGER_LOG + clazz.getCanonicalName(), level.toString());
+		setLogLevel(clazz.getCanonicalName(), level);
+	}
+	
+	public static void setLogLevel(String clazz, Level level){
+		System.setProperty(ORG_SLF4J_SIMPLE_LOGGER_LOG + clazz, level.toString());
 	}
 }

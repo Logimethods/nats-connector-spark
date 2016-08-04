@@ -76,6 +76,8 @@ public class SparkToStreamingNatsConnectorPoolTest implements Serializable {
 		UnitTestUtilities.setLogLevel(SparkToStreamingNatsConnectorImpl.class, level);		
 		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);		
 		UnitTestUtilities.setLogLevel(TestClient.class, level);
+		UnitTestUtilities.setLogLevel("org.apache.spark", level);
+		UnitTestUtilities.setLogLevel("org.spark-project", level);
 
 		logger = LoggerFactory.getLogger(SparkToStreamingNatsConnectorPoolTest.class);       
 	}
