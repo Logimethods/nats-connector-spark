@@ -27,6 +27,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected Properties properties;
 	protected Collection<String> subjects;
 	protected String natsURL;
+	protected transient Integer sealedHashCode;
 
 	/**
 	 * 
@@ -198,6 +199,16 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		result = prime * result + ((publishToNats == null) ? 0 : publishToNats.hashCode());
 		result = prime * result + ((subjects == null) ? 0 : subjects.hashCode());
 		return result;
+	}
+
+	/**
+	 * @return the sealedHashCode
+	 */
+	protected Integer sealedHashCode() {
+		if (sealedHashCode == null) {
+			sealedHashCode = hashCode();
+		}
+		return sealedHashCode;
 	}
 
 	/* (non-Javadoc)
