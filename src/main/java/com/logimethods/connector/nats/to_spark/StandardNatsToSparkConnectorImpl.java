@@ -9,16 +9,21 @@ package com.logimethods.connector.nats.to_spark;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.logimethods.connector.nats_spark.IncompleteException;
 
 import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
 import io.nats.client.Subscription;
+
+import static io.nats.client.Constants.*;
 
 /**
  * A NATS to Spark Connector.
@@ -42,6 +47,8 @@ public class StandardNatsToSparkConnectorImpl extends NatsToSparkConnector<Stand
 	private static final long serialVersionUID = 1L;
 
 	static final Logger logger = LoggerFactory.getLogger(StandardNatsToSparkConnectorImpl.class);
+
+	protected Properties enrichedProperties;
 
 	protected StandardNatsToSparkConnectorImpl(Properties properties, StorageLevel storageLevel, String... subjects) {
 		super(storageLevel, subjects);
@@ -70,11 +77,14 @@ public class StandardNatsToSparkConnectorImpl extends NatsToSparkConnector<Stand
 	}
 
 	/** Create a socket connection and receive data until receiver is stopped 
+	 * @throws IncompleteException 
+	 * @throws TimeoutException 
+	 * @throws IOException 
 	 * @throws Exception **/
-	protected void receive() throws Exception {
+	protected void receive() throws IncompleteException, IOException, TimeoutException {
 
 		// Make connection and initialize streams			  
-		final ConnectionFactory connectionFactory = new ConnectionFactory(getProperties());
+		final ConnectionFactory connectionFactory = new ConnectionFactory(getEnrichedProperties());
 		final Connection connection = connectionFactory.createConnection();
 		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);
 		
@@ -104,6 +114,19 @@ public class StandardNatsToSparkConnectorImpl extends NatsToSparkConnector<Stand
 				}
 			}));
 		}
+	}
+
+	protected Properties getEnrichedProperties() throws IncompleteException {
+		if (enrichedProperties == null) {
+			enrichedProperties = getProperties(); // TODO Clone?
+			if (enrichedProperties == null) {
+				enrichedProperties = new Properties();
+			}
+			if (natsUrl != null) {
+				enrichedProperties.setProperty(PROP_URL, natsUrl);
+			}
+		}
+		return enrichedProperties;
 	}
 }
 

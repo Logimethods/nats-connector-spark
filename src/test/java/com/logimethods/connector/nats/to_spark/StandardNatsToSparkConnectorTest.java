@@ -21,6 +21,7 @@ import org.junit.Test;
 import com.logimethods.connector.nats.spark.NatsPublisher;
 import com.logimethods.connector.nats.spark.StandardNatsPublisher;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
+import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 
 import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
@@ -87,15 +88,13 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 	 * @throws Exception 
 	 */
 	@Test(timeout=6000)
-	public void testNatsToSparkConnectorWITHOUTProperties() throws Exception {
+	public void testNatsToSparkConnectorWITHOUTSubjects() throws Exception {
 		
 		try {
-			NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).receive();
-		} catch (Exception e) {
-			if (e.getMessage().contains("NatsToSparkConnector needs at least one NATS Subject"))
-				return;
-			else
-				throw e;
+			NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withNatsURL(NATS_SERVER_URL).receive();
+		} catch (IncompleteException e) {
+			e.printStackTrace();
+			return;
 		}	
 
 		fail("An Exception(\"NatsToSparkConnector needs at least one Subject\") should have been raised.");

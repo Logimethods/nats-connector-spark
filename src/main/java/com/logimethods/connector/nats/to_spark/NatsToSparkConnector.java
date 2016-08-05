@@ -17,6 +17,7 @@ import org.apache.spark.streaming.receiver.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.nats_spark.Utilities;
 
 /**
@@ -41,7 +42,7 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 	protected Collection<String> subjects;
 	protected Properties		 properties;
 	protected String 			 queue;
-	protected String natsUrl;
+	protected String 			 natsUrl;
 
 	public static final String NATS_SUBJECTS = "nats.io.connector.nats2spark.subjects";
 
@@ -134,11 +135,13 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 		return properties;
 	}
 
-	protected Collection<String> getSubjects() throws Exception {
+	protected Collection<String> getSubjects() throws IncompleteException {
 		if ((subjects ==  null) || (subjects.size() == 0)) {
-			final String subjectsStr = getProperties().getProperty(NATS_SUBJECTS);
+			final String subjectsStr = getProperties() != null ? 
+											getProperties().getProperty(NATS_SUBJECTS)
+											: null;
 			if (subjectsStr == null) {
-				throw new Exception("NatsToSparkConnector needs at least one NATS Subject.");
+				throw new IncompleteException("NatsToSparkConnector needs at least one NATS Subject.");
 			}
 			final String[] subjectsArray = subjectsStr.split(",");
 			subjects = Utilities.transformIntoAList(subjectsArray);
