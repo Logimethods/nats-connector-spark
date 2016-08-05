@@ -96,7 +96,9 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 
 	protected Collection<String> getDefinedSubjects() throws Exception {
 		if ((getSubjects() ==  null) || (getSubjects().size() == 0)) {
-			final String subjectsStr = getProperties().getProperty(NATS_SUBJECTS);
+			final String subjectsStr = getProperties() != null ? 
+											getProperties().getProperty(NATS_SUBJECTS) : 
+											null;
 			if (subjectsStr == null) {
 				throw new Exception("SparkToNatsConnector needs at least one NATS Subject.");
 			}
