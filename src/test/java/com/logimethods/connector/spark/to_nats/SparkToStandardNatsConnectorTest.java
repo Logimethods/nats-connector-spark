@@ -174,24 +174,4 @@ public class SparkToStandardNatsConnectorTest {
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 	}
-
-	@Test(timeout=2000)
-	public void testStaticSparkToNatsWithSystemProperties() throws Exception {   
-		final List<String> data = getData();
-
-		StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, DEFAULT_SUBJECT);
-
-		JavaRDD<String> rdd = sc.parallelize(data);
-
-		System.setProperty(SparkToNatsConnector.NATS_URL, NATS_SERVER_URL);
-		System.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
-
-		try {
-			rdd.foreach(SparkToNatsConnector.newConnection().publishToNats());
-			// wait for the subscribers to complete.
-			ns1.waitForCompletion();
-		} finally {
-			System.clearProperty(SparkToNatsConnector.NATS_SUBJECTS);
-		}		
-	}
 }

@@ -30,7 +30,7 @@ public class SparkToNatsStreamingConnectorPool extends SparkToNatsConnectorPool<
 	 * @throws Exception
 	 */
 	protected SparkToNatsStreamingConnectorImpl newSparkToNatsConnector() throws Exception {
-		return new SparkToNatsStreamingConnectorImpl(getNatsURL(), getDefinedProperties(), getConnectionFactory(), getDefinedSubjects());
+		return new SparkToNatsStreamingConnectorImpl(getNatsURL(), getProperties(), getConnectionFactory(), getDefinedSubjects());
 	}
 
 	/**

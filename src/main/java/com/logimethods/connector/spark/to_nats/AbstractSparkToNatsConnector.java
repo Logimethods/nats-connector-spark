@@ -94,13 +94,6 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 		return (T)this;
 	}
 
-	protected Properties getDefinedProperties() {
-		if (getProperties() == null) {
-			setProperties(new Properties(System.getProperties()));
-		}
-		return getProperties();
-	}
-
 	protected Collection<String> getDefinedSubjects() throws Exception {
 		if ((getSubjects() ==  null) || (getSubjects().size() == 0)) {
 			final String subjectsStr = getProperties().getProperty(NATS_SUBJECTS);

@@ -87,7 +87,6 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 	
 	/**
 	 * Will push into Spark Strings (messages) provided by NATS.
-	 * The settings of the NATS connection can be defined thanks to the System Properties.
 	 *
 	 * @param storageLevel Defines the StorageLevel used by Spark.
 	 * @return a NATS to Spark Connector.
@@ -132,13 +131,6 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 	}
 
 	protected Properties getProperties(){
-		if (properties == null) {
-			properties = new Properties(System.getProperties());
-	        // PROP_URL
-	        if ((natsUrl != null) && (properties.containsKey(PROP_URL))) {
-	            properties.setProperty(PROP_URL, natsUrl);
-	        }
-		}
 		return properties;
 	}
 

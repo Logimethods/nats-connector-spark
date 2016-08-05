@@ -57,19 +57,6 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 	}
 	
 	@Test(timeout=6000)
-	public void testNatsToSparkConnectorWithAdditionalSubjectsAndSystemUrl() throws InterruptedException {
-		
-		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
-		
-		System.setProperty(SparkToNatsConnector.NATS_URL, NATS_SERVER_URL);
-
-		final JavaReceiverInputDStream<String> messages = 
-				ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withSubjects(DEFAULT_SUBJECT));
-
-		validateTheReceptionOfMessages(ssc, messages);
-	}
-	
-	@Test(timeout=6000)
 	public void testNatsToSparkConnectorWithAdditionalPropertiesAndMultipleSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
@@ -112,22 +99,5 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 		}	
 
 		fail("An Exception(\"NatsToSparkConnector needs at least one Subject\") should have been raised.");
-	}
-	
-	@Test(timeout=6000)
-	public void testNatsToSparkConnectorWithSystemProperties() throws InterruptedException {
-		
-		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
-
-		System.setProperty(NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
-		System.setProperty(SparkToNatsConnector.NATS_URL, NATS_SERVER_URL);
-
-		try {
-			final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()));
-
-			validateTheReceptionOfMessages(ssc, messages);
-		} finally {
-			System.clearProperty(NATS_SUBJECTS);
-		}		
 	}
 }

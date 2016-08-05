@@ -25,6 +25,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	public static final String CLOSE_CONNECTION = "___Cl0seConnectION___";
 
 	protected Properties properties;
+
 	protected Collection<String> subjects;
 	protected String natsURL;
 	protected transient Integer sealedHashCode;
@@ -94,6 +95,8 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		this.properties = properties;
 	}
 
+	protected abstract Properties getEnrichedProperties();
+
 	protected abstract void publishToStr(String str) throws Exception;
 
 	/**
@@ -129,7 +132,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 */
 	protected String getNatsURL() {
 		if (natsURL == null) {
-			natsURL = getDefinedProperties().getProperty(getsNatsUrlKey());
+			natsURL = getEnrichedProperties().getProperty(getsNatsUrlKey());
 		}
 		return natsURL;
 	}

@@ -24,6 +24,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	protected Properties enrichedProperties;
 	protected transient ConnectionFactory connectionFactory;
 	protected transient Connection connection;
 
@@ -100,7 +101,13 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 
 	protected ConnectionFactory getConnectionFactory() throws Exception {
 		if (connectionFactory == null) {
-			connectionFactory = new ConnectionFactory(getDefinedProperties());
+			if (getProperties() != null) {
+				connectionFactory = new ConnectionFactory(getProperties());
+			} else if (getNatsURL() != null ) {
+				connectionFactory = new ConnectionFactory(getNatsURL());
+			} else {
+				connectionFactory = new ConnectionFactory();
+			}
 		}		
 		return connectionFactory;
 	}
@@ -118,6 +125,15 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	
 	protected String getsNatsUrlKey() {
 		return NATS_URL;
+	}
+
+	@Override
+	protected Properties getEnrichedProperties() {
+		if ((enrichedProperties == null) && (getProperties() != null)) {
+			enrichedProperties = getProperties();
+			enrichedProperties.setProperty(getsNatsUrlKey(), getNatsURL());
+		}
+		return enrichedProperties;
 	}
 
 	/* (non-Javadoc)
