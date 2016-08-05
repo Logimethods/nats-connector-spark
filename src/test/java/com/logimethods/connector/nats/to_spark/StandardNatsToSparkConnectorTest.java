@@ -22,9 +22,9 @@ import com.logimethods.connector.nats.spark.NatsPublisher;
 import com.logimethods.connector.nats.spark.StandardNatsPublisher;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 import com.logimethods.connector.nats_spark.IncompleteException;
-import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 
 import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
+import static io.nats.client.Constants.*;
 
 public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 	
@@ -39,7 +39,7 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final Properties properties = new Properties();
-		properties.setProperty(SparkToNatsConnector.NATS_URL, NATS_SERVER_URL);
+		properties.setProperty(PROP_URL, NATS_SERVER_URL);
 		final JavaReceiverInputDStream<String> messages = 
 				ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withProperties(properties).withSubjects(DEFAULT_SUBJECT));
 
@@ -77,7 +77,7 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 
 		final Properties properties = new Properties();
 		properties.setProperty(NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
-		properties.setProperty(SparkToNatsConnector.NATS_URL, NATS_SERVER_URL);
+		properties.setProperty(PROP_URL, NATS_SERVER_URL);
 		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withProperties(properties));
 
 		validateTheReceptionOfMessages(ssc, messages);

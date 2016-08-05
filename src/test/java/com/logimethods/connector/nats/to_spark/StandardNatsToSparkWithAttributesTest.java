@@ -18,10 +18,10 @@ import org.apache.spark.storage.StorageLevel;
 import org.junit.Test;
 
 import com.logimethods.connector.nats.to_spark.StandardNatsToSparkConnectorImpl;
-import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 
 import io.nats.stan.SubscriptionOptions;
+import static io.nats.client.Constants.*;
 
 public class StandardNatsToSparkWithAttributesTest {
 	protected final static String CLUSTER_ID = "CLUSTER_ID";
@@ -33,7 +33,7 @@ public class StandardNatsToSparkWithAttributesTest {
 	
 	{
 		PROPERTIES.setProperty(NATS_SUBJECTS, "sub1,sub3 , sub2");
-		PROPERTIES.setProperty(SparkToNatsConnector.NATS_STREAMING_URL, STAN_URL);
+		PROPERTIES.setProperty(PROP_URL, STAN_URL);
 	}
 
 	@Test

@@ -13,11 +13,15 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 
+import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.nats_spark.Utilities;
+
+import static io.nats.client.Constants.*;
+import static com.logimethods.connector.nats_spark.Constants.*;
 
 public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	
-	public static final String NATS_SUBJECTS = "nats.io.connector.spark2nats.subjects";
+//	public static final String NATS_SUBJECTS = "nats.io.connector.spark2nats.subjects";
 //	public static final String NATS_URL = "nats.io.connector.spark2nats.server_url";
 
 	/**
@@ -94,13 +98,13 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 		return (T)this;
 	}
 
-	protected Collection<String> getDefinedSubjects() throws Exception {
+	protected Collection<String> getDefinedSubjects() throws IncompleteException {
 		if ((getSubjects() ==  null) || (getSubjects().size() == 0)) {
 			final String subjectsStr = getProperties() != null ? 
-											getProperties().getProperty(NATS_SUBJECTS) : 
+											getProperties().getProperty(PROP_SUBJECTS) : 
 											null;
 			if (subjectsStr == null) {
-				throw new Exception("SparkToNatsConnector needs at least one NATS Subject.");
+				throw new IncompleteException("SparkToNatsConnector needs at least one NATS Subject.");
 			}
 			final String[] subjectsArray = subjectsStr.split(",");
 			setSubjects(Utilities.transformIntoAList(subjectsArray));

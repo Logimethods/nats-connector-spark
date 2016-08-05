@@ -30,9 +30,6 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected String natsURL;
 	protected transient Integer sealedHashCode;
 	
-	public static final String NATS_URL = io.nats.client.Constants.PROP_URL;	
-	public static final String NATS_STREAMING_URL = "io.nats_streaming.client.url";
-
 	/**
 	 * 
 	 */

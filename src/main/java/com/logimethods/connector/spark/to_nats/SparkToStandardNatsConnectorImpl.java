@@ -7,6 +7,8 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
+import static io.nats.client.Constants.PROP_URL;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Properties;
@@ -124,7 +126,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	}
 	
 	protected String getsNatsUrlKey() {
-		return NATS_URL;
+		return PROP_URL;
 	}
 
 	@Override

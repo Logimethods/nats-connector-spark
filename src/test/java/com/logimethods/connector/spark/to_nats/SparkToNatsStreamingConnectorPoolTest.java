@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
@@ -43,6 +44,7 @@ import com.logimethods.connector.nats.spark.STANServer;
 import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
+import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
 import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorImpl;
@@ -50,6 +52,8 @@ import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorPool
 
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
+
+import static io.nats.client.Constants.*;
 
 // Call first $ nats-streaming-server -m 8222 -p 4223
 public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
@@ -164,64 +168,99 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
     }
 
     @Test(timeout=8000)
-    public void testStreamingSparkToNatsPublish() {
+    public void testStreamingSparkToNatsPublish() throws InterruptedException, IOException, TimeoutException {
+		String subject1 = "subject1";
+		String subject2 = "subject2";
+		final SparkToNatsConnectorPool<?> connectorPool = new SparkToNatsStreamingConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
+
+		validateConnectorPool(subject1, subject2, connectorPool);
+    }
+
+    @Test(expected=IncompleteException.class)
+    public void testEmptyStreamingSparkToNatsPublish() throws Exception {
+		final SparkToNatsConnectorPool<?> connectorPool = new SparkToNatsStreamingConnectorPool();
+		connectorPool.getConnector();
+    }
+
+    @Test(expected=IncompleteException.class)
+    public void testEmptyStreamingSparkToNatsWithEmptyPropertiesPublish() throws Exception {
+		final Properties properties = new Properties();
+		final SparkToNatsConnectorPool<?> connectorPool = new SparkToNatsStreamingConnectorPool().withProperties(properties);
+		connectorPool.getConnector();
+    }
+
+    @Test(timeout=8000)
+    public void testStreamingSparkToNatsWithPROP_URLPropertiesPublish() throws InterruptedException, IOException, TimeoutException {
+		String subject1 = "subject1";
+		String subject2 = "subject2";
+		final Properties properties = new Properties();
+		properties.setProperty(PROP_URL, STAN_URL);
+		final SparkToNatsConnectorPool<?> connectorPool = 
+				new SparkToNatsStreamingConnectorPool().withProperties(properties).withSubjects(DEFAULT_SUBJECT, subject1, subject2);
+
+		validateConnectorPool(subject1, subject2, connectorPool);
+    }
+
+	/**
+	 * @param subject1
+	 * @param subject2
+	 * @param connectorPool
+	 * @throws InterruptedException 
+	 * @throws TimeoutException 
+	 * @throws IOException 
+	 */
+    protected void validateConnectorPool(String subject1, String subject2,
+    		final SparkToNatsConnectorPool<?> connectorPool) throws InterruptedException, IOException, TimeoutException {
+    	
         // Run a STAN server
-        try (STANServer s = runServer(clusterName, false)) {
-        	ConnectionFactory connectionFactory = new ConnectionFactory(clusterName, getUniqueClientName());
-        	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
-            try ( Connection stanc =
-            		connectionFactory.createConnection()) {
-            	logger.debug("ConnectionFactory ready: " + stanc);
-        		final List<String> data = getData();
+    	runServer(clusterName, false);
+    	ConnectionFactory connectionFactory = new ConnectionFactory(clusterName, getUniqueClientName());
+    	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
+    	Connection stanc = connectionFactory.createConnection();
+    	logger.debug("ConnectionFactory ready: " + stanc);
+    	final List<String> data = getData();
 
-        		String subject1 = "subject1";
-        		NatsStreamingSubscriber ns1 = getNatsStreamingSubscriber(data, subject1, clusterName, getUniqueClientName() + "_SUB1");
-            	logger.debug("ns1 NatsStreamingSubscriber ready");
+    	NatsStreamingSubscriber ns1 = getNatsStreamingSubscriber(data, subject1, clusterName, getUniqueClientName() + "_SUB1");
+    	logger.debug("ns1 NatsStreamingSubscriber ready");
 
-        		String subject2 = "subject2";
-        		NatsStreamingSubscriber ns2 = getNatsStreamingSubscriber(data, subject2, clusterName, getUniqueClientName() + "_SUB2");
-            	logger.debug("ns2 NatsStreamingSubscriber ready");
+    	NatsStreamingSubscriber ns2 = getNatsStreamingSubscriber(data, subject2, clusterName, getUniqueClientName() + "_SUB2");
+    	logger.debug("ns2 NatsStreamingSubscriber ready");
 
-        		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+    	JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
-        		final SparkToNatsConnectorPool<?> connectorPool = new SparkToNatsStreamingConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
-        		lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
-        			@Override
-        			public Void call(JavaRDD<String> rdd) throws Exception {
-        				final SparkToNatsConnector<?> connector = connectorPool.getConnector();
-        				rdd.foreachPartition(new VoidFunction<Iterator<String>> (){
-        					@Override
-        					public void call(Iterator<String> strings) throws Exception {
-        						while(strings.hasNext()) {
-        							final String str = strings.next();
-        							logger.debug("Will publish " + str);
-        							connector.publish(str);
-        						}
-        					}
-        				});
-        				connectorPool.returnConnector(connector);  // return to the pool for future reuse
-        				return null;
-        			}			
-        		});
-        		
-        		ssc.start();
+    	lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
+    		@Override
+    		public Void call(JavaRDD<String> rdd) throws Exception {
+    			final SparkToNatsConnector<?> connector = connectorPool.getConnector();
+    			rdd.foreachPartition(new VoidFunction<Iterator<String>> (){
+    				@Override
+    				public void call(Iterator<String> strings) throws Exception {
+    					while(strings.hasNext()) {
+    						final String str = strings.next();
+    						logger.debug("Will publish " + str);
+    						connector.publish(str);
+    					}
+    				}
+    			});
+    			connectorPool.returnConnector(connector);  // return to the pool for future reuse
+    			return null;
+    		}			
+    	});
 
-        		Thread.sleep(1000);
+    	ssc.start();
 
-        		File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
-        		PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
-        		for(String str: data) {
-        			writer.println(str);
-        		}		
-        		writer.close();
+    	Thread.sleep(1000);
 
-        		// wait for the subscribers to complete.
-        		ns1.waitForCompletion();
-        		ns2.waitForCompletion();
-            } catch (IOException | TimeoutException | InterruptedException e) {
-                fail(e.getMessage());
-            }
-        }
+    	File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
+    	PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
+    	for(String str: data) {
+    		writer.println(str);
+    	}		
+    	writer.close();
+
+    	// wait for the subscribers to complete.
+    	ns1.waitForCompletion();
+    	ns2.waitForCompletion();
     }
     
     static STANServer runServer(String clusterID) {

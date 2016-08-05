@@ -16,6 +16,8 @@ import java.util.concurrent.TimeoutException;
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
 
+import static io.nats.client.Constants.*;
+
 public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNatsStreamingConnectorImpl> {
 
 	/**
@@ -114,7 +116,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	}
 	
 	protected String getsNatsUrlKey() {
-		return NATS_STREAMING_URL;
+		return PROP_URL;
 	}
 
 	@Override

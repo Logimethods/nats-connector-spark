@@ -43,6 +43,8 @@ import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
 import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorPool;
 
 import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats_spark.Constants.*;
+import static io.nats.client.Constants.*;
 
 //@Ignore
 @SuppressWarnings("serial")
@@ -252,8 +254,8 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
 		final Properties properties = new Properties();
-		properties.setProperty(SparkToNatsConnector.NATS_URL, NATS_SERVER_URL);
-		properties.setProperty(SparkToNatsConnector.NATS_SUBJECTS, subject1+","+DEFAULT_SUBJECT+" , "+subject2);
+		properties.setProperty(PROP_URL, NATS_SERVER_URL);
+		properties.setProperty(PROP_SUBJECTS, subject1+","+DEFAULT_SUBJECT+" , "+subject2);
 
 		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsConnectorPool.newPool().withProperties(properties);
 		lines.foreachRDD(new Function<JavaRDD<String>, Void> (){

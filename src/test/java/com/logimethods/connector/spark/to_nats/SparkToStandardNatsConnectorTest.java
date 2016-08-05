@@ -7,9 +7,6 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
-import static org.junit.Assert.fail;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -34,6 +31,11 @@ import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
+
+import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats_spark.Constants.*;
+import static org.junit.Assert.fail;
+import static io.nats.client.Constants.*;
 
 //@Ignore
 public class SparkToStandardNatsConnectorTest {
@@ -166,8 +168,8 @@ public class SparkToStandardNatsConnectorTest {
 		JavaRDD<String> rdd = sc.parallelize(data);
 
 		final Properties properties = new Properties();
-		properties.setProperty(SparkToNatsConnector.NATS_URL, NATS_SERVER_URL);
-		properties.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
+		properties.setProperty(PROP_URL, NATS_SERVER_URL);
+		properties.setProperty(PROP_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
 
 		rdd.foreach(SparkToNatsConnector.newConnection().withProperties(properties).publishToNats());		
 
