@@ -30,9 +30,8 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	protected Properties				properties;
 	protected Collection<String>		subjects;
 	protected String 					natsURL;
-	protected transient Integer 		connectorHashCode;
+	protected /*transient*/ Integer 	connectorHashCode;
 	protected static HashMap<Integer, LinkedList<SparkToNatsConnector<?>>> connectorsPoolMap = new HashMap<Integer, LinkedList<SparkToNatsConnector<?>>>();
-			// new LinkedList<SparkToNatsConnector<?>>();
 
 	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnectorPool.class);
 
@@ -93,11 +92,13 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 			if (connectorHashCode != null) {
 				final LinkedList<SparkToNatsConnector<?>> connectorsPool = connectorsPoolMap.get(connectorHashCode);
 				if (connectorsPool.size() > 0) {
+					logger.debug("ConnectorsPool for {} of size {}", connectorHashCode, connectorsPool.size());
 					return connectorsPool.pollFirst();
 				} 
 			}			
 			SparkToNatsConnector<?> newConnector = newSparkToNatsConnector();
 			connectorHashCode = newConnector.sealedHashCode();
+			logger.debug("New SparkToNatsConnector<?> {} created with hashCode {}", newConnector, connectorHashCode);
 			return newConnector;
 		}
 	}

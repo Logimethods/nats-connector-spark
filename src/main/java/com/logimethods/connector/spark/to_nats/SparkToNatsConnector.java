@@ -196,7 +196,6 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		int result = 1;
 		result = prime * result + ((natsURL == null) ? 0 : natsURL.hashCode());
 		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
-		result = prime * result + ((publishToNats == null) ? 0 : publishToNats.hashCode());
 		result = prime * result + ((subjects == null) ? 0 : subjects.hashCode());
 		return result;
 	}
