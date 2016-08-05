@@ -42,12 +42,14 @@ import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
 import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
 import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorPool;
 
+import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
+
 //@Ignore
 @SuppressWarnings("serial")
 public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 
 	protected static final String DEFAULT_SUBJECT = "spark2natsSubject";
-	public static final String NATS_URL = "nats://localhost:4222";
+//	public static final String NATS_URL = "nats://localhost:4222";
 	static JavaStreamingContext ssc;
 	static Logger logger = null;
 	File tempDir;
@@ -126,14 +128,14 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 	protected StandardNatsSubscriber getStandardNatsSubscriber(final List<String> data, String subject) {
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 
-		StandardNatsSubscriber ns1 = new StandardNatsSubscriber(NATS_URL, subject + "_id", subject, data.size());
+		final StandardNatsSubscriber ns = new StandardNatsSubscriber(NATS_SERVER_URL, subject + "_id", subject, data.size());
 
 		// start the subscribers apps
-		executor.execute(ns1);
+		executor.execute(ns);
 
 		// wait for subscribers to be ready.
-		ns1.waitUntilReady();
-		return ns1;
+		ns.waitUntilReady();
+		return ns;
 	}
 
 	@SuppressWarnings("deprecation")
@@ -141,15 +143,16 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 	public void testStaticSparkToNatsIncludingMultipleSubjects() throws Exception {   
 		final List<String> data = getData();
 
-		String subject1 = "subject1";
-		StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
+		final String subject1 = "subject1";
+		final StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
 
-		String subject2 = "subject2";
-		StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
+		final String subject2 = "subject2";
+		final StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
 
-		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
-		final SparkToNatsConnectorPool<?> connectorPool = new SparkToStandardNatsConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2);
+		final SparkToNatsConnectorPool<?> connectorPool = 
+				new SparkToStandardNatsConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL);
 		lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 			@Override
 			public Void call(JavaRDD<String> rdd) throws Exception {
@@ -173,8 +176,8 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 
 		Thread.sleep(1000);
 
-		File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
-		PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
+		final File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
+		final PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
 		for(String str: data) {
 			writer.println(str);
 		}		
@@ -190,15 +193,16 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
 		final List<String> data = getData();
 
-		String subject1 = "subject1";
-		StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
+		final String subject1 = "subject1";
+		final StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
 
-		String subject2 = "subject2";
-		StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
+		final String subject2 = "subject2";
+		final StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
 
-		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
-		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsConnectorPool.newPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2);
+		final SparkToNatsConnectorPool<?> connectorPool = 
+				SparkToNatsConnectorPool.newPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL);
 		lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 			@Override
 			public Void call(JavaRDD<String> rdd) throws Exception {
@@ -222,8 +226,8 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 
 		Thread.sleep(1000);
 
-		File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
-		PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
+		final File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
+		final PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
 		for(String str: data) {
 			writer.println(str);
 		}		
@@ -239,15 +243,16 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 	public void testStaticSparkToNatsWithMultipleProperties() throws Exception {   
 		final List<String> data = getData();
 
-		String subject1 = "subject1";
-		StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
+		final String subject1 = "subject1";
+		final StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
 
-		String subject2 = "subject2";
-		StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
+		final String subject2 = "subject2";
+		final StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
 
-		JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
 		final Properties properties = new Properties();
+		properties.setProperty(SparkToNatsConnector.NATS_URL, NATS_SERVER_URL);
 		properties.setProperty(SparkToNatsConnector.NATS_SUBJECTS, subject1+","+DEFAULT_SUBJECT+" , "+subject2);
 
 		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsConnectorPool.newPool().withProperties(properties);
@@ -274,8 +279,8 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 
 		Thread.sleep(1000);
 
-		File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
-		PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
+		final File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
+		final PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
 		for(String str: data) {
 			writer.println(str);
 		}		

@@ -112,6 +112,10 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 			connection = null;
 		}
 	}
+	
+	protected String getsNatsUrlKey() {
+		return NATS_STREAMING_URL;
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

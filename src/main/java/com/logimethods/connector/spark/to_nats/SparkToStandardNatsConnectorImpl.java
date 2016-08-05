@@ -115,6 +115,10 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 			connection = null;
 		}
 	}
+	
+	protected String getsNatsUrlKey() {
+		return NATS_URL;
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()

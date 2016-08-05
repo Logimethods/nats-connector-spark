@@ -87,45 +87,6 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 	
 	/**
 	 * Will push into Spark Strings (messages) provided by NATS.
-	 *
-	 * @param properties Defines the properties of the connection to NATS.
-	 * @param storageLevel Defines the StorageLevel used by Spark.
-	 * @param subjects The list of NATS subjects to publish to.
-	 * @return a NATS to Spark Connector.
-	 */
-	@Deprecated
-	public static StandardNatsToSparkConnectorImpl receiveFromNats(Properties properties, StorageLevel storageLevel, String... subjects) {
-		return new StandardNatsToSparkConnectorImpl(properties, storageLevel, subjects);
-	}
-
-	/**
-	 * Will push into Spark Strings (messages) provided by NATS.
-	 * The settings of the NATS connection can be defined thanks to the System Properties.
-	 *
-	 * @param storageLevel Defines the StorageLevel used by Spark.
-	 * @param subjects The list of NATS subjects to publish to.
-	 * @return a NATS to Spark Connector.
-	 */
-	@Deprecated
-	public static StandardNatsToSparkConnectorImpl receiveFromNats(StorageLevel storageLevel, String... subjects) {
-		return new StandardNatsToSparkConnectorImpl(storageLevel, subjects);
-	}
-
-	/**
-	 * Will push into Spark Strings (messages) provided by NATS.
-	 * The list of the NATS subjects (separated by ',') needs to be provided by the nats.io.connector.spark.subjects property.
-	 *
-	 * @param properties Defines the properties of the connection to NATS.
-	 * @param storageLevel Defines the StorageLevel used by Spark.
-	 * @return a NATS to Spark Connector.
-	 */
-	@Deprecated
-	public static StandardNatsToSparkConnectorImpl receiveFromNats(Properties properties, StorageLevel storageLevel) {
-		return new StandardNatsToSparkConnectorImpl(properties, storageLevel);
-	}
-
-	/**
-	 * Will push into Spark Strings (messages) provided by NATS.
 	 * The settings of the NATS connection can be defined thanks to the System Properties.
 	 *
 	 * @param storageLevel Defines the StorageLevel used by Spark.

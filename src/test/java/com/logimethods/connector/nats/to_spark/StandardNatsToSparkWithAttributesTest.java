@@ -18,6 +18,7 @@ import org.apache.spark.storage.StorageLevel;
 import org.junit.Test;
 
 import com.logimethods.connector.nats.to_spark.StandardNatsToSparkConnectorImpl;
+import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 
 import io.nats.stan.SubscriptionOptions;
@@ -32,6 +33,7 @@ public class StandardNatsToSparkWithAttributesTest {
 	
 	{
 		PROPERTIES.setProperty(NATS_SUBJECTS, "sub1,sub3 , sub2");
+		PROPERTIES.setProperty(SparkToNatsConnector.NATS_STREAMING_URL, STAN_URL);
 	}
 
 	@Test
@@ -39,6 +41,7 @@ public class StandardNatsToSparkWithAttributesTest {
 		StandardNatsToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY())
 				.withProperties(PROPERTIES).withSubjects("SUBJECT");
 		assertTrue(connector instanceof StandardNatsToSparkConnectorImpl);
+		// TODO Check natsURL
 	}
 
 	@Test

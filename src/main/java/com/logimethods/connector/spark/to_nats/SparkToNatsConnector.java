@@ -28,6 +28,9 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected Collection<String> subjects;
 	protected String natsURL;
 	protected transient Integer sealedHashCode;
+	
+	public static final String NATS_URL = io.nats.client.Constants.PROP_URL;	
+	public static final String NATS_STREAMING_URL = "io.nats_streaming.client.url";
 
 	/**
 	 * 
@@ -53,58 +56,6 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected SparkToNatsConnector(String natsURL, Properties properties, Collection<String> subjects) {
 		super(natsURL, properties, subjects);
 		logger.info("CREATE SparkToNatsConnector {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
-	}
-
-	/**
-	 * @param properties
-	 */
-	protected SparkToNatsConnector(String natsURL, Properties properties) {
-		super(natsURL, properties, (Collection<String>)null);
-		logger.info("CREATE SparkToNatsConnector {} with Properties '{}'.", this, properties);
-	}
-
-	/**
-	 * @param subjects
-	 */
-	protected SparkToNatsConnector(String natsURL, String... subjects) {
-		super(natsURL, null, subjects);
-		logger.info("CREATE SparkToNatsConnector {} with NATS Subjects '{}'.", this, subjects);
-	}
-
-	/**
-	 * Will publish the Strings provided (by Spark) into NATS.
-	 *
-	 * @param properties Defines the properties of the connection to NATS.
-	 * @param subjects The list of NATS subjects to publish to.
-	 * @return a VoidFunction&lt;String&gt;, backed by a SparkToNatsConnector, that can be called to publish messages to NATS.
-	 */
-	@Deprecated
-	public static VoidFunction<String> publishToNats(String natsURL, Properties properties, String... subjects) {
-		return new SparkToStandardNatsConnectorImpl(natsURL, properties, null, subjects).publishToNats;
-	}
-
-	/**
-	 * Will publish the Strings provided (by Spark) into NATS.
-	 * The list of the NATS subjects (separated by ',') needs to be provided by the nats.io.connector.spark.subjects property.
-	 *
-	 * @param properties Defines the properties of the connection to NATS.
-	 * @return a VoidFunction&lt;String&gt;, backed by a SparkToNatsConnector, that can be called to publish messages to NATS.
-	 */
-	@Deprecated
-	public static VoidFunction<String> publishToNats(String natsURL, Properties properties) {
-		return new SparkToStandardNatsConnectorImpl(natsURL, properties, null).publishToNats;
-	}
-
-	/**
-	 * Will publish the Strings provided (by Spark) into NATS.
-	 * The settings of the NATS connection can be defined thanks to the System Properties.
-	 *
-	 * @param subjects The list of NATS subjects to publish to.
-	 * @return a VoidFunction&lt;String&gt;, backed by a SparkToNatsConnector, that can be called to publish messages to NATS.
-	 */
-	@Deprecated
-	public static VoidFunction<String> publishToNats(String natsURL, String... subjects) {
-		return new SparkToStandardNatsConnectorImpl(natsURL, null, null, subjects).publishToNats;
 	}
 
 	/**
@@ -177,8 +128,13 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @return the natsURL
 	 */
 	protected String getNatsURL() {
+		if (natsURL == null) {
+			natsURL = getDefinedProperties().getProperty(getsNatsUrlKey());
+		}
 		return natsURL;
 	}
+
+	protected abstract String getsNatsUrlKey();
 
 	/**
 	 * @return the logger

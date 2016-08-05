@@ -7,6 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
+import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -38,7 +39,6 @@ import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
 public class SparkToStandardNatsConnectorTest {
 
 	protected static final String DEFAULT_SUBJECT = "spark2natsSubject";
-	protected static final String DEFAULT_NATS_URL = "nats://localhost:4222";
 	protected static JavaSparkContext sc;
 	static Logger logger = null;
 
@@ -110,7 +110,7 @@ public class SparkToStandardNatsConnectorTest {
 	protected StandardNatsSubscriber getStandardNatsSubscriber(final List<String> data, String subject) {
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 
-		StandardNatsSubscriber ns1 = new StandardNatsSubscriber(DEFAULT_NATS_URL, subject + "_id", subject, data.size());
+		StandardNatsSubscriber ns1 = new StandardNatsSubscriber(NATS_SERVER_URL, subject + "_id", subject, data.size());
 
 		// start the subscribers apps
 		executor.execute(ns1);
@@ -127,7 +127,7 @@ public class SparkToStandardNatsConnectorTest {
 		JavaRDD<String> rdd = sc.parallelize(data);
 
 		try {
-			rdd.foreach(SparkToNatsConnector.newConnection().publishToNats());
+			rdd.foreach(SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).publishToNats());
 		} catch (Exception e) {
 			if (e.getMessage().contains("SparkToNatsConnector needs at least one NATS Subject"))
 				return;
@@ -136,25 +136,6 @@ public class SparkToStandardNatsConnectorTest {
 		}	
 
 		fail("An Exception(\"SparkToNatsConnector needs at least one Subject\") should have been raised.");
-	}
-
-	@Test(timeout=2000)
-	public void testStaticSparkToNatsIncludingMultipleSubjects() throws Exception {   
-		final List<String> data = getData();
-
-		String subject1 = "subject1";
-		StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
-
-		String subject2 = "subject2";
-		StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
-
-		JavaRDD<String> rdd = sc.parallelize(data);
-
-		rdd.foreach(SparkToNatsConnector.publishToNats(DEFAULT_SUBJECT, subject1, subject2));		
-
-		// wait for the subscribers to complete.
-		ns1.waitForCompletion();
-		ns2.waitForCompletion();
 	}
 
 	@Test(timeout=2000)
@@ -169,27 +150,11 @@ public class SparkToStandardNatsConnectorTest {
 
 		JavaRDD<String> rdd = sc.parallelize(data);
 
-		rdd.foreach(SparkToNatsConnector.newConnection().withSubjects(DEFAULT_SUBJECT, subject1, subject2).publishToNats());		
+		rdd.foreach(SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).withSubjects(DEFAULT_SUBJECT, subject1, subject2).publishToNats());		
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
-	}
-
-	@Test(timeout=2000)
-	public void testStaticSparkToNatsIncludingProperties() throws Exception {   
-		final List<String> data = getData();
-
-		StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, DEFAULT_SUBJECT);
-
-		JavaRDD<String> rdd = sc.parallelize(data);
-
-		final Properties properties = new Properties();
-		properties.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
-		rdd.foreach(SparkToNatsConnector.publishToNats(DEFAULT_NATS_URL, properties));		
-
-		// wait for the subscribers to complete.
-		ns1.waitForCompletion();
 	}
 
 	@Test(timeout=2000)
@@ -201,7 +166,9 @@ public class SparkToStandardNatsConnectorTest {
 		JavaRDD<String> rdd = sc.parallelize(data);
 
 		final Properties properties = new Properties();
+		properties.setProperty(SparkToNatsConnector.NATS_URL, NATS_SERVER_URL);
 		properties.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
+
 		rdd.foreach(SparkToNatsConnector.newConnection().withProperties(properties).publishToNats());		
 
 		// wait for the subscribers to complete.
@@ -216,6 +183,7 @@ public class SparkToStandardNatsConnectorTest {
 
 		JavaRDD<String> rdd = sc.parallelize(data);
 
+		System.setProperty(SparkToNatsConnector.NATS_URL, NATS_SERVER_URL);
 		System.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
 
 		try {

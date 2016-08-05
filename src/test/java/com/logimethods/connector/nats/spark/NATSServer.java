@@ -52,11 +52,10 @@ class NATSServer implements AutoCloseable
 		}
 	}
 
-	public NATSServer()
+/*	public NATSServer()
 	{
 		this(-1);
-	}
-
+	}*/
 
 	public NATSServer(int port)
 	{

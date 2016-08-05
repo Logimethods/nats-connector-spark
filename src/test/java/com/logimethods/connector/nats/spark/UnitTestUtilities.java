@@ -20,11 +20,13 @@ public class UnitTestUtilities {
 
 	private static final String ORG_SLF4J_SIMPLE_LOGGER_LOG = "org.slf4j.simpleLogger.log.";
 	static NATSServer defaultServer = null;
+	public static final int NATS_SERVER_PORT = 4221;
+	public static final String NATS_SERVER_URL = "nats://localhost:"+NATS_SERVER_PORT;
 	Process authServerProcess = null;
 
 	public static synchronized void startDefaultServer() {
 		if (defaultServer == null) {
-			defaultServer = new NATSServer();
+			defaultServer = new NATSServer(NATS_SERVER_PORT);
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {

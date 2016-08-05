@@ -18,6 +18,7 @@ import com.logimethods.connector.nats_spark.Utilities;
 public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	
 	public static final String NATS_SUBJECTS = "nats.io.connector.spark2nats.subjects";
+//	public static final String NATS_URL = "nats.io.connector.spark2nats.server_url";
 
 	/**
 	 * 
