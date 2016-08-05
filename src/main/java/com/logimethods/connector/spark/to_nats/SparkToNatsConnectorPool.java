@@ -8,6 +8,7 @@
 package com.logimethods.connector.spark.to_nats;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Properties;
 
@@ -29,8 +30,9 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	protected Properties				properties;
 	protected Collection<String>		subjects;
 	protected String 					natsURL;
-	// TODO ? Map of connectorsPool by characteristic (hash code based on Streaming or not, natsurl, etc.)
-	protected LinkedList<SparkToNatsConnector<?>> connectorsPool = new LinkedList<SparkToNatsConnector<?>>();
+	protected Integer 					connectorHashCode;
+	protected static HashMap<Integer, LinkedList<SparkToNatsConnector<?>>> connectorsPoolMap = new HashMap<Integer, LinkedList<SparkToNatsConnector<?>>>();
+			// new LinkedList<SparkToNatsConnector<?>>();
 
 	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnectorPool.class);
 
@@ -86,13 +88,38 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @return a SparkToNatsConnector from the Pool of Connectors (if not empty), otherwise create and return a new one.
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	public abstract SparkToNatsConnector<?> getConnector() throws Exception;
+	public SparkToNatsConnector<?> getConnector() throws Exception {
+		synchronized(connectorsPoolMap) {
+			if (connectorHashCode != null) {
+				final LinkedList<SparkToNatsConnector<?>> connectorsPool = connectorsPoolMap.get(connectorHashCode);
+				if (connectorsPool.size() > 0) {
+					return connectorsPool.pollFirst();
+				} 
+			}
+		}
+		
+		SparkToNatsConnector<?> newConnector = newSparkToNatsConnector();
+		connectorHashCode = newConnector.hashCode();
+		return newConnector;
+	}
+
+	/**
+	 * @return
+	 * @throws Exception
+	 */
+	protected abstract SparkToNatsConnector<?> newSparkToNatsConnector() throws Exception;
 	
 	/**
 	 * @param connector the SparkToNatsConnector to add to the Pool of Connectors.
 	 */
 	public void returnConnector(SparkToNatsConnector<?> connector) {
-		synchronized(connectorsPool) {
+		synchronized(connectorsPoolMap) {
+			final int hashCode = connector.hashCode();
+			LinkedList<SparkToNatsConnector<?>> connectorsPool = connectorsPoolMap.get(hashCode);
+			if (connectorsPool == null) {
+				connectorsPool = new LinkedList<SparkToNatsConnector<?>>();
+				connectorsPoolMap.put(hashCode, connectorsPool);
+			}
 			connectorsPool.add(connector);
 		}
 	}

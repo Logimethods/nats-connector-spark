@@ -26,16 +26,10 @@ public class SparkToNatsStreamingConnectorPool extends SparkToNatsConnectorPool<
 	}
 
 	/**
-	 * @return a SparkToNatsConnector from the Pool of Connectors (if not empty), otherwise create and return a new one.
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 * @return
+	 * @throws Exception
 	 */
-	public SparkToNatsConnector<?> getConnector() throws Exception {
-		synchronized(connectorsPool) {
-			if (connectorsPool.size() > 0) {
-				return connectorsPool.pollFirst();
-			}
-		}
-		
+	protected SparkToNatsStreamingConnectorImpl newSparkToNatsConnector() throws Exception {
 		return new SparkToNatsStreamingConnectorImpl(getNatsURL(), getDefinedProperties(), getConnectionFactory(), getDefinedSubjects());
 	}
 
@@ -63,6 +57,6 @@ public class SparkToNatsStreamingConnectorPool extends SparkToNatsConnectorPool<
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")
 				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
-				+ (connectorsPool != null ? "connectorsPool=" + connectorsPool : "") + "]";
+				+ ("connectorsPoolMap=" + connectorsPoolMap) + "]";
 	}
 }

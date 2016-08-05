@@ -185,4 +185,53 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected Logger getLogger() {
 		return logger;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((natsURL == null) ? 0 : natsURL.hashCode());
+		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
+		result = prime * result + ((publishToNats == null) ? 0 : publishToNats.hashCode());
+		result = prime * result + ((subjects == null) ? 0 : subjects.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof SparkToNatsConnector))
+			return false;
+		SparkToNatsConnector<?> other = (SparkToNatsConnector<?>) obj;
+		if (natsURL == null) {
+			if (other.natsURL != null)
+				return false;
+		} else if (!natsURL.equals(other.natsURL))
+			return false;
+		if (properties == null) {
+			if (other.properties != null)
+				return false;
+		} else if (!properties.equals(other.properties))
+			return false;
+		if (publishToNats == null) {
+			if (other.publishToNats != null)
+				return false;
+		} else if (!publishToNats.equals(other.publishToNats))
+			return false;
+		if (subjects == null) {
+			if (other.subjects != null)
+				return false;
+		} else if (!subjects.equals(other.subjects))
+			return false;
+		return true;
+	}
 }
