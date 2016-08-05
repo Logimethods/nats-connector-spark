@@ -7,8 +7,6 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -53,7 +51,9 @@ import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorPool
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
 
+import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Constants.*;
+import static org.junit.Assert.*;
 
 // Call first $ nats-streaming-server -m 8222 -p 4223
 public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
@@ -188,6 +188,15 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 		final SparkToNatsConnectorPool<?> connectorPool = new SparkToNatsStreamingConnectorPool().withProperties(properties);
 		connectorPool.getConnector();
     }
+    
+    @Test()
+    public void testEmptyStreamingSparkToNatsWithFilledPropertiesPublish() throws Exception {
+		final Properties properties = new Properties();
+		properties.setProperty(PROP_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
+		final SparkToNatsConnectorPool<?> connectorPool = new SparkToNatsStreamingConnectorPool().withProperties(properties);
+		final SparkToNatsConnector<?> connector = connectorPool.getConnector();
+		assertEquals(3, connector.getSubjects().size());
+    }
 
     @Test(timeout=8000)
     public void testStreamingSparkToNatsWithPROP_URLPropertiesPublish() throws InterruptedException, IOException, TimeoutException {
@@ -197,6 +206,19 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 		properties.setProperty(PROP_URL, STAN_URL);
 		final SparkToNatsConnectorPool<?> connectorPool = 
 				new SparkToNatsStreamingConnectorPool().withProperties(properties).withSubjects(DEFAULT_SUBJECT, subject1, subject2);
+
+		validateConnectorPool(subject1, subject2, connectorPool);
+    }
+
+    @Test(timeout=8000)
+    public void testStreamingSparkToNatsWithFullPropertiesPublish() throws InterruptedException, IOException, TimeoutException {
+		String subject1 = "subject1";
+		String subject2 = "subject2";
+		final Properties properties = new Properties();
+		properties.setProperty(PROP_URL, STAN_URL);
+		properties.setProperty(PROP_SUBJECTS, subject1 + ","+DEFAULT_SUBJECT+" , "+subject2);
+		final SparkToNatsConnectorPool<?> connectorPool = 
+				new SparkToNatsStreamingConnectorPool().withProperties(properties);
 
 		validateConnectorPool(subject1, subject2, connectorPool);
     }
