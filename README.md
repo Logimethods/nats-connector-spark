@@ -138,7 +138,7 @@ import com.logimethods.nats.connector.spark.SparkToNatsConnector;
 import com.logimethods.nats.connector.spark.SparkToNatsConnectorPool;
 ```
 ```
-final SparkToNatsConnectorPool connectorPool = 
+final SparkToNatsConnectorPool<?> connectorPool = 
 	SparkToNatsConnectorPool.newPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL);
 lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 	@Override
@@ -149,7 +149,7 @@ lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 			public void call(Iterator<String> strings) throws Exception {
 				while(strings.hasNext()) {
 					final String str = strings.next();
-					connector.publishToNats(str);
+					connector.publish(str);
 				}
 			}
 		});
@@ -157,6 +157,20 @@ lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 		return null;
 	}			
 });
+```
+
+The optional settings could be:
+* `withSubjects(String... subjects)`
+* `withNatsURL(String natsURL)`
+* `withProperties(Properties properties)`
+
+### From Spark (Streaming) to *NATS Streaming*
+
+Use the same code as to standard NATS, but with a call to `.newStreamingPool(clusterID)`:
+```
+final SparkToNatsConnectorPool<?> connectorPool = 
+	SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID)
+		.withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
 ```
 
 The optional settings could be:
