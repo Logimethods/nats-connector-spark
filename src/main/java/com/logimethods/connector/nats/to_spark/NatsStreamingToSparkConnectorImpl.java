@@ -239,16 +239,20 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
 				@Override
 				public void run() {
-					logger.info("Caught CTRL-C, shutting down gracefully...");
+					logger.debug("Caught CTRL-C, shutting down gracefully...");
 					try {
 						sub.unsubscribe();
 					} catch (IOException | TimeoutException e) {
-						logger.error("Exception while unsubscribing " + e.toString());
+						if (logger.isDebugEnabled()) {
+							logger.error("Exception while unsubscribing " + e.toString());
+						}
 					}
 					try {
 						connection.close();
 					} catch (IOException | TimeoutException e) {
-						logger.error("Exception while unsubscribing " + e.toString());
+						if (logger.isDebugEnabled()) {
+							logger.error("Exception while unsubscribing " + e.toString());
+						}
 					}
 				}
 			}));
