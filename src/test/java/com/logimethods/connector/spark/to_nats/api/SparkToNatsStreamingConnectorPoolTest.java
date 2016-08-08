@@ -172,21 +172,21 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 		String subject1 = "subject1";
 		String subject2 = "subject2";
 		final SparkToNatsConnectorPool<?> connectorPool = 
-				SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID).withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
+				SparkToNatsConnectorPool.newStreamingPool(clusterID).withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
 
 		validateConnectorPool(subject1, subject2, connectorPool);
     }
 
     @Test(expected=IncompleteException.class)
     public void testEmptyStreamingSparkToNatsPublish() throws Exception {
-		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID);
+		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsConnectorPool.newStreamingPool(clusterID);
 		connectorPool.getConnector();
     }
 
     @Test(expected=IncompleteException.class)
     public void testEmptyStreamingSparkToNatsWithEmptyPropertiesPublish() throws Exception {
 		final Properties properties = new Properties();
-		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID).withProperties(properties);
+		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsConnectorPool.newStreamingPool(clusterID).withProperties(properties);
 		connectorPool.getConnector();
     }
 
@@ -197,7 +197,7 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 		final Properties properties = new Properties();
 		properties.setProperty(PROP_URL, STAN_URL);
 		final SparkToNatsConnectorPool<?> connectorPool = 
-				SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID).withProperties(properties).withSubjects(DEFAULT_SUBJECT, subject1, subject2);
+				SparkToNatsConnectorPool.newStreamingPool(clusterID).withProperties(properties).withSubjects(DEFAULT_SUBJECT, subject1, subject2);
 
 		validateConnectorPool(subject1, subject2, connectorPool);
     }
@@ -210,7 +210,7 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 		properties.setProperty(PROP_URL, STAN_URL);
 		properties.setProperty(PROP_SUBJECTS, subject1 + ","+DEFAULT_SUBJECT+" , "+subject2);
 		final SparkToNatsConnectorPool<?> connectorPool = 
-				SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID).withProperties(properties);
+				SparkToNatsConnectorPool.newStreamingPool(clusterID).withProperties(properties);
 
 		validateConnectorPool(subject1, subject2, connectorPool);
     }

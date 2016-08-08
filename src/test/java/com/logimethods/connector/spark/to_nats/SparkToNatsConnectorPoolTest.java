@@ -70,7 +70,7 @@ public class SparkToNatsConnectorPoolTest {
     public void testStreamingSparkToNatsWithFilledPropertiesPublish() throws Exception {
 		final Properties properties = new Properties();
 		properties.setProperty(PROP_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
-		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID).withProperties(properties);
+		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsConnectorPool.newStreamingPool(clusterID).withProperties(properties);
 		final SparkToNatsConnector<?> connector = connectorPool.getConnector();
 		assertEquals(3, connector.getSubjects().size());
     }
