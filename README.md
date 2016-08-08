@@ -161,7 +161,6 @@ lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 
 The optional settings could be:
 * `withSubjects(String... subjects)`
-* `withQueue(String queue)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
 
@@ -170,10 +169,19 @@ The optional settings could be:
 import com.logimethods.nats.connector.spark.SparkToNatsConnector;
 ```
 ```
-rdd.foreach(SparkToNatsConnector.publishToNats("SubjectA", "SubjectB")); 
+rdd.foreach(
+	SparkToNatsConnector.newConnection()
+		.withNatsURL(NATS_SERVER_URL)
+		.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
+		.publishToNats()); 
 ```
 Be carefull: the connection to NATS is not closed by default.
 To do so, a `SparkToNatsConnector.CLOSE_CONNECTION` String has to be send through Spark to be published by the SparkToNatsConnector.
+
+The optional settings could be:
+* `withSubjects(String... subjects)`
+* `withNatsURL(String natsURL)`
+* `withProperties(Properties properties)`
 
 ## Usage (in Scala)
 _See the Java code to get the list of the available options (properties, subjects, etc.)._
