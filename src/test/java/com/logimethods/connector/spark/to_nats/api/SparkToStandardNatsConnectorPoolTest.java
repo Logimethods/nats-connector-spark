@@ -240,6 +240,38 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		ns2.waitForCompletion();
 	}
 
+	@Test(timeout=8000)
+	public void testStaticSparkToNatsOnDedicatedMethods() throws Exception {   
+		final List<String> data = getData();
+
+		final String subject1 = "subject1";
+		final StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
+
+		final String subject2 = "subject2";
+		final StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
+
+		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+
+		final SparkToNatsConnectorPool<?> connectorPool = 
+				SparkToNatsConnectorPool.newPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL);
+		connectorPool.publishToNats(lines);
+		
+		ssc.start();
+
+		Thread.sleep(1000);
+
+		final File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
+		final PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
+		for(String str: data) {
+			writer.println(str);
+		}		
+		writer.close();
+
+		// wait for the subscribers to complete.
+		ns1.waitForCompletion();
+		ns2.waitForCompletion();
+	}
+
 	@SuppressWarnings("deprecation")
 	@Test(timeout=8000)
 	public void testStaticSparkToNatsWithMultipleProperties() throws Exception {   

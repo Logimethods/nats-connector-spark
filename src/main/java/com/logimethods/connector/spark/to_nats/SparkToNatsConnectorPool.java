@@ -9,9 +9,14 @@ package com.logimethods.connector.spark.to_nats;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Properties;
 
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.VoidFunction;
+import org.apache.spark.streaming.api.java.JavaDStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,6 +103,34 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 			}
 			connectorsPool.add(connector);
 		}
+	}
+	
+	/**
+	 * @param rdd
+	 * @see http://spark.apache.org/docs/1.6.2/streaming-programming-guide.html#design-patterns-for-using-foreachrdd
+	 */
+	@SuppressWarnings("deprecation")
+	public void publishToNats(final JavaDStream<String> rdd) {
+		rdd.foreachRDD(new Function<JavaRDD<String>, Void> (){
+			private static final long serialVersionUID = 8207820410722307714L;
+			@Override
+			public Void call(JavaRDD<String> rdd) throws Exception {
+				final SparkToNatsConnector<?> connector = getConnector();
+				rdd.foreachPartition(new VoidFunction<Iterator<String>> (){
+					private static final long serialVersionUID = -112084074462423271L;
+					@Override
+					public void call(Iterator<String> strings) throws Exception {
+						while(strings.hasNext()) {
+							final String str = strings.next();
+							logger.trace("Will publish " + str);
+							connector.publish(str);
+						}
+					}
+				});
+				returnConnector(connector);  // return to the pool for future reuse
+				return null;
+			}			
+		});
 	}
 
 	/**
