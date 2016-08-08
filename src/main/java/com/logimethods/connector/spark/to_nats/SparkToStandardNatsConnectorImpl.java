@@ -77,7 +77,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	protected void publishToStr(String str) throws Exception {
-		logger.debug("publishToStr '{}'", str);
+		logger.debug("publishToStr '{}' by {} through {}", str, super.toString(), connection);
 		
 		if (CLOSE_CONNECTION.equals(str)) {
 			closeConnection();
@@ -124,10 +124,10 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	}
 
 	public synchronized void closeConnection() {
-		logger.debug("Ready to close '{}'", connection);
+		logger.debug("Ready to close '{}' by {}", connection, super.toString());
 		if (connection != null) {
 			connection.close();
-			logger.debug("{} has been CLOSED", connection);
+			logger.debug("{} has been CLOSED by {}", connection, super.toString());
 			connection = null;
 		}
 	}

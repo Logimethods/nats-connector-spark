@@ -81,7 +81,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * A VoidFunction&lt;String&gt; method that will publish the provided String into NATS through the defined subjects.
 	 */
 	protected VoidFunction<String> publishToNats = new VoidFunction<String>() {
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = 2107780814969814070L;
 
 		@Override
 		public void call(String str) throws Exception {

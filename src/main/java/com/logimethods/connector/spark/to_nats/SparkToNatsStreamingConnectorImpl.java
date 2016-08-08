@@ -96,7 +96,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	protected synchronized Connection getConnection() throws Exception {
 		if (connection == null) {
 			connection = createConnection();
-			getLogger().debug("A NATS Connection {} has been created for {}", connection, this);
+			logger.debug("A NATS Connection {} has been created for {}", connection, this);
 		}
 		return connection;
 	}
