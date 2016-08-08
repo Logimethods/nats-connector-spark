@@ -16,6 +16,7 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 
 ### Version 0.2.0-SNAPSHOT
 - That library uses [JNATS](https://github.com/nats-io/jnats) version 0.4.1, which requires a JVM 1.8.
+- The existing API has been unified (no more `new Object(..., ...).getConnector(..)` like methods, but `Class.newObject(...).withUrl(...).withSubjects(...)`). That way, the API is less prone to confusion between (optional) parameters.
 - To be able to use that connector on a docker-compose based Spark version 1.6.2 Cluster, containers need to belong to an external network (which enforce a hostname without underscore). See [Switch to using hyphens as a separator in hostnames](https://github.com/docker/compose/issues/229):
 ```
 $ docker network create spark
