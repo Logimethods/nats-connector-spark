@@ -9,11 +9,6 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.logimethods/nats-connector-spark/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.logimethods/nats-connector-spark)
 
 ## Release Notes
-### Version 0.1.0
-- That library uses [JNATS](https://github.com/nats-io/jnats) version 0.3.1 to allow compatibility with JVM 1.7 (which is by default used by Spark).
-- Is based on Spark version 1.5.2 to be able to use docker-compose without hostname constrains. See [Underscore in domain names](https://forums.docker.com/t/underscore-in-domain-names/12584/2).
-- **For an accurate documentation regarding that version, please follow the [0.1.0 branch](https://github.com/Logimethods/nats-connector-spark/tree/version_0.1.0)**.
-
 ### Version 0.2.0-SNAPSHOT
 - Introduces connectors to [Nats Streaming](http://www.nats.io/documentation/streaming/nats-streaming-intro/).
 - That library uses [JNATS](https://github.com/nats-io/jnats) version 0.4.1, which requires a JVM 1.8.
@@ -29,6 +24,11 @@ networks:
     external:
       name: spark
 ```
+
+### Version 0.1.0
+- That library uses [JNATS](https://github.com/nats-io/jnats) version 0.3.1 to allow compatibility with JVM 1.7 (which is by default used by Spark).
+- Is based on Spark version 1.5.2 to be able to use docker-compose without hostname constrains. See [Underscore in domain names](https://forums.docker.com/t/underscore-in-domain-names/12584/2).
+- **For an accurate documentation regarding that version, please follow the [0.1.0 branch](https://github.com/Logimethods/nats-connector-spark/tree/version_0.1.0)**.
 
 ## Installation
 
