@@ -109,7 +109,8 @@ final JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200))
 #### While listening to NATS on a list of subjects:
 
 ```
-final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY(), "SubjectA", "SubjectB"));
+final JavaReceiverInputDStream<String> messages = ssc.receiverStream(
+	NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY().withSubjects("SubjectA", "SubjectB").withNatsURL("nats://localhost:4222") );
 ```
 
 #### While listening to a NATS server defined by properties:
@@ -117,7 +118,8 @@ final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSpark
 ```
 final Properties properties = new Properties();
 properties.setProperty(NatsToSparkConnector.NATS_SUBJECTS, "SubjectA,SubjectB , SubjectC");
-final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(properties, StorageLevel.MEMORY_ONLY()));
+final JavaReceiverInputDStream<String> messages = ssc.receiverStream(
+	NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withProperties(properties) );
 ```
 
 ### From Spark (Streaming) to NATS
