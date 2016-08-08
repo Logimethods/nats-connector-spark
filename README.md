@@ -110,7 +110,9 @@ final JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200))
 
 ```
 final JavaReceiverInputDStream<String> messages = ssc.receiverStream(
-	NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY().withSubjects("SubjectA", "SubjectB").withNatsURL("nats://localhost:4222") );
+	NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()
+			    .withSubjects("SubjectA", "SubjectB")
+			    .withNatsURL("nats://localhost:4222") );
 ```
 
 #### While listening to a NATS server defined by properties:
@@ -119,8 +121,15 @@ final JavaReceiverInputDStream<String> messages = ssc.receiverStream(
 final Properties properties = new Properties();
 properties.setProperty(NatsToSparkConnector.NATS_SUBJECTS, "SubjectA,SubjectB , SubjectC");
 final JavaReceiverInputDStream<String> messages = ssc.receiverStream(
-	NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withProperties(properties) );
+	NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY())
+			    .withProperties(properties) );
 ```
+
+The optional settings could be:
+* `withSubjects(String... subjects)`
+* `withQueue(String queue)`
+* `withNatsURL(String natsURL)`
+* `withProperties(Properties properties)`
 
 ### From Spark (Streaming) to NATS
 See [Design Patterns for using foreachRDD](http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd)
