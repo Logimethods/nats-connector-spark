@@ -198,7 +198,7 @@ The optional settings could be:
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
 
-## Usage (in Scala)
+## Usage (in Scala)  *WARNING: NEED TO BE UPDATED TO VERSION 0.2.0*
 _See the Java code to get the list of the available options (properties, subjects, etc.)._
 ### From NATS to Spark (Streaming)
 ```
