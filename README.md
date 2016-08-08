@@ -168,6 +168,7 @@ The optional settings could be:
 
 Use the same code as to standard NATS, but with a call to `.newStreamingPool(clusterID)`:
 ```
+final String clusterID = "test-cluster";
 final SparkToNatsConnectorPool<?> connectorPool = 
 	SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID)
 		.withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
