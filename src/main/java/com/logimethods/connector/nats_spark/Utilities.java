@@ -8,22 +8,28 @@
 package com.logimethods.connector.nats_spark;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Utilities {
 	/**
-	 * @param subjects
+	 * @param elements
 	 * @return
 	 */
-	public static List<String> transformIntoAList(String... subjects) {
-		ArrayList<String> list = new ArrayList<String>(subjects.length);
-		for (String subject: subjects){
-			list.add(subject.trim());
+	public static List<String> transformIntoAList(String... elements) {
+		ArrayList<String> list = new ArrayList<String>(elements.length);
+		for (String element: elements){
+			list.add(element.trim());
 		}
 		return list;
 	}
 	
 	public static long generateUniqueID() {
 		return Thread.currentThread().getId() + java.lang.System.currentTimeMillis();
+	}
+
+	public static Collection<String> extractCollection(String str) {
+		final String[] subjectsArray = str.split(",");
+		return transformIntoAList(subjectsArray);
 	}
 }

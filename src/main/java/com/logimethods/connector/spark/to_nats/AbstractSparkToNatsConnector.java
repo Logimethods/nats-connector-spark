@@ -106,8 +106,7 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 			if (subjectsStr == null) {
 				throw new IncompleteException("SparkToNatsConnector needs at least one NATS Subject.");
 			}
-			final String[] subjectsArray = subjectsStr.split(",");
-			setSubjects(Utilities.transformIntoAList(subjectsArray));
+			setSubjects(Utilities.extractCollection(subjectsStr));
 			getLogger().debug("Subject provided by the Properties: '{}'", getSubjects());
 		}
 		return getSubjects();

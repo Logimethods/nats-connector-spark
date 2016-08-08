@@ -143,8 +143,7 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 			if (subjectsStr == null) {
 				throw new IncompleteException("NatsToSparkConnector needs at least one NATS Subject.");
 			}
-			final String[] subjectsArray = subjectsStr.split(",");
-			subjects = Utilities.transformIntoAList(subjectsArray);
+			subjects = Utilities.extractCollection(subjectsStr);
 			logger.debug("Subject(s) provided by the Properties: '{}'", subjects);
 		}
 		return subjects;

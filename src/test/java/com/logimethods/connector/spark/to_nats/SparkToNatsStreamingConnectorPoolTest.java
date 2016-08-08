@@ -152,7 +152,7 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 		return ns;
 	}
 
-    @Test
+    @Test(timeout=6000)
     public void testBasicPublish() {
         // Run a STAN server
         try (STANServer s = runServer(clusterID, false)) {
@@ -167,7 +167,7 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
         }
     }
 
-    @Test //(timeout=8000)
+    @Test(timeout=8000)
     public void testStreamingSparkToNatsPublish() throws InterruptedException, IOException, TimeoutException {
 		String subject1 = "subject1";
 		String subject2 = "subject2";
