@@ -1,6 +1,6 @@
 # NATS / Spark Connectors
 
-That library provides an [Apache Spark](http://spark.apache.org/) (a fast and general engine for large-scale data processing) integration with the [NATS messaging system](https://nats.io) (a highly performant cloud native messaging system).
+That library provides an [Apache Spark](http://spark.apache.org/) (a fast and general engine for large-scale data processing) integration with the [NATS messaging system](https://nats.io) (a highly performant cloud native messaging system) as well as [NATS Streaming](http://www.nats.io/documentation/streaming/nats-streaming-intro/) (a data streaming system powered by NATS).
 
 [![MIT License](https://img.shields.io/npm/l/express.svg)](http://opensource.org/licenses/MIT)
 [![Issues](https://img.shields.io/github/issues/Logimethods/nats-connector-spark.svg)](https://github.com/Logimethods/nats-connector-spark/issues)
@@ -149,6 +149,8 @@ The optional settings are:
 * `withQueue(String queue)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
+
+as well as options related to [NATS Streaming](https://github.com/nats-io/java-nats-streaming):
 
 * `withSubscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
 * `setDurableName(String durableName)`
