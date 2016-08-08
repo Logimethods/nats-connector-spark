@@ -127,7 +127,7 @@ final JavaReceiverInputDStream<String> messages =
 			.withProperties(properties) );
 ```
 
-The optional settings could be:
+The optional settings are:
 * `withSubjects(String... subjects)`
 * `withQueue(String queue)`
 * `withNatsURL(String natsURL)`
@@ -141,7 +141,7 @@ final JavaReceiverInputDStream<String> messages =
 			.withNatsURL(STAN_URL).withSubjects(DEFAULT_SUBJECT));
 ```
 
-The optional settings could be:
+The optional settings are:
 * `withSubjects(String... subjects)`
 * `withQueue(String queue)`
 * `withNatsURL(String natsURL)`
@@ -157,7 +157,7 @@ SparkToNatsConnectorPool.newPool()
 	.withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL).publishToNats(lines);
 ```
 
-The optional settings could be:
+The optional settings are:
 * `withSubjects(String... subjects)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
@@ -170,7 +170,7 @@ SparkToNatsConnectorPool.newStreamingPool(clusterID)
 	.withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL).publishToNats(lines);
 ```
 
-The optional settings could be:
+The optional settings are:
 * `withSubjects(String... subjects)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
@@ -189,7 +189,7 @@ rdd.foreach(
 Be carefull: the connection to NATS is not closed by default.
 To do so, a `SparkToNatsConnector.CLOSE_CONNECTION` String has to be send through Spark to be published by the SparkToNatsConnector.
 
-The optional settings could be:
+The optional settings are:
 * `withSubjects(String... subjects)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
