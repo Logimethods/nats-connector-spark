@@ -15,6 +15,8 @@ import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.spark.api.java.function.VoidFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
@@ -26,6 +28,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	protected static final Logger logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorImpl.class);
 	protected Properties enrichedProperties;
 	protected transient ConnectionFactory connectionFactory;
 	protected transient Connection connection;
@@ -74,6 +77,8 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	protected void publishToStr(String str) throws Exception {
+		logger.debug("publishToStr '{}'", str);
+		
 		if (CLOSE_CONNECTION.equals(str)) {
 			closeConnection();
 			return;
@@ -96,7 +101,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	protected synchronized Connection getConnection() throws Exception {
 		if (connection == null) {
 			connection = createConnection();
-			getLogger().debug("A NATS Connection {} has been created for {}", connection, this);
+			logger.debug("A NATS Connection {} has been created for {}", connection, this);
 		}
 		return connection;
 	}
@@ -119,8 +124,10 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	}
 
 	public synchronized void closeConnection() {
+		logger.debug("Ready to close '{}'", connection);
 		if (connection != null) {
 			connection.close();
+			logger.debug("{} has been CLOSED", connection);
 			connection = null;
 		}
 	}

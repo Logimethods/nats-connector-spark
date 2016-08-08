@@ -17,6 +17,7 @@ import org.apache.log4j.Level;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.VoidFunction;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -51,8 +52,8 @@ public class SparkToStandardNatsConnectorTest {
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
 		Level level = Level.WARN;
-		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
-		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class,level);
+		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, Level.TRACE);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, Level.TRACE);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorTest.class, level);
 		UnitTestUtilities.setLogLevel(TestClient.class, level);
 		UnitTestUtilities.setLogLevel("org.apache.spark", level);
@@ -152,7 +153,9 @@ public class SparkToStandardNatsConnectorTest {
 
 		JavaRDD<String> rdd = sc.parallelize(data);
 
-		rdd.foreach(SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).withSubjects(DEFAULT_SUBJECT, subject1, subject2).publishToNats());		
+		final VoidFunction<String> publishToNats = SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).withSubjects(DEFAULT_SUBJECT, subject1, subject2).publishToNats();
+		rdd.foreach(publishToNats);	
+		publishToNats.call(SparkToNatsConnector.CLOSE_CONNECTION);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();

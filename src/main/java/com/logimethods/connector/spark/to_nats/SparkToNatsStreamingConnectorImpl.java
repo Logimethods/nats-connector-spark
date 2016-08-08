@@ -12,6 +12,9 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.logimethods.connector.nats_spark.Utilities;
 
 import io.nats.stan.Connection;
@@ -25,6 +28,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	protected static final Logger logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorImpl.class);
 	protected final String clusterID;
 	protected final static String CLIENT_ID_ROOT = "SparkToNatsStreamingConnector_";
 	protected transient String clientID;
