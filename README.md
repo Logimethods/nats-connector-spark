@@ -134,29 +134,12 @@ The optional settings could be:
 ### From Spark (Streaming) to NATS
 See [Design Patterns for using foreachRDD](http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd)
 ```
-import com.logimethods.nats.connector.spark.SparkToNatsConnector;
 import com.logimethods.nats.connector.spark.SparkToNatsConnectorPool;
+final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 ```
 ```
-final SparkToNatsConnectorPool<?> connectorPool = 
-	SparkToNatsConnectorPool.newPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL);
-lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
-	@Override
-	public Void call(JavaRDD<String> rdd) throws Exception {
-		final SparkToNatsConnector<?> connector = connectorPool.getConnector();
-		rdd.foreachPartition(new VoidFunction<Iterator<String>> (){
-			@Override
-			public void call(Iterator<String> strings) throws Exception {
-				while(strings.hasNext()) {
-					final String str = strings.next();
-					connector.publish(str);
-				}
-			}
-		});
-		connectorPool.returnConnector(connector);  // return to the pool for future reuse
-		return null;
-	}			
-});
+SparkToNatsConnectorPool.newPool()
+	.withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL).publishToNats(lines);
 ```
 
 The optional settings could be:
@@ -166,12 +149,10 @@ The optional settings could be:
 
 ### From Spark (Streaming) to *NATS Streaming*
 
-Use the same code as to standard NATS, but with a call to `.newStreamingPool(clusterID)`:
 ```
 final String clusterID = "test-cluster";
-final SparkToNatsConnectorPool<?> connectorPool = 
-	SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID)
-		.withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
+SparkToNatsConnectorPool.newStreamingPool(clusterID)
+	.withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL).publishToNats(lines);
 ```
 
 The optional settings could be:
