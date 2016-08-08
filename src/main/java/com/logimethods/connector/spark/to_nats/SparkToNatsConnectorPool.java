@@ -15,6 +15,11 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logimethods.connector.nats_spark.Utilities;
+
+import static com.logimethods.connector.nats_spark.Constants.*;
+import static io.nats.client.Constants.*;
+
 /**
  * A pool of SparkToNatsConnector(s).
  * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
@@ -35,39 +40,6 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 
 	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnectorPool.class);
 
-/*	*//**
-	 * Create a pool of SparkToNatsConnector(s). 
-	 * A connector can be obtained from that pool through getConnector() and released through returnConnector(SparkToNatsConnector connector).
-	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
-	 *//*
-	public SparkToNatsConnectorPool() {
-		super();
-		logger.debug("CREATE SparkToNatsConnectorPool: " + this);
-	}
-
-	*//**
-	 * Create a pool of SparkToNatsConnector(s).
-	 * A connector can be obtained from that pool through getConnector() and released through returnConnector(SparkToNatsConnector connector).
-	 * @param properties defines the properties of the connection to NATS.
-	 * @param subjects defines the NATS subjects to which the messages will be pushed.
-	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
-	 *//*
-	public SparkToNatsConnectorPool(String natsURL, Properties properties, String... subjects) {
-		super(natsURL, properties, subjects);
-		logger.debug("CREATE SparkToNatsConnectorPool {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
-	}
-
-	*//**
-	 * Create a pool of SparkToNatsConnector(s).
-	 * A connector can be obtained from that pool through getConnector() and released through returnConnector(SparkToNatsConnector connector).
-	 * @param properties defines the properties of the connection to NATS.
-	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
-	 *//*
-	public SparkToNatsConnectorPool(Properties properties) {
-		super(null, properties, (Collection<String>)null);
-		logger.debug("CREATE SparkToNatsConnectorPool {} with Properties '{}'.", this, properties);
-	}
-*/
 	/**
 	 * Create a pool of SparkToNatsConnector(s).
 	 * A connector can be obtained from that pool through getConnector() and released through returnConnector(SparkToNatsConnector connector).
@@ -140,6 +112,14 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 */
 	protected void setProperties(Properties properties) {
 		this.properties = properties;
+		if (properties != null) {
+			if (properties.containsKey(PROP_SUBJECTS)) {
+				setSubjects(Utilities.extractCollection(properties.getProperty(PROP_SUBJECTS)));
+			}
+			if (properties.containsKey(PROP_URL)) {
+				setNatsURL(properties.getProperty(PROP_URL));
+			}
+		}
 	}
 
 	/**
