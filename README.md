@@ -135,9 +135,10 @@ The optional settings are:
 
 ### From *NATS Streaming* to Spark (Streaming)
 ```
+final String clusterID = "test-cluster";
 final JavaReceiverInputDStream<String> messages = 
 	ssc.receiverStream(
-		NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+		NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), clusterID)
 			.withNatsURL(STAN_URL).withSubjects(DEFAULT_SUBJECT));
 ```
 
