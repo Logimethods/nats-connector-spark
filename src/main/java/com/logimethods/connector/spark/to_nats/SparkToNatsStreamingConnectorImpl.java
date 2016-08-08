@@ -24,16 +24,29 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected final String clusterID = "test-cluster";
-	protected String clientID;
+	protected final String clusterID;
+	protected final static String CLIENT_ID_ROOT = "SparkToNatsStreamingConnector_";
+	protected transient String clientID;
 	protected transient ConnectionFactory connectionFactory;
 	protected transient Connection connection;
 
 	/**
 	 * 
-	 */
-	protected SparkToNatsStreamingConnectorImpl() {
+	protected SparkToNatsStreamingConnectorImpl(String clusterID) {
 		super();
+		this.clusterID = clusterID;
+	}
+	 */
+
+	/**
+	 * @param properties
+	 * @param connectionFactory
+	 * @param subjects
+	 */
+	protected SparkToNatsStreamingConnectorImpl(String clusterID, String natsURL, Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
+		super(natsURL, properties, subjects);
+		this.connectionFactory = connectionFactory;
+		this.clusterID = clusterID;
 	}
 
 	/**
@@ -41,33 +54,20 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToNatsStreamingConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
+	protected SparkToNatsStreamingConnectorImpl(String clusterID, String natsURL, Properties properties, ConnectionFactory connectionFactory, String... subjects) {
 		super(natsURL, properties, subjects);
 		this.connectionFactory = connectionFactory;
-	}
-
-	/**
-	 * @param properties
-	 * @param connectionFactory
-	 * @param subjects
-	 */
-	protected SparkToNatsStreamingConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, String... subjects) {
-		super(natsURL, properties, subjects);
-		this.connectionFactory = connectionFactory;
-	}
-
-	/**
-	 * @return the clusterID
-	 */
-	protected String getClusterID() {
-		return clusterID;
+		this.clusterID = clusterID;
 	}
 
 	/**
 	 * @return the clientID
 	 */
 	protected String getClientID() {
-		return "Client" + new Date().getTime();
+		if (clientID == null ) {
+			clientID = CLIENT_ID_ROOT + new Date().getTime();
+		}
+		return clientID;
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 
 	protected ConnectionFactory getConnectionFactory() throws Exception {
 		if (connectionFactory == null) {
-			connectionFactory = new ConnectionFactory(getClusterID(), getClientID());
+			connectionFactory = new ConnectionFactory(clusterID, getClientID());
 			connectionFactory.setNatsUrl(getNatsURL());
 		}		
 		return connectionFactory;

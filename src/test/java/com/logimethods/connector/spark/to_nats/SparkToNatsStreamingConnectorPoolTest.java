@@ -62,8 +62,8 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	static final String clusterName = "test-cluster"; //"my_test_cluster";
-    static final String clientName = "me";
+	static final String clusterID = "test-cluster"; //"my_test_cluster";
+//    static final String clientName = "me";
 
 	protected static final String DEFAULT_SUBJECT = "spark2natsStreamingSubject";
 	private static final int STANServerPORT = 4223;
@@ -155,8 +155,8 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
     @Test
     public void testBasicPublish() {
         // Run a STAN server
-        try (STANServer s = runServer(clusterName, false)) {
-        	ConnectionFactory connectionFactory = new ConnectionFactory(clusterName, getUniqueClientName());
+        try (STANServer s = runServer(clusterID, false)) {
+        	ConnectionFactory connectionFactory = new ConnectionFactory(clusterID, getUniqueClientName());
         	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
             try ( Connection sc =
             		connectionFactory.createConnection()) {
@@ -167,33 +167,34 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
         }
     }
 
-    @Test(timeout=8000)
+    @Test //(timeout=8000)
     public void testStreamingSparkToNatsPublish() throws InterruptedException, IOException, TimeoutException {
 		String subject1 = "subject1";
 		String subject2 = "subject2";
-		final SparkToNatsConnectorPool<?> connectorPool = new SparkToNatsStreamingConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
+		final SparkToNatsConnectorPool<?> connectorPool = 
+				new SparkToNatsStreamingConnectorPool(clusterID).withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
 
 		validateConnectorPool(subject1, subject2, connectorPool);
     }
 
     @Test(expected=IncompleteException.class)
     public void testEmptyStreamingSparkToNatsPublish() throws Exception {
-		final SparkToNatsConnectorPool<?> connectorPool = new SparkToNatsStreamingConnectorPool();
+		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID);
 		connectorPool.getConnector();
     }
 
     @Test(expected=IncompleteException.class)
     public void testEmptyStreamingSparkToNatsWithEmptyPropertiesPublish() throws Exception {
 		final Properties properties = new Properties();
-		final SparkToNatsConnectorPool<?> connectorPool = new SparkToNatsStreamingConnectorPool().withProperties(properties);
+		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID).withProperties(properties);
 		connectorPool.getConnector();
     }
     
     @Test()
-    public void testEmptyStreamingSparkToNatsWithFilledPropertiesPublish() throws Exception {
+    public void testStreamingSparkToNatsWithFilledPropertiesPublish() throws Exception {
 		final Properties properties = new Properties();
 		properties.setProperty(PROP_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
-		final SparkToNatsConnectorPool<?> connectorPool = new SparkToNatsStreamingConnectorPool().withProperties(properties);
+		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID).withProperties(properties);
 		final SparkToNatsConnector<?> connector = connectorPool.getConnector();
 		assertEquals(3, connector.getSubjects().size());
     }
@@ -205,7 +206,7 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 		final Properties properties = new Properties();
 		properties.setProperty(PROP_URL, STAN_URL);
 		final SparkToNatsConnectorPool<?> connectorPool = 
-				new SparkToNatsStreamingConnectorPool().withProperties(properties).withSubjects(DEFAULT_SUBJECT, subject1, subject2);
+				SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID).withProperties(properties).withSubjects(DEFAULT_SUBJECT, subject1, subject2);
 
 		validateConnectorPool(subject1, subject2, connectorPool);
     }
@@ -218,7 +219,7 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 		properties.setProperty(PROP_URL, STAN_URL);
 		properties.setProperty(PROP_SUBJECTS, subject1 + ","+DEFAULT_SUBJECT+" , "+subject2);
 		final SparkToNatsConnectorPool<?> connectorPool = 
-				new SparkToNatsStreamingConnectorPool().withProperties(properties);
+				SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID).withProperties(properties);
 
 		validateConnectorPool(subject1, subject2, connectorPool);
     }
@@ -235,17 +236,17 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
     		final SparkToNatsConnectorPool<?> connectorPool) throws InterruptedException, IOException, TimeoutException {
     	
         // Run a STAN server
-    	runServer(clusterName, false);
-    	ConnectionFactory connectionFactory = new ConnectionFactory(clusterName, getUniqueClientName());
+    	runServer(clusterID, false);
+    	ConnectionFactory connectionFactory = new ConnectionFactory(clusterID, getUniqueClientName());
     	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
     	Connection stanc = connectionFactory.createConnection();
     	logger.debug("ConnectionFactory ready: " + stanc);
     	final List<String> data = getData();
 
-    	NatsStreamingSubscriber ns1 = getNatsStreamingSubscriber(data, subject1, clusterName, getUniqueClientName() + "_SUB1");
+    	NatsStreamingSubscriber ns1 = getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1");
     	logger.debug("ns1 NatsStreamingSubscriber ready");
 
-    	NatsStreamingSubscriber ns2 = getNatsStreamingSubscriber(data, subject2, clusterName, getUniqueClientName() + "_SUB2");
+    	NatsStreamingSubscriber ns2 = getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB2");
     	logger.debug("ns2 NatsStreamingSubscriber ready");
 
     	JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
@@ -300,6 +301,6 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
     }
     
     static String getUniqueClientName() {
-    	return clientName +  + (new Date().getTime());
+    	return "clientName_"  + (new Date().getTime());
     }
 }

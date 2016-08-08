@@ -15,22 +15,25 @@ public class SparkToNatsStreamingConnectorPool extends SparkToNatsConnectorPool<
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	protected String clusterID;
 	// TODO No more static, needs to be checked on a cluster
 	protected ConnectionFactory 	connectionFactory;
 	
 	/**
 	 * 
 	 */
-	protected SparkToNatsStreamingConnectorPool() {
+	protected SparkToNatsStreamingConnectorPool(String clusterID) {
 		super();
+		this.clusterID = clusterID;
 	}
 
 	/**
 	 * @return
 	 * @throws Exception
 	 */
-	protected SparkToNatsStreamingConnectorImpl newSparkToNatsConnector() throws Exception {
-		return new SparkToNatsStreamingConnectorImpl(getNatsURL(), getProperties(), getConnectionFactory(), getDefinedSubjects());
+	@Override
+	public SparkToNatsStreamingConnectorImpl newSparkToNatsConnector() throws Exception {
+		return new SparkToNatsStreamingConnectorImpl(clusterID, getNatsURL(), getProperties(), getConnectionFactory(), getDefinedSubjects());
 	}
 
 	/**
