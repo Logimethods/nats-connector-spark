@@ -138,11 +138,12 @@ import com.logimethods.nats.connector.spark.SparkToNatsConnector;
 import com.logimethods.nats.connector.spark.SparkToNatsConnectorPool;
 ```
 ```
-final SparkToNatsConnectorPool connectorPool = new SparkToNatsConnectorPool(DEFAULT_SUBJECT, subject1, subject2);
+final SparkToNatsConnectorPool connectorPool = 
+	SparkToNatsConnectorPool.newPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL);
 lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 	@Override
 	public Void call(JavaRDD<String> rdd) throws Exception {
-		final SparkToNatsConnector connector = connectorPool.getConnector(...);
+		final SparkToNatsConnector<?> connector = connectorPool.getConnector();
 		rdd.foreachPartition(new VoidFunction<Iterator<String>> (){
 			@Override
 			public void call(Iterator<String> strings) throws Exception {
@@ -157,19 +158,12 @@ lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 	}			
 });
 ```
-#### To publish to a list of NATS subjects:
 
-```
-final SparkToNatsConnector connector = connectorPool.getConnector("SubjectA", "SubjectB"));		
-```
-
-#### To publish to a NATS server defined by properties:
-
-```
-final Properties properties = new Properties();
-properties.setProperty(SparkToNatsConnector.NATS_SUBJECTS, "SubjectA,SubjectB , SubjectC");
-final SparkToNatsConnector connector = connectorPool.getConnector(properties));		
-```
+The optional settings could be:
+* `withSubjects(String... subjects)`
+* `withQueue(String queue)`
+* `withNatsURL(String natsURL)`
+* `withProperties(Properties properties)`
 
 ### From Spark (*WITHOUT Streaming NOR Spark Cluster*) to NATS
 ```
