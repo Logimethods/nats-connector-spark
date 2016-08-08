@@ -242,24 +242,7 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 
     	JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
-    	lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
-    		@Override
-    		public Void call(JavaRDD<String> rdd) throws Exception {
-    			final SparkToNatsConnector<?> connector = connectorPool.getConnector();
-    			rdd.foreachPartition(new VoidFunction<Iterator<String>> (){
-    				@Override
-    				public void call(Iterator<String> strings) throws Exception {
-    					while(strings.hasNext()) {
-    						final String str = strings.next();
-    						logger.debug("Will publish " + str);
-    						connector.publish(str);
-    					}
-    				}
-    			});
-    			connectorPool.returnConnector(connector);  // return to the pool for future reuse
-    			return null;
-    		}			
-    	});
+    	connectorPool.publishToNats(lines);
 
     	ssc.start();
 
