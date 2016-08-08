@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -43,6 +42,7 @@ import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 import com.logimethods.connector.nats_spark.IncompleteException;
+import com.logimethods.connector.nats_spark.Utilities;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
 import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorImpl;
@@ -301,6 +301,6 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
     }
     
     static String getUniqueClientName() {
-    	return "clientName_"  + (new Date().getTime());
+    	return "clientName_" + Utilities.generateUniqueID();
     }
 }

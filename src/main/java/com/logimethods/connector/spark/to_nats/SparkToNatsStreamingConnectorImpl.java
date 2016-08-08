@@ -9,9 +9,10 @@ package com.logimethods.connector.spark.to_nats;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
+
+import com.logimethods.connector.nats_spark.Utilities;
 
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
@@ -65,7 +66,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 */
 	protected String getClientID() {
 		if (clientID == null ) {
-			clientID = CLIENT_ID_ROOT + new Date().getTime();
+			clientID = CLIENT_ID_ROOT + Utilities.generateUniqueID();
 		}
 		return clientID;
 	}

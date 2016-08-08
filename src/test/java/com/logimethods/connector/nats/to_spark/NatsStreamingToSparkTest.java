@@ -10,7 +10,6 @@ package com.logimethods.connector.nats.to_spark;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Level;
@@ -28,6 +27,7 @@ import com.logimethods.connector.nats.spark.STANServer;
 import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
+import com.logimethods.connector.nats_spark.Utilities;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorPoolTest;
 
@@ -118,6 +118,6 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
     }
       
     static String getUniqueClientName() {
-    	return CLIENT_ID +  + (new Date().getTime());
+    	return CLIENT_ID + Utilities.generateUniqueID();
     }    
 }
