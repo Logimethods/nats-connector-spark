@@ -109,10 +109,11 @@ final JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200))
 #### While listening to NATS on a list of subjects:
 
 ```
-final JavaReceiverInputDStream<String> messages = ssc.receiverStream(
-	NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()
-			    .withSubjects("SubjectA", "SubjectB")
-			    .withNatsURL("nats://localhost:4222") );
+final JavaReceiverInputDStream<String> messages = 
+	ssc.receiverStream(
+		NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()
+			.withSubjects("SubjectA", "SubjectB")
+			.withNatsURL("nats://localhost:4222") );
 ```
 
 #### While listening to a NATS server defined by properties:
@@ -120,9 +121,24 @@ final JavaReceiverInputDStream<String> messages = ssc.receiverStream(
 ```
 final Properties properties = new Properties();
 properties.setProperty(NatsToSparkConnector.NATS_SUBJECTS, "SubjectA,SubjectB , SubjectC");
-final JavaReceiverInputDStream<String> messages = ssc.receiverStream(
-	NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY())
-			    .withProperties(properties) );
+final JavaReceiverInputDStream<String> messages = 
+	ssc.receiverStream(
+		NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY())
+			.withProperties(properties) );
+```
+
+The optional settings could be:
+* `withSubjects(String... subjects)`
+* `withQueue(String queue)`
+* `withNatsURL(String natsURL)`
+* `withProperties(Properties properties)`
+
+### From *NATS Streaming* to Spark (Streaming)
+```
+final JavaReceiverInputDStream<String> messages = 
+	ssc.receiverStream(
+		NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+			.withNatsURL(STAN_URL).withSubjects(DEFAULT_SUBJECT));
 ```
 
 The optional settings could be:
@@ -132,7 +148,6 @@ The optional settings could be:
 * `withProperties(Properties properties)`
 
 ### From Spark (Streaming) to NATS
-See [Design Patterns for using foreachRDD](http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd)
 ```
 import com.logimethods.nats.connector.spark.SparkToNatsConnectorPool;
 final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
