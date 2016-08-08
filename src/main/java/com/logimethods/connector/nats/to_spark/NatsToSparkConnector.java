@@ -45,6 +45,7 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 	protected String 			 natsUrl;
 
 	public static final String NATS_SUBJECTS = "nats.io.connector.nats2spark.subjects";
+	protected final static String CLIENT_ID = "NatsToSparkConnector_";
 
 	protected NatsToSparkConnector(StorageLevel storageLevel) {
 		super(storageLevel);
@@ -63,6 +64,7 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 		return (T)this;
 	}
 	
+	// TODO Test the validity of that attribute when used by NatsStreamingToSparkConnectorImpl
 	@SuppressWarnings("unchecked")
 	public T withQueue(String queue) {
 		this.queue = queue;
@@ -98,11 +100,10 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 
 	/* **************** NATS STREAMING **************** */
 	
-	public static NatsStreamingToSparkConnectorImpl receiveFromNatsStreaming(StorageLevel storageLevel, String clusterID, String clientID) {
-		return new NatsStreamingToSparkConnectorImpl(storageLevel, clusterID, clientID);
+	public static NatsStreamingToSparkConnectorImpl receiveFromNatsStreaming(StorageLevel storageLevel, String clusterID) {
+		return new NatsStreamingToSparkConnectorImpl(storageLevel, clusterID, getUniqueClientName());
 	}
 	
-
 	@Override
 	public void onStart() {
 		//Start the thread that receives data over a connection
@@ -148,5 +149,9 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 		}
 		return subjects;
 	}    		
+
+	protected static String getUniqueClientName() {
+		return CLIENT_ID + Utilities.generateUniqueID();
+	}    
 }
 
