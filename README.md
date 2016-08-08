@@ -136,10 +136,12 @@ The optional settings are:
 ### From *NATS Streaming* to Spark (Streaming)
 ```
 final String clusterID = "test-cluster";
+final Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
 final JavaReceiverInputDStream<String> messages = 
 	ssc.receiverStream(
 		NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), clusterID)
-			.withNatsURL(STAN_URL).withSubjects(DEFAULT_SUBJECT));
+			.withNatsURL(STAN_URL).withSubjects(DEFAULT_SUBJECT)
+			.setDurableName("MY_DURABLE_NAME").startAtTime(start) );
 ```
 
 The optional settings are:
@@ -147,6 +149,20 @@ The optional settings are:
 * `withQueue(String queue)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
+
+* `withSubscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
+* `setDurableName(String durableName)`
+* `setMaxInFlight(int maxInFlight)`
+* `setAckWait(Duration ackWait)`
+* `setAckWait(long ackWait, TimeUnit unit)`
+* `setManualAcks(boolean manualAcks)`
+* `startAtSequence(long seq)`
+* `startAtTime(Instant start)`
+* `startAtTimeDelta(long ago, TimeUnit unit)`
+* `startAtTimeDelta(Duration ago)`
+* `startWithLastReceived()`
+* `deliverAllAvailable()`
+
 
 ### From Spark (Streaming) to NATS
 ```
