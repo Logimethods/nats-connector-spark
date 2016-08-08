@@ -1,4 +1,4 @@
-package com.logimethods.connector.nats.to_spark;
+package com.logimethods.connector.nats.to_spark.api;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;

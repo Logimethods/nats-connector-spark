@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.connector.spark.to_nats;
+package com.logimethods.connector.spark.to_nats.api;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -154,7 +154,7 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
 		final SparkToNatsConnectorPool<?> connectorPool = 
-				new SparkToStandardNatsConnectorPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL);
+				SparkToNatsConnectorPool.newPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL);
 		lines.foreachRDD(new Function<JavaRDD<String>, Void> (){
 			@Override
 			public Void call(JavaRDD<String> rdd) throws Exception {

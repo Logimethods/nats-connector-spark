@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.connector.spark.to_nats;
+package com.logimethods.connector.spark.to_nats.api;
 
 import java.util.Arrays;
 import java.util.List;

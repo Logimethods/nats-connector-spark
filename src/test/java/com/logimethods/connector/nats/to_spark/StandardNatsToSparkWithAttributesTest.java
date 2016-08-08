@@ -7,6 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.to_spark;
 
+import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
 import static com.logimethods.connector.nats.to_spark.NatsToSparkConnector.NATS_SUBJECTS;
 import static org.junit.Assert.*;
 
@@ -18,6 +19,8 @@ import org.apache.spark.storage.StorageLevel;
 import org.junit.Test;
 
 import com.logimethods.connector.nats.to_spark.StandardNatsToSparkConnectorImpl;
+import com.logimethods.connector.nats_spark.IncompleteException;
+import com.logimethods.connector.nats.to_spark.NatsStreamingToSparkConnectorImpl;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 
 import io.nats.stan.SubscriptionOptions;
@@ -85,6 +88,23 @@ public class StandardNatsToSparkWithAttributesTest {
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
 		assertEquals(newName, connector.getSubscriptionOptions().getDurableName());
 		assertEquals(start, connector.getSubscriptionOptions().getStartTime());
+	}
+	
+	/**
+	 * Test method for {@link com.logimethods.connector.nats.to_spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
+	 * @throws Exception 
+	 */
+	@Test(timeout=6000)
+	public void testNatsToSparkConnectorWITHOUTSubjects() throws Exception {
+		
+		try {
+			NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withNatsURL(NATS_SERVER_URL).receive();
+		} catch (IncompleteException e) {
+			e.printStackTrace();
+			return;
+		}	
+
+		fail("An Exception(\"NatsToSparkConnector needs at least one Subject\") should have been raised.");
 	}
 
 }

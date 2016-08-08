@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.connector.spark.to_nats;
+package com.logimethods.connector.spark.to_nats.api;
 
 import java.io.File;
 import java.io.IOException;
@@ -172,7 +172,7 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 		String subject1 = "subject1";
 		String subject2 = "subject2";
 		final SparkToNatsConnectorPool<?> connectorPool = 
-				new SparkToNatsStreamingConnectorPool(clusterID).withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
+				SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID).withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
 
 		validateConnectorPool(subject1, subject2, connectorPool);
     }
@@ -188,15 +188,6 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 		final Properties properties = new Properties();
 		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID).withProperties(properties);
 		connectorPool.getConnector();
-    }
-    
-    @Test()
-    public void testStreamingSparkToNatsWithFilledPropertiesPublish() throws Exception {
-		final Properties properties = new Properties();
-		properties.setProperty(PROP_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
-		final SparkToNatsConnectorPool<?> connectorPool = SparkToNatsStreamingConnectorPool.newStreamingPool(clusterID).withProperties(properties);
-		final SparkToNatsConnector<?> connector = connectorPool.getConnector();
-		assertEquals(3, connector.getSubjects().size());
     }
 
     @Test(timeout=8000)

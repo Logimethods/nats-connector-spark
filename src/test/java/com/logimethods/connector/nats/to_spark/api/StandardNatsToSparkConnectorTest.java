@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.connector.nats.to_spark;
+package com.logimethods.connector.nats.to_spark.api;
 
 import static com.logimethods.connector.nats.to_spark.NatsToSparkConnector.NATS_SUBJECTS;
 import static org.junit.Assert.fail;
@@ -81,22 +81,5 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withProperties(properties));
 
 		validateTheReceptionOfMessages(ssc, messages);
-	}
-	
-	/**
-	 * Test method for {@link com.logimethods.connector.nats.to_spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
-	 * @throws Exception 
-	 */
-	@Test(timeout=6000)
-	public void testNatsToSparkConnectorWITHOUTSubjects() throws Exception {
-		
-		try {
-			NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withNatsURL(NATS_SERVER_URL).receive();
-		} catch (IncompleteException e) {
-			e.printStackTrace();
-			return;
-		}	
-
-		fail("An Exception(\"NatsToSparkConnector needs at least one Subject\") should have been raised.");
 	}
 }
