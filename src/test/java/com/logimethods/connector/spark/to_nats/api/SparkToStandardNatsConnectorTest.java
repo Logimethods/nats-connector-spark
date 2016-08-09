@@ -55,6 +55,15 @@ public class SparkToStandardNatsConnectorTest {
 	public static void setUpBeforeClass() throws Exception {
 		AbstractSparkToNatsConnector.recordConnections = true;
 		
+		// Enable tracing for debugging as necessary.
+		Level level = Level.TRACE;
+		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, level);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorTest.class, level);
+		UnitTestUtilities.setLogLevel(TestClient.class, level);
+		UnitTestUtilities.setLogLevel("org.apache.spark", level);
+		UnitTestUtilities.setLogLevel("org.spark-project", level);
+		
 		logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorTest.class);       
 
 		SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]");
@@ -77,15 +86,6 @@ public class SparkToStandardNatsConnectorTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		// Enable tracing for debugging as necessary.
-		Level level = Level.TRACE;
-		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
-		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, Level.DEBUG);
-		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorTest.class, level);
-		UnitTestUtilities.setLogLevel(TestClient.class, level);
-		UnitTestUtilities.setLogLevel("org.apache.spark", level);
-		UnitTestUtilities.setLogLevel("org.spark-project", level);
-		
 		SparkToNatsConnector.CONNECTIONS.clear();
 	}
 
@@ -178,8 +178,6 @@ public class SparkToStandardNatsConnectorTest {
 		StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
 
 		JavaRDD<String> rdd = sc.parallelize(data);
-
-		System.out.println("COUNT: " + rdd.count());
 		
 		assertTrue("NO connections should be opened when entering the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
 
