@@ -197,6 +197,9 @@ The optional settings are:
 ### From Spark (*WITHOUT Streaming NOR Spark Cluster*) to NATS
 ```
 import com.logimethods.nats.connector.spark.SparkToNatsConnector;
+
+final List<String> data = getData();
+JavaRDD<String> rdd = sc.parallelize(data);
 ```
 ```
 rdd.foreach(
