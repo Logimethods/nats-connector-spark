@@ -37,8 +37,8 @@ import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
 
 import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
 import static com.logimethods.connector.nats_spark.Constants.*;
-import static org.junit.Assert.fail;
 import static io.nats.client.Constants.*;
+import static org.junit.Assert.*;
 
 //@Ignore
 public class SparkToStandardNatsConnectorTest {
@@ -54,8 +54,8 @@ public class SparkToStandardNatsConnectorTest {
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
 		Level level = Level.WARN;
-		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, Level.TRACE);
-		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, Level.TRACE);
+		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, Level.DEBUG);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorTest.class, level);
 		UnitTestUtilities.setLogLevel(TestClient.class, level);
 		UnitTestUtilities.setLogLevel("org.apache.spark", level);
@@ -83,6 +83,7 @@ public class SparkToStandardNatsConnectorTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		SparkToNatsConnector.CONNECTIONS.clear();
 	}
 
 	/**
@@ -174,18 +175,23 @@ public class SparkToStandardNatsConnectorTest {
 		StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
 
 		JavaRDD<String> rdd = sc.parallelize(data);
+		
+		assertTrue(SparkToNatsConnector.CONNECTIONS.isEmpty());
 
-		Duration duration = Duration.ofSeconds(1);
-		final VoidFunction<String> publishToNats = 
-				SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).withSubjects(DEFAULT_SUBJECT, subject1, subject2)
-									.withConnectionTimeout(duration).publishToNats();
-		rdd.foreach(publishToNats);	
+		rdd.foreach(
+				SparkToNatsConnector
+					.newConnection().withNatsURL(NATS_SERVER_URL).withSubjects(DEFAULT_SUBJECT, subject1, subject2)
+					.withConnectionTimeout(Duration.ofSeconds(1)).publishToNats());	
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
 		
+		assertFalse(SparkToNatsConnector.CONNECTIONS.isEmpty());
+		
 		TimeUnit.SECONDS.sleep(3);
+		
+		assertTrue(SparkToNatsConnector.CONNECTIONS.isEmpty());
 	}
 
 	@Test(timeout=2000)

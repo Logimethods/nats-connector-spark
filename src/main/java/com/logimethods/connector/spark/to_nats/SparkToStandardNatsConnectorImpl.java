@@ -120,6 +120,10 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	protected Connection createConnection() throws IOException, TimeoutException, Exception {
 		final Connection newConnection = getConnectionFactory().createConnection();
 		
+		if (logger.isDebugEnabled()) {
+			CONNECTIONS.add(newConnection);
+		}
+		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
 			@Override
 			public void run() {
@@ -135,6 +139,9 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	public synchronized void closeConnection() {
 		logger.debug("Ready to close '{}' by {}", connection, super.toString());
 		if (connection != null) {
+			if (logger.isDebugEnabled()) {
+				CONNECTIONS.remove(connection);
+			}
 			connection.close();
 			logger.debug("{} has been CLOSED by {}", connection, super.toString());
 			connection = null;

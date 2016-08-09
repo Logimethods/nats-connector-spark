@@ -9,7 +9,9 @@ package com.logimethods.connector.spark.to_nats;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -28,13 +30,14 @@ import org.slf4j.LoggerFactory;
 public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnector<T> {
 
 	protected static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	public static final Set<Object> CONNECTIONS = new HashSet<Object>(); 
 
 	protected Properties properties;
 
 	protected Collection<String> subjects;
 	protected String natsURL;
-	protected Long connectionTimeout;
 	protected transient Integer sealedHashCode;
+	protected Long connectionTimeout;
 	protected transient ScheduledFuture<?> closingFuture;
 	
 	/**
