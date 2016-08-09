@@ -38,6 +38,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	protected Properties				properties;
 	protected Collection<String>		subjects;
 	protected String 					natsURL;
+	protected Long 						connectionTimeout;
 	protected /*transient*/ Integer 	connectorHashCode;
 	protected static HashMap<Integer, LinkedList<SparkToNatsConnector<?>>> connectorsPoolMap = new HashMap<Integer, LinkedList<SparkToNatsConnector<?>>>();
 
@@ -50,7 +51,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
 	 */
 	protected SparkToNatsConnectorPool(String... subjects) {
-		super(null, null, subjects);
+		super(null, null, null, subjects);
 		logger.debug("CREATE SparkToNatsConnectorPool {} with NATS Subjects '{}'.", this, subjects);
 	}
 	
@@ -178,5 +179,21 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 */
 	protected Logger getLogger() {
 		return logger;
+	}
+
+	/**
+	 * @return the connectionTimeout
+	 */
+	@Override
+	protected Long getConnectionTimeout() {
+		return connectionTimeout;
+	}
+
+	/**
+	 * @param connectionTimeout the connectionTimeout to set
+	 */
+	@Override
+	protected void setConnectionTimeout(Long connectionTimeout) {
+		this.connectionTimeout = connectionTimeout;
 	}
 }

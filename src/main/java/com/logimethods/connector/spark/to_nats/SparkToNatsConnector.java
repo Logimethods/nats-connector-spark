@@ -52,17 +52,17 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @param subjects
 	 */
 	protected SparkToNatsConnector() {
-		super(null, null, (Collection<String>)null);
+		super(null, null, null, (Collection<String>)null);
 		logger.info("CREATE SparkToNatsConnector: " + this);
 	}
 
-	protected SparkToNatsConnector(String natsURL, Properties properties, String... subjects) {
-		super(natsURL, properties, subjects);
+	protected SparkToNatsConnector(String natsURL, Properties properties, Long connectionTimeout, String... subjects) {
+		super(natsURL, properties, connectionTimeout, subjects);
 		logger.info("CREATE SparkToNatsConnector {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
-	protected SparkToNatsConnector(String natsURL, Properties properties, Collection<String> subjects) {
-		super(natsURL, properties, subjects);
+	protected SparkToNatsConnector(String natsURL, Properties properties, Long connectionTimeout, Collection<String> subjects) {
+		super(natsURL, properties, connectionTimeout, subjects);
 		logger.info("CREATE SparkToNatsConnector {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
@@ -79,7 +79,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	/**
 	 */
 	public static SparkToStandardNatsConnectorImpl newConnection() {
-		return new SparkToStandardNatsConnectorImpl(null, null, null);
+		return new SparkToStandardNatsConnectorImpl(null, null, null, null);
 	}
 
 	/**
@@ -147,13 +147,19 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected abstract String getsNatsUrlKey();
 
 	/**
-	 * @param connectionTimeout the connectionTimeout to set
-	 * @return
+	 * @return the connectionTimeout
 	 */
-	@SuppressWarnings("unchecked")
-	public T withConnectionTimeout(Duration duration) {
-		this.connectionTimeout = duration.toNanos();
-		return (T)this;
+	@Override
+	protected Long getConnectionTimeout() {
+		return connectionTimeout;
+	}
+
+	/**
+	 * @param connectionTimeout the connectionTimeout to set
+	 */
+	@Override
+	protected void setConnectionTimeout(Long connectionTimeout) {
+		this.connectionTimeout = connectionTimeout;
 	}
 
 	/**

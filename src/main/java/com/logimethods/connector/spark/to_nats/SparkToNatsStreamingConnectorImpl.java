@@ -8,6 +8,7 @@
 package com.logimethods.connector.spark.to_nats;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
@@ -48,8 +49,8 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToNatsStreamingConnectorImpl(String clusterID, String natsURL, Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
-		super(natsURL, properties, subjects);
+	protected SparkToNatsStreamingConnectorImpl(String clusterID, String natsURL, Properties properties, Long connectionTimeout, ConnectionFactory connectionFactory, Collection<String> subjects) {
+		super(natsURL, properties, connectionTimeout, subjects);
 		this.connectionFactory = connectionFactory;
 		this.clusterID = clusterID;
 	}
@@ -59,8 +60,8 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToNatsStreamingConnectorImpl(String clusterID, String natsURL, Properties properties, ConnectionFactory connectionFactory, String... subjects) {
-		super(natsURL, properties, subjects);
+	protected SparkToNatsStreamingConnectorImpl(String clusterID, String natsURL, Properties properties, Long connectionTimeout, ConnectionFactory connectionFactory, String... subjects) {
+		super(natsURL, properties, connectionTimeout, subjects);
 		this.connectionFactory = connectionFactory;
 		this.clusterID = clusterID;
 	}
@@ -116,6 +117,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 		
 		if (logger.isDebugEnabled()) {
 			CONNECTIONS.add(newConnection);
+			logger.debug(Arrays.toString(CONNECTIONS.toArray()));
 		}
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
@@ -136,7 +138,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	}
 
 	@Override
-	public synchronized void closeConnection() {
+	protected synchronized void closeConnection() {
 		if (connection != null) {
 			try {
 				if (logger.isDebugEnabled()) {

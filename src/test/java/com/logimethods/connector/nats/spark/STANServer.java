@@ -123,7 +123,6 @@ public class STANServer implements Runnable, AutoCloseable {
                 System.out.println("Started [" + psInfo + "]");
             }
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

@@ -109,7 +109,7 @@ class NATSServer implements AutoCloseable
 			if (debug)
 				System.out.println("Started [" + psInfo + "]");
 		} catch (IOException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 	}
 

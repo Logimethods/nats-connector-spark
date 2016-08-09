@@ -10,6 +10,7 @@ package com.logimethods.connector.spark.to_nats;
 import static io.nats.client.Constants.PROP_URL;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
@@ -47,8 +48,8 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, Collection<String> subjects) {
-		super(natsURL, properties, subjects);
+	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, Long connectionTimeout, ConnectionFactory connectionFactory, Collection<String> subjects) {
+		super(natsURL, properties, connectionTimeout, subjects);
 		this.connectionFactory = connectionFactory;
 	}
 
@@ -57,8 +58,8 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, ConnectionFactory connectionFactory, String... subjects) {
-		super(natsURL, properties, subjects);
+	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, Long connectionTimeout, ConnectionFactory connectionFactory, String... subjects) {
+		super(natsURL, properties, connectionTimeout, subjects);
 		this.connectionFactory = connectionFactory;
 	}
 
@@ -122,6 +123,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 		
 		if (logger.isDebugEnabled()) {
 			CONNECTIONS.add(newConnection);
+			logger.debug(Arrays.toString(CONNECTIONS.toArray()));
 		}
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
@@ -136,7 +138,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	}
 
 	@Override
-	public synchronized void closeConnection() {
+	protected synchronized void closeConnection() {
 		logger.debug("Ready to close '{}' by {}", connection, super.toString());
 		if (connection != null) {
 			if (logger.isDebugEnabled()) {

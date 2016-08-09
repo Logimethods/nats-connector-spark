@@ -36,10 +36,12 @@ public class SparkToStandardNatsSerializationTest {
 	
 	@Test
 	public void SparkToStandardNatsConnectorImplTest() throws IOException {
-		SparkToStandardNatsConnectorImpl source = new SparkToStandardNatsConnectorImpl(natsURL, properties, connectionFactory, subjects);
+		Long duration = 111l;
+		SparkToStandardNatsConnectorImpl source = new SparkToStandardNatsConnectorImpl(natsURL, properties, duration, connectionFactory, subjects);
 		SparkToStandardNatsConnectorImpl target = SerializationUtils.clone(source);
 		assertEquals(source.getNatsURL(), target.getNatsURL());
 		assertEquals(source.getProperties(), target.getProperties());
 		assertEquals(source.getSubjects(), target.getSubjects());
+		assertEquals(duration, target.connectionTimeout);
 	}
 }

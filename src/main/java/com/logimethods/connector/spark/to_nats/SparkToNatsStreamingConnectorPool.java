@@ -33,7 +33,7 @@ public class SparkToNatsStreamingConnectorPool extends SparkToNatsConnectorPool<
 	 */
 	@Override
 	public SparkToNatsStreamingConnectorImpl newSparkToNatsConnector() throws Exception {
-		return new SparkToNatsStreamingConnectorImpl(clusterID, getNatsURL(), getProperties(), getConnectionFactory(), getDefinedSubjects());
+		return new SparkToNatsStreamingConnectorImpl(clusterID, getNatsURL(), getProperties(), getConnectionTimeout(), getConnectionFactory(), getDefinedSubjects());
 	}
 
 	/**

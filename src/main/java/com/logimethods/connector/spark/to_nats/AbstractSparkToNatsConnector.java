@@ -8,6 +8,7 @@
 package com.logimethods.connector.spark.to_nats;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Properties;
 
@@ -28,18 +29,20 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 		super();
 	}
 
-	public AbstractSparkToNatsConnector(String natsURL, Properties properties, String... subjects) {
+	public AbstractSparkToNatsConnector(String natsURL, Properties properties, Long connectionTimeout, String... subjects) {
 		super();
 		setProperties(properties);
 		setSubjects(Utilities.transformIntoAList(subjects));
-		setNatsURL(natsURL);		
+		setNatsURL(natsURL);
+		setConnectionTimeout(connectionTimeout);
 	}
 
-	public AbstractSparkToNatsConnector(String natsURL, Properties properties, Collection<String> subjects) {
+	public AbstractSparkToNatsConnector(String natsURL, Properties properties, Long connectionTimeout, Collection<String> subjects) {
 		super();
 		setProperties(properties);
 		setSubjects(subjects);
 		setNatsURL(natsURL);		
+		setConnectionTimeout(connectionTimeout);
 	}
 	
 	protected abstract Logger getLogger();
@@ -61,6 +64,15 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	 */
 	protected abstract void setNatsURL(String natsURL);	
 	protected abstract String getNatsURL();
+
+	/**
+	 * @return the connectionTimeout
+	 */
+	protected abstract Long getConnectionTimeout();
+	/**
+	 * @param connectionTimeout the connectionTimeout to set
+	 */
+	protected abstract void setConnectionTimeout(Long connectionTimeout);
 
 	/**
 	 * @param properties the properties to set
@@ -86,6 +98,16 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	@SuppressWarnings("unchecked")
 	public T withNatsURL(String natsURL) {
 		setNatsURL(natsURL);
+		return (T)this;
+	}
+
+	/**
+	 * @param connectionTimeout the connectionTimeout to set
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public T withConnectionTimeout(Duration duration) {
+		setConnectionTimeout(duration.toNanos());
 		return (T)this;
 	}
 
