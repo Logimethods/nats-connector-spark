@@ -210,8 +210,6 @@ rdd.foreach(
 		.withConnectionTimeout(Duration.ofSeconds(1))
 		.publishToNats()); 
 ```
-Be carefull: the connection to NATS is not closed by default.
-To do so, a `SparkToNatsConnector.CLOSE_CONNECTION` String has to be send through Spark to be published by the SparkToNatsConnector.
 
 The optional settings are:
 * `withSubjects(String... subjects)`
@@ -247,9 +245,7 @@ import com.logimethods.nats.connector.spark.SparkToNatsConnector;
 val publishToNats = SparkToNatsConnector.publishToNats(properties, outputSubject)
 messages.foreachRDD { rdd => rdd.foreach { m => publishToNats.call(m.toString()) }}
 ```
-Be carefull: the connection to NATS is not closed by default.
-To do so, call `publishToNats.call(SparkToNatsConnector.CLOSE_CONNECTION)`.
-  
+
 ## Testing
 
 JUnit tests are included. To perform those tests, [gnatsd](http://nats.io/download/nats-io/gnatsd/) is required.
