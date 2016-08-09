@@ -104,7 +104,7 @@ public class StandardNatsToSparkConnectorImpl extends NatsToSparkConnector<Stand
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
 				@Override
 				public void run() {
-					logger.debug("Caught CTRL-C, shutting down gracefully...");
+					logger.debug("Caught CTRL-C, shutting down gracefully..." + this);
 					try {
 						sub.unsubscribe();
 					} catch (IOException e) {

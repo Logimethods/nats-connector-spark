@@ -16,13 +16,10 @@ import org.slf4j.Logger;
 import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.nats_spark.Utilities;
 
-import static io.nats.client.Constants.*;
 import static com.logimethods.connector.nats_spark.Constants.*;
 
+@SuppressWarnings("serial")
 public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
-	
-//	public static final String NATS_SUBJECTS = "nats.io.connector.spark2nats.subjects";
-//	public static final String NATS_URL = "nats.io.connector.spark2nats.server_url";
 
 	/**
 	 * 
@@ -46,12 +43,6 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	}
 	
 	protected abstract Logger getLogger();
-
-	/**
-	 * @param connection the connection to set
-	 */
-//	protected abstract void setConnection(Connection connection);
-//	protected abstract Connection getConnection();
 	
 	/**
 	 * @param properties the properties to set
@@ -104,7 +95,7 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 											getProperties().getProperty(PROP_SUBJECTS) : 
 											null;
 			if (subjectsStr == null) {
-				throw new IncompleteException("SparkToNatsConnector needs at least one NATS Subject.");
+				throw new IncompleteException("" + this + " needs at least one NATS Subject.");
 			}
 			setSubjects(Utilities.extractCollection(subjectsStr));
 			getLogger().debug("Subject provided by the Properties: '{}'", getSubjects());

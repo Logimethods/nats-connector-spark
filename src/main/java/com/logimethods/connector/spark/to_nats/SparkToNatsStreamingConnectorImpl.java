@@ -75,6 +75,11 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 		return clientID;
 	}
 
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param obj the String that will be published to NATS.
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
 	@Override
 	protected void publishToStr(String str) throws Exception {
 		logger.debug("Received '{}' from Spark", str);
@@ -110,7 +115,23 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	}
 	
 	protected Connection createConnection() throws IOException, TimeoutException, Exception {
-		return getConnectionFactory().createConnection();
+		final Connection newConnection = getConnectionFactory().createConnection();
+		
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+			@Override
+			public void run() {
+				logger.debug("Caught CTRL-C, shutting down gracefully..." + this);
+				try {
+					newConnection.close();
+				} catch (IOException | TimeoutException e) {
+					if (logger.isDebugEnabled()) {
+						logger.error("Exception while unsubscribing " + e.toString());
+					}
+				}
+			}
+		}));
+		
+		return newConnection;
 	}
 
 	public synchronized void closeConnection() throws IOException, TimeoutException {

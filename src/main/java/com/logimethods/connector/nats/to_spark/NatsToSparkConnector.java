@@ -7,8 +7,6 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.to_spark;
 
-import static io.nats.client.Constants.PROP_URL;
-
 import java.util.Collection;
 import java.util.Properties;
 

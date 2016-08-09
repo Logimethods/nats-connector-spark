@@ -76,6 +76,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @param obj the String that will be published to NATS.
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
+	@Override
 	protected void publishToStr(String str) throws Exception {
 		logger.debug("publishToStr '{}' by {} through {}", str, super.toString(), connection);
 		
@@ -120,7 +121,17 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	}
 	
 	protected Connection createConnection() throws IOException, TimeoutException, Exception {
-		return getConnectionFactory().createConnection();
+		final Connection newConnection = getConnectionFactory().createConnection();
+		
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+			@Override
+			public void run() {
+				logger.debug("Caught CTRL-C, shutting down gracefully... " + this);
+				newConnection.close();
+			}
+		}));
+		
+		return newConnection;
 	}
 
 	public synchronized void closeConnection() {

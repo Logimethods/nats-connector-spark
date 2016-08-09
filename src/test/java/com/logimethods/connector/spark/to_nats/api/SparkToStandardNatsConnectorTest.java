@@ -132,7 +132,7 @@ public class SparkToStandardNatsConnectorTest {
 		try {
 			rdd.foreach(SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).publishToNats());
 		} catch (Exception e) {
-			if (e.getMessage().contains("SparkToNatsConnector needs at least one NATS Subject"))
+			if (e.getMessage().contains("needs at least one NATS Subject"))
 				return;
 			else
 				throw e;
