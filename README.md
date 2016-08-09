@@ -96,7 +96,8 @@ If you don't already have your pom.xml configured for using Maven snapshots from
 ```
 
 ## Usage (in Java)
-### From NATS to Spark (Streaming)
+### From NATS to Spark
+#### From NATS to Spark (Streaming)
 ```
 import com.logimethods.nats.connector.spark.NatsToSparkConnector;
 ```
@@ -106,7 +107,7 @@ final JavaSparkContext sc = new JavaSparkContext(sparkConf);
 final JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 ```
 
-#### While listening to NATS on a list of subjects:
+##### While listening to NATS on a list of subjects:
 
 ```
 final JavaReceiverInputDStream<String> messages = 
@@ -116,7 +117,7 @@ final JavaReceiverInputDStream<String> messages =
 			.withNatsURL("nats://localhost:4222") );
 ```
 
-#### While listening to a NATS server defined by properties:
+##### While listening to a NATS server defined by properties:
 
 ```
 final Properties properties = new Properties();
@@ -133,7 +134,7 @@ The optional settings are:
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
 
-### From *NATS Streaming* to Spark (Streaming)
+#### From *NATS Streaming* to Spark (Streaming)
 ```
 final String clusterID = "test-cluster";
 final Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
@@ -165,8 +166,8 @@ as well as options related to [NATS Streaming](https://github.com/nats-io/java-n
 * `startWithLastReceived()`
 * `deliverAllAvailable()`
 
-
-### From Spark (Streaming) to NATS
+### From Spark to NATS
+#### From Spark (Streaming) to NATS
 ```
 import com.logimethods.nats.connector.spark.SparkToNatsConnectorPool;
 final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
@@ -181,7 +182,7 @@ The optional settings are:
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
 
-### From Spark (Streaming) to *NATS Streaming*
+#### From Spark (Streaming) to *NATS Streaming*
 
 ```
 final String clusterID = "test-cluster";
@@ -194,7 +195,7 @@ The optional settings are:
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
 
-### From Spark (*WITHOUT Streaming NOR Spark Cluster*) to NATS
+#### From Spark (*WITHOUT Streaming NOR Spark Cluster*) to NATS
 ```
 import com.logimethods.nats.connector.spark.SparkToNatsConnector;
 
