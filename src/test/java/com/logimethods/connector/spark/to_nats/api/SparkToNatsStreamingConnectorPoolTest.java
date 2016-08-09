@@ -7,23 +7,27 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats.api;
 
+import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
+import static io.nats.client.Constants.PROP_URL;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Level;
 import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.function.Function;
-import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
@@ -43,17 +47,13 @@ import com.logimethods.connector.nats.spark.UnitTestUtilities;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.nats_spark.Utilities;
+import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
 import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorImpl;
-import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorPool;
 
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
-
-import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
-import static io.nats.client.Constants.*;
-import static org.junit.Assert.*;
 
 // Call first $ nats-streaming-server -m 8222 -p 4223
 public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
@@ -78,7 +78,7 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		Level level = Level.WARN;
+		Level level = Level.DEBUG;
 		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, level);
 		UnitTestUtilities.setLogLevel(NatsToSparkConnector.class, level);
 		UnitTestUtilities.setLogLevel(SparkToNatsStreamingConnectorPoolTest.class, level);
@@ -200,6 +200,37 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 				SparkToNatsConnectorPool.newStreamingPool(clusterID).withProperties(properties).withSubjects(DEFAULT_SUBJECT, subject1, subject2);
 
 		validateConnectorPool(subject1, subject2, connectorPool);
+    }
+
+    @Test(timeout=10000)
+    public void testStreamingSparkToNatsWithConnectionTimeout() throws InterruptedException, IOException, TimeoutException {
+    	boolean recordConnections = AbstractSparkToNatsConnector.recordConnections;
+    	AbstractSparkToNatsConnector.recordConnections = true;
+    	SparkToNatsConnector.CONNECTIONS.clear();
+    	
+		String subject1 = "subject1";
+		String subject2 = "subject2";
+		final Properties properties = new Properties();
+		properties.setProperty(PROP_URL, STAN_URL);
+		final SparkToNatsConnectorPool<?> connectorPool = 
+				SparkToNatsConnectorPool
+					.newStreamingPool(clusterID)
+					.withProperties(properties)
+					.withConnectionTimeout(Duration.ofSeconds(2))
+					.withSubjects(DEFAULT_SUBJECT, subject1, subject2);
+
+
+    	assertTrue("NO connections should be opened when entering the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
+
+		validateConnectorPool(subject1, subject2, connectorPool);
+    	
+    	assertFalse("Some connections should have been opened", SparkToNatsConnector.CONNECTIONS.isEmpty());
+		
+		TimeUnit.SECONDS.sleep(6);
+		
+		assertTrue("NO connections should be still opened when exiting the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
+		
+		AbstractSparkToNatsConnector.recordConnections = recordConnections;
     }
 
     @Test(timeout=8000)

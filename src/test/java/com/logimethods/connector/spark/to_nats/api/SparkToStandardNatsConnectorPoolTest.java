@@ -189,7 +189,8 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		assertTrue("NO connections should be opened when entering the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
 
 		SparkToNatsConnectorPool.newPool()
-			.withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL)
+			.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
+			.withNatsURL(NATS_SERVER_URL)
 			.withConnectionTimeout(Duration.ofSeconds(2))
 			.publishToNats(lines);
 		
