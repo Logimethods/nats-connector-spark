@@ -209,7 +209,8 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 */
 	@Override
 	public String toString() {
-		return "SparkToNatsStreamingConnectorImpl [" + (clusterID != null ? "clusterID=" + clusterID + ", " : "")
+		return "SparkToNatsStreamingConnectorImpl [" + Integer.toHexString(hashCode()) + " : "
+				+ (clusterID != null ? " : clusterID=" + clusterID + ", " : "")
 				+ (clientID != null ? "clientID=" + clientID + ", " : "")
 				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
 				+ (connection != null ? "connection=" + connection + ", " : "")

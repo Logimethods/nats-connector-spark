@@ -85,8 +85,8 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 		UnitTestUtilities.setLogLevel(SparkToNatsStreamingConnectorImpl.class, level);		
 		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);		
 		UnitTestUtilities.setLogLevel(TestClient.class, level);
-		UnitTestUtilities.setLogLevel("org.apache.spark", level);
-		UnitTestUtilities.setLogLevel("org.spark-project", level);
+		UnitTestUtilities.setLogLevel("org.apache.spark", Level.WARN);
+		UnitTestUtilities.setLogLevel("org.spark-project", Level.WARN);
 
 		logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorPoolTest.class);       
 	}
@@ -202,7 +202,7 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 		validateConnectorPool(subject1, subject2, connectorPool);
     }
 
-    @Test(timeout=10000)
+    @Test(timeout=8000)
     public void testStreamingSparkToNatsWithConnectionTimeout() throws InterruptedException, IOException, TimeoutException {
     	boolean recordConnections = AbstractSparkToNatsConnector.recordConnections;
     	AbstractSparkToNatsConnector.recordConnections = true;
@@ -226,7 +226,7 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
     	
     	assertFalse("Some connections should have been opened", SparkToNatsConnector.CONNECTIONS.isEmpty());
 		
-		TimeUnit.SECONDS.sleep(6);
+		TimeUnit.SECONDS.sleep(5);
 		
 		assertTrue("NO connections should be still opened when exiting the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
 		

@@ -197,6 +197,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		result = prime * result + ((natsURL == null) ? 0 : natsURL.hashCode());
 		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
 		result = prime * result + ((subjects == null) ? 0 : subjects.hashCode());
+		result = prime * result + ((connectionTimeout == null) ? 0 : connectionTimeout.hashCode());
 		return result;
 	}
 
@@ -241,6 +242,11 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 			if (other.subjects != null)
 				return false;
 		} else if (!subjects.equals(other.subjects))
+			return false;
+		if (connectionTimeout == null) {
+			if (other.connectionTimeout != null)
+				return false;
+		} else if (!connectionTimeout.equals(other.connectionTimeout))
 			return false;
 		return true;
 	}
