@@ -198,13 +198,17 @@ The optional settings are:
 final String clusterID = "test-cluster";
 SparkToNatsConnectorPool
 	.newStreamingPool(clusterID)
-	.withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL).publishToNats(lines);
+	.withConnectionTimeout(Duration.ofSeconds(6))
+	.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
+	.withNatsURL(STAN_URL)
+	.publishToNats(lines);
 ```
 
 The optional settings are:
 * `withSubjects(String... subjects)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
+* `withConnectionTimeout(Duration duration)`
 
 #### From Spark (*WITHOUT Streaming NOR Spark Cluster*) to NATS
 ```
