@@ -7,11 +7,13 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats.api;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Level;
 import org.apache.spark.SparkConf;
@@ -155,11 +157,35 @@ public class SparkToStandardNatsConnectorTest {
 
 		final VoidFunction<String> publishToNats = SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).withSubjects(DEFAULT_SUBJECT, subject1, subject2).publishToNats();
 		rdd.foreach(publishToNats);	
-		publishToNats.call(SparkToNatsConnector.CLOSE_CONNECTION);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
+	}
+
+	@Test(timeout=8000)
+	public void testStaticSparkToNatsWithTimeout() throws Exception {   
+		final List<String> data = getData();
+
+		String subject1 = "subject1";
+		StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
+
+		String subject2 = "subject2";
+		StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
+
+		JavaRDD<String> rdd = sc.parallelize(data);
+
+		Duration duration = Duration.ofSeconds(1);
+		final VoidFunction<String> publishToNats = 
+				SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).withSubjects(DEFAULT_SUBJECT, subject1, subject2)
+									.withConnectionTimeout(duration).publishToNats();
+		rdd.foreach(publishToNats);	
+
+		// wait for the subscribers to complete.
+		ns1.waitForCompletion();
+		ns2.waitForCompletion();
+		
+		TimeUnit.SECONDS.sleep(3);
 	}
 
 	@Test(timeout=2000)

@@ -82,12 +82,9 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 */
 	@Override
 	protected void publishToStr(String str) throws Exception {
+		resetClosingTimeout();
+		
 		logger.debug("Received '{}' from Spark", str);
-
-		if (CLOSE_CONNECTION.equals(str)) {
-			closeConnection();
-			return;
-		}
 		
 		final byte[] payload = str.getBytes();
 		final Connection localConnection = getConnection();
@@ -134,9 +131,16 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 		return newConnection;
 	}
 
-	public synchronized void closeConnection() throws IOException, TimeoutException {
+	@Override
+	public synchronized void closeConnection() {
 		if (connection != null) {
-			connection.close();
+			try {
+				connection.close();
+			} catch (IOException | TimeoutException e) {
+				if (logger.isDebugEnabled()) {
+					logger.error("Exception while closing the connection: {} by {}", e, this);
+				}
+			}
 			connection = null;
 		}
 	}

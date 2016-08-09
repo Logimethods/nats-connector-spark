@@ -7,17 +7,17 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.logimethods.connector.nats_spark.Utilities;
-
-import static io.nats.client.Constants.*;
-import static com.logimethods.connector.nats_spark.Constants.*;
 
 /**
  * A Spark to NATS connector.
@@ -27,13 +27,15 @@ import static com.logimethods.connector.nats_spark.Constants.*;
  */
 public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnector<T> {
 
-	public static final String CLOSE_CONNECTION = "___Cl0seConnectION___";
+	protected static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	protected Properties properties;
 
 	protected Collection<String> subjects;
 	protected String natsURL;
+	protected Long connectionTimeout;
 	protected transient Integer sealedHashCode;
+	protected transient ScheduledFuture<?> closingFuture;
 	
 	/**
 	 * 
@@ -142,11 +144,38 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected abstract String getsNatsUrlKey();
 
 	/**
+	 * @param connectionTimeout the connectionTimeout to set
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public T withConnectionTimeout(Duration duration) {
+		this.connectionTimeout = duration.toNanos();
+		return (T)this;
+	}
+
+	/**
 	 * @return the logger
 	 */
 	protected Logger getLogger() {
 		return logger;
 	}
+
+	/**
+	 * 
+	 */
+	protected void resetClosingTimeout() {
+		if (connectionTimeout != null) {
+			if ((closingFuture != null) && (closingFuture.getDelay(TimeUnit.NANOSECONDS) < connectionTimeout)) {
+				closingFuture.cancel(false);
+				closingFuture = null;
+			}
+			if (closingFuture == null) {
+				closingFuture = scheduler.schedule(() -> closeConnection(), 2 * connectionTimeout, TimeUnit.NANOSECONDS);
+			}
+		}
+	}
+
+	protected abstract void closeConnection();
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

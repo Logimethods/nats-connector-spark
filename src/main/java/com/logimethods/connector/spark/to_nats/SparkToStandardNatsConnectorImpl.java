@@ -78,12 +78,9 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 */
 	@Override
 	protected void publishToStr(String str) throws Exception {
-		logger.debug("publishToStr '{}' by {} through {}", str, super.toString(), connection);
+		resetClosingTimeout();
 		
-		if (CLOSE_CONNECTION.equals(str)) {
-			closeConnection();
-			return;
-		}
+		logger.debug("publishToStr '{}' by {} through {}", str, super.toString(), connection);
 		
 		final Message natsMessage = new Message();
 	
@@ -134,6 +131,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 		return newConnection;
 	}
 
+	@Override
 	public synchronized void closeConnection() {
 		logger.debug("Ready to close '{}' by {}", connection, super.toString());
 		if (connection != null) {
