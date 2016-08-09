@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.logimethods.connector.nats.spark.StandardNatsSubscriber;
 import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
+import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
 
@@ -52,14 +53,7 @@ public class SparkToStandardNatsConnectorTest {
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		// Enable tracing for debugging as necessary.
-		Level level = Level.WARN;
-		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
-		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, Level.DEBUG);
-		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorTest.class, level);
-		UnitTestUtilities.setLogLevel(TestClient.class, level);
-		UnitTestUtilities.setLogLevel("org.apache.spark", level);
-		UnitTestUtilities.setLogLevel("org.spark-project", level);
+		AbstractSparkToNatsConnector.recordConnections = true;
 		
 		logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorTest.class);       
 
@@ -83,6 +77,15 @@ public class SparkToStandardNatsConnectorTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		// Enable tracing for debugging as necessary.
+		Level level = Level.TRACE;
+		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, Level.DEBUG);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorTest.class, level);
+		UnitTestUtilities.setLogLevel(TestClient.class, level);
+		UnitTestUtilities.setLogLevel("org.apache.spark", level);
+		UnitTestUtilities.setLogLevel("org.spark-project", level);
+		
 		SparkToNatsConnector.CONNECTIONS.clear();
 	}
 
@@ -131,7 +134,7 @@ public class SparkToStandardNatsConnectorTest {
 		final List<String> data = getData();
 
 		JavaRDD<String> rdd = sc.parallelize(data);
-
+		
 		try {
 			rdd.foreach(SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).publishToNats());
 		} catch (Exception e) {
@@ -165,7 +168,7 @@ public class SparkToStandardNatsConnectorTest {
 	}
 
 	@Test(timeout=8000)
-	public void testStaticSparkToNatsWithTimeout() throws Exception {   
+	public void testStaticSparkToNatsWithTimeout() throws Exception { 
 		final List<String> data = getData();
 
 		String subject1 = "subject1";
@@ -175,23 +178,26 @@ public class SparkToStandardNatsConnectorTest {
 		StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
 
 		JavaRDD<String> rdd = sc.parallelize(data);
+
+		System.out.println("COUNT: " + rdd.count());
 		
-		assertTrue(SparkToNatsConnector.CONNECTIONS.isEmpty());
+		assertTrue("NO connections should be opened when entering the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
 
 		rdd.foreach(
 				SparkToNatsConnector
 					.newConnection().withNatsURL(NATS_SERVER_URL).withSubjects(DEFAULT_SUBJECT, subject1, subject2)
-					.withConnectionTimeout(Duration.ofSeconds(1)).publishToNats());	
+					.withConnectionTimeout(Duration.ofSeconds(2))
+					.publishToNats());	
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
 		
-		assertFalse(SparkToNatsConnector.CONNECTIONS.isEmpty());
+		assertFalse("Some connections should have been opened", SparkToNatsConnector.CONNECTIONS.isEmpty());
 		
-		TimeUnit.SECONDS.sleep(3);
+		TimeUnit.SECONDS.sleep(5);
 		
-		assertTrue(SparkToNatsConnector.CONNECTIONS.isEmpty());
+		assertTrue("NO connections should be still opened when exiting the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
 	}
 
 	@Test(timeout=2000)

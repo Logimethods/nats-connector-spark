@@ -121,7 +121,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	protected Connection createConnection() throws IOException, TimeoutException, Exception {
 		final Connection newConnection = getConnectionFactory().createConnection();
 		
-		if (logger.isDebugEnabled()) {
+		if (recordConnections) {
 			CONNECTIONS.add(newConnection);
 			logger.debug(Arrays.toString(CONNECTIONS.toArray()));
 		}
@@ -141,7 +141,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	protected synchronized void closeConnection() {
 		logger.debug("Ready to close '{}' by {}", connection, super.toString());
 		if (connection != null) {
-			if (logger.isDebugEnabled()) {
+			if (recordConnections) {
 				CONNECTIONS.remove(connection);
 			}
 			connection.close();
