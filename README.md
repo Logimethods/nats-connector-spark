@@ -112,7 +112,8 @@ final JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200))
 ```
 final JavaReceiverInputDStream<String> messages = 
 	ssc.receiverStream(
-		NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()
+		NatsToSparkConnector
+			.receiveFromNats(StorageLevel.MEMORY_ONLY()
 			.withSubjects("SubjectA", "SubjectB")
 			.withNatsURL("nats://localhost:4222") );
 ```
@@ -124,7 +125,8 @@ final Properties properties = new Properties();
 properties.setProperty(NatsToSparkConnector.NATS_SUBJECTS, "SubjectA,SubjectB , SubjectC");
 final JavaReceiverInputDStream<String> messages = 
 	ssc.receiverStream(
-		NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY())
+		NatsToSparkConnector
+			.receiveFromNats(StorageLevel.MEMORY_ONLY())
 			.withProperties(properties) );
 ```
 
@@ -140,9 +142,12 @@ final String clusterID = "test-cluster";
 final Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
 final JavaReceiverInputDStream<String> messages = 
 	ssc.receiverStream(
-		NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), clusterID)
-			.withNatsURL(STAN_URL).withSubjects(DEFAULT_SUBJECT)
-			.setDurableName("MY_DURABLE_NAME").startAtTime(start) );
+		NatsToSparkConnector
+			.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), clusterID)
+			.withNatsURL(STAN_URL)
+			.withSubjects(DEFAULT_SUBJECT)
+			.setDurableName("MY_DURABLE_NAME")
+			.startAtTime(start) );
 ```
 
 The optional settings are:
@@ -173,20 +178,26 @@ import com.logimethods.nats.connector.spark.SparkToNatsConnectorPool;
 final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 ```
 ```
-SparkToNatsConnectorPool.newPool()
-	.withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL).publishToNats(lines);
+SparkToNatsConnectorPool
+	.newPool()
+	.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
+	.withNatsURL(NATS_SERVER_URL)
+	.withConnectionTimeout(Duration.ofSeconds(6))
+	.publishToNats(lines);
 ```
 
 The optional settings are:
 * `withSubjects(String... subjects)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
+* `withConnectionTimeout(Duration duration)`
 
 #### From Spark (Streaming) to *NATS Streaming*
 
 ```
 final String clusterID = "test-cluster";
-SparkToNatsConnectorPool.newStreamingPool(clusterID)
+SparkToNatsConnectorPool
+	.newStreamingPool(clusterID)
 	.withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL).publishToNats(lines);
 ```
 
@@ -204,7 +215,8 @@ JavaRDD<String> rdd = sc.parallelize(data);
 ```
 ```
 rdd.foreach(
-	SparkToNatsConnector.newConnection()
+	SparkToNatsConnector
+		.newConnection()
 		.withNatsURL(NATS_SERVER_URL)
 		.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
 		.withConnectionTimeout(Duration.ofSeconds(1))
