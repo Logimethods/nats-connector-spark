@@ -206,6 +206,7 @@ rdd.foreach(
 	SparkToNatsConnector.newConnection()
 		.withNatsURL(NATS_SERVER_URL)
 		.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
+		.withConnectionTimeout(Duration.ofSeconds(1))
 		.publishToNats()); 
 ```
 Be carefull: the connection to NATS is not closed by default.
@@ -215,6 +216,7 @@ The optional settings are:
 * `withSubjects(String... subjects)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
+* `withConnectionTimeout(Duration duration)`
 
 ## Usage (in Scala)  *WARNING: NEED TO BE UPDATED TO VERSION 0.2.0*
 _See the Java code to get the list of the available options (properties, subjects, etc.)._
