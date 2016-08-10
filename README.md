@@ -102,15 +102,15 @@ If you don't already have your pom.xml configured for using Maven snapshots from
 import com.logimethods.nats.connector.spark.NatsToSparkConnector;
 ```
 ```
-final SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]");
-final JavaSparkContext sc = new JavaSparkContext(sparkConf);
-final JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
+SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]");
+JavaSparkContext sc = new JavaSparkContext(sparkConf);
+JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 ```
 
 ##### While listening to NATS on a list of subjects:
 
 ```
-final JavaReceiverInputDStream<String> messages = 
+JavaReceiverInputDStream<String> messages = 
 	ssc.receiverStream(
 		NatsToSparkConnector
 			.receiveFromNats(StorageLevel.MEMORY_ONLY()
@@ -121,9 +121,9 @@ final JavaReceiverInputDStream<String> messages =
 ##### While listening to a NATS server defined by properties:
 
 ```
-final Properties properties = new Properties();
+Properties properties = new Properties();
 properties.setProperty(com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS, "SubjectA,SubjectB , SubjectC");
-final JavaReceiverInputDStream<String> messages = 
+JavaReceiverInputDStream<String> messages = 
 	ssc.receiverStream(
 		NatsToSparkConnector
 			.receiveFromNats(StorageLevel.MEMORY_ONLY())
@@ -138,9 +138,9 @@ The optional settings are:
 
 #### From *NATS Streaming* to Spark (Streaming)
 ```
-final String clusterID = "test-cluster";
-final Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
-final JavaReceiverInputDStream<String> messages = 
+String clusterID = "test-cluster";
+Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
+JavaReceiverInputDStream<String> messages = 
 	ssc.receiverStream(
 		NatsToSparkConnector
 			.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), clusterID)
@@ -175,7 +175,7 @@ as well as options related to [NATS Streaming](https://github.com/nats-io/java-n
 #### From Spark (Streaming) to NATS
 ```
 import com.logimethods.nats.connector.spark.SparkToNatsConnectorPool;
-final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 ```
 ```
 SparkToNatsConnectorPool
@@ -195,7 +195,7 @@ The optional settings are:
 #### From Spark (Streaming) to *NATS Streaming*
 
 ```
-final String clusterID = "test-cluster";
+String clusterID = "test-cluster";
 SparkToNatsConnectorPool
 	.newStreamingPool(clusterID)
 	.withConnectionTimeout(Duration.ofSeconds(6))
@@ -214,7 +214,7 @@ The optional settings are:
 ```
 import com.logimethods.nats.connector.spark.SparkToNatsConnector;
 
-final List<String> data = getData();
+List<String> data = getData();
 JavaRDD<String> rdd = sc.parallelize(data);
 ```
 ```
