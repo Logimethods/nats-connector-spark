@@ -19,6 +19,8 @@ import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logimethods.connector.nats_spark.Utilities;
+
 import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
 import io.nats.client.Message;
@@ -33,6 +35,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	protected Properties enrichedProperties;
 	protected transient ConnectionFactory connectionFactory;
 	protected transient Connection connection;
+	protected transient long internalID = Utilities.generateUniqueID();
 
 	/**
 	 * @param properties
@@ -140,6 +143,8 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	@Override
 	protected synchronized void closeConnection() {
 		logger.debug("Ready to close '{}' by {}", connection, super.toString());
+		removeFromPool();
+
 		if (connection != null) {
 			if (recordConnections) synchronized(CONNECTIONS) {
 				CONNECTIONS.remove(connection);
@@ -148,6 +153,11 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 			logger.debug("{} has been CLOSED by {}", connection, super.toString());
 			connection = null;
 		}
+	}
+
+	@Override
+	protected boolean hasANotNullConnection() {
+		return connection != null;
 	}
 	
 	protected String getsNatsUrlKey() {
@@ -169,11 +179,14 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	@Override
 	public String toString() {
 		return "SparkToStandardNatsConnectorImpl ["
+				+ internalID + " / "
+				+ super.toString() + " : "
 				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
-				+ (connection != null ? "connection=" + connection + ", " : "")
+				+ "connection=" + connection + ", "
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")
 				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
+				+ (poolList != null ? "poolList=" + poolList + ", " : "")
 				+ (publishToNats != null ? "publishToNats=" + publishToNats : "") + "]";
 	}
 

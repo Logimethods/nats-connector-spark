@@ -10,6 +10,7 @@ package com.logimethods.connector.spark.to_nats;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.spark.api.java.JavaRDD;
@@ -73,7 +74,9 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 				final LinkedList<SparkToNatsConnector<?>> connectorsPool = connectorsPoolMap.get(connectorHashCode);
 				if (connectorsPool.size() > 0) {
 					logger.debug("ConnectorsPool for {} of size {}", connectorHashCode, connectorsPool.size());
-					return connectorsPool.pollFirst();
+					final SparkToNatsConnector<?> connector = connectorsPool.pollFirst();
+					connector.poolList = null;
+					return connector;
 				} 
 			}			
 			SparkToNatsConnector<?> newConnector = newSparkToNatsConnector();
@@ -93,14 +96,31 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @param connector the SparkToNatsConnector to add to the Pool of Connectors.
 	 */
 	public void returnConnector(SparkToNatsConnector<?> connector) {
+		logger.debug("Returning {} to pool", connector);
+		synchronized(connectorsPoolMap) {
+			if (connector.hasANotNullConnection()) {
+				final int hashCode = connector.sealedHashCode();
+				LinkedList<SparkToNatsConnector<?>> connectorsPoolList = connectorsPoolMap.get(hashCode);
+				if (connectorsPoolList == null) {
+					connectorsPoolList = new LinkedList<SparkToNatsConnector<?>>();
+					connectorsPoolMap.put(hashCode, connectorsPoolList);
+				}
+				connector.poolList = connectorsPoolList;
+				connectorsPoolList.add(connector);
+			} else {
+				logger.debug("{} has a NULL connection, therefore will not be returned to a pool", connector);
+			}
+		}
+	}
+
+	protected static void removeConnectorFromPool(SparkToNatsConnector<?> connector) {
+		logger.debug("Removing {} from pool", connector);
 		synchronized(connectorsPoolMap) {
 			final int hashCode = connector.sealedHashCode();
 			LinkedList<SparkToNatsConnector<?>> connectorsPool = connectorsPoolMap.get(hashCode);
-			if (connectorsPool == null) {
-				connectorsPool = new LinkedList<SparkToNatsConnector<?>>();
-				connectorsPoolMap.put(hashCode, connectorsPool);
-			}
-			connectorsPool.add(connector);
+			if ((connectorsPool != null) && (connectorsPool.size() == 0)) { // No more connectors sharing that hashCode
+				connectorsPoolMap.remove(hashCode);
+			}			
 		}
 	}
 	
@@ -111,8 +131,10 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	@SuppressWarnings("deprecation")
 	public void publishToNats(final JavaDStream<String> rdd) {
 		rdd.foreachRDD((Function<JavaRDD<String>, Void>) rdd1 -> {
+			logger.trace("rdd.foreachRDD");
 			final SparkToNatsConnector<?> connector = getConnector();
 			rdd1.foreachPartition(strings -> {
+				logger.trace("rdd1.foreachPartition");
 				while(strings.hasNext()) {
 					final String str = strings.next();
 					logger.trace("Will publish " + str);
@@ -122,6 +144,14 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 			returnConnector(connector);  // return to the pool for future reuse
 			return null;
 		});
+	}
+
+	public static long poolSize() {
+		int size = 0;
+		for (List<SparkToNatsConnector<?>> poolList: connectorsPoolMap.values()){
+			size += poolList.size();
+		}
+		return size;
 	}
 
 	/**

@@ -18,6 +18,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -64,15 +65,14 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		AbstractSparkToNatsConnector.recordConnections = true;
 
 		// Enable tracing for debugging as necessary.
-		Level level = Level.WARN;
+		Level level = Level.TRACE;
 		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, level);
 		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, level);
-		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, level);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorPoolTest.class, level);
 		UnitTestUtilities.setLogLevel(TestClient.class, level);
-		UnitTestUtilities.setLogLevel("org.apache.spark", level);
-		UnitTestUtilities.setLogLevel("org.spark-project", level);
+		UnitTestUtilities.setLogLevel("org.apache.spark", Level.WARN);
+		UnitTestUtilities.setLogLevel("org.spark-project", Level.WARN);
 
 		logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorPoolTest.class);       
 		
@@ -107,8 +107,10 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 	 */
 	@After
 	public void tearDown() throws Exception {
-	    ssc.stop();
-	    ssc = null;
+	    if (ssc != null) {
+			ssc.stop();
+			ssc = null;
+		}
 	}
 
 
@@ -174,8 +176,10 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		ns2.waitForCompletion();
 	}
 
-	@Test(timeout=8000)
-	public void testStaticSparkToNatsWithConnectionTimeout() throws Exception {   
+	@Test //(timeout=11000)
+	public void testStaticSparkToNatsWithConnectionTimeout() throws Exception {  
+		long poolSize = SparkToNatsConnectorPool.poolSize();
+		
 		final List<String> data = getData();
 
 		final String subject1 = "subject1";
@@ -186,7 +190,7 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 
 		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 		
-		assertTrue("NO connections should be opened when entering the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
+		assertTrue("NO connections should be open when entering the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
 
 		SparkToNatsConnectorPool.newPool()
 			.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
@@ -196,7 +200,7 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		
 		ssc.start();
 
-		Thread.sleep(1000);
+		TimeUnit.SECONDS.sleep(1);
 
 		final File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
 		final PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
@@ -209,11 +213,21 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
 		
+//		ssc.stop();
+//		ssc = null;
+		
+		logger.debug("Spark Context Stopped");
+		
+		assertTrue("The pool size should have been increased from " + poolSize, SparkToNatsConnectorPool.poolSize() > poolSize);
 		assertFalse("Some connections should have been opened", SparkToNatsConnector.CONNECTIONS.isEmpty());
 		
+System.out.println("DATE:  " + new Date());
 		TimeUnit.SECONDS.sleep(5);
+System.out.println("DATE:  " + new Date());
+		logger.debug("After 5 sec delay");
 		
-		assertTrue("NO connections should be still opened when exiting the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
+		assertTrue("NO connections should be still open when exiting the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
+		assertTrue("The pool size should have been reduced to its original value", SparkToNatsConnectorPool.poolSize() == poolSize);
 	}
 
 	@Test(timeout=8000)

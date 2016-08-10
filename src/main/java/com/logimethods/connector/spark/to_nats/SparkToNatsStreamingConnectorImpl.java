@@ -139,12 +139,16 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 
 	@Override
 	protected synchronized void closeConnection() {
+		logger.debug("Ready to close '{}' by {}", connection, super.toString());
+		removeFromPool();
+		
 		if (connection != null) {
 			try {
 				if (recordConnections) synchronized(CONNECTIONS) {
 					CONNECTIONS.remove(connection);
 				}
 				connection.close();
+				logger.debug("{} has been CLOSED by {}", connection, super.toString());
 			} catch (IOException | TimeoutException e) {
 				if (logger.isDebugEnabled()) {
 					logger.error("Exception while closing the connection: {} by {}", e, this);
@@ -153,7 +157,12 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 			connection = null;
 		}
 	}
-	
+
+	@Override
+	protected boolean hasANotNullConnection() {
+		return connection != null;
+	}
+
 	protected String getsNatsUrlKey() {
 		return PROP_URL;
 	}
@@ -219,5 +228,4 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
 				+ (publishToNats != null ? "publishToNats=" + publishToNats : "") + "]";
 	}
-
 }

@@ -9,6 +9,8 @@ package com.logimethods.connector.spark.to_nats;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -38,6 +40,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected transient Integer sealedHashCode;
 	protected Long connectionTimeout;
 	protected transient ScheduledFuture<?> closingFuture;
+	protected List<SparkToNatsConnector<?>> poolList;
 	
 	/**
 	 * 
@@ -186,6 +189,15 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	}
 
 	protected abstract void closeConnection();
+
+	protected abstract boolean hasANotNullConnection();
+	
+	protected void removeFromPool() {
+		if (poolList != null) {
+			poolList.remove(this);
+		}
+		SparkToNatsConnectorPool.removeConnectorFromPool(this);
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
