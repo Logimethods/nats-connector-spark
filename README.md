@@ -122,7 +122,7 @@ final JavaReceiverInputDStream<String> messages =
 
 ```
 final Properties properties = new Properties();
-properties.setProperty(NatsToSparkConnector.NATS_SUBJECTS, "SubjectA,SubjectB , SubjectC");
+properties.setProperty(com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS, "SubjectA,SubjectB , SubjectC");
 final JavaReceiverInputDStream<String> messages = 
 	ssc.receiverStream(
 		NatsToSparkConnector
@@ -180,7 +180,7 @@ final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 ```
 SparkToNatsConnectorPool
 	.newPool()
-	.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
+	.withSubjects("subject1", "subject2")
 	.withNatsURL(NATS_SERVER_URL)
 	.withConnectionTimeout(Duration.ofSeconds(6))
 	.publishToNats(lines);
@@ -199,7 +199,7 @@ final String clusterID = "test-cluster";
 SparkToNatsConnectorPool
 	.newStreamingPool(clusterID)
 	.withConnectionTimeout(Duration.ofSeconds(6))
-	.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
+	.withSubjects("subject1", "subject2")
 	.withNatsURL(STAN_URL)
 	.publishToNats(lines);
 ```
@@ -222,7 +222,7 @@ rdd.foreach(
 	SparkToNatsConnector
 		.newConnection()
 		.withNatsURL(NATS_SERVER_URL)
-		.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
+		.withSubjects("subject1", "subject2")
 		.withConnectionTimeout(Duration.ofSeconds(1))
 		.publishToNats()); 
 ```
