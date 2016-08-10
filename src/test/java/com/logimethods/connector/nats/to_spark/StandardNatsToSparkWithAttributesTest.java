@@ -8,7 +8,7 @@
 package com.logimethods.connector.nats.to_spark;
 
 import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
-import static com.logimethods.connector.nats.to_spark.NatsToSparkConnector.NATS_SUBJECTS;
+import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static org.junit.Assert.*;
 
 import java.time.Instant;
@@ -34,7 +34,7 @@ public class StandardNatsToSparkWithAttributesTest {
 	protected final static Properties PROPERTIES = new Properties();
 	
 	{
-		PROPERTIES.setProperty(NATS_SUBJECTS, "sub1,sub3 , sub2");
+		PROPERTIES.setProperty(PROP_SUBJECTS, "sub1,sub3 , sub2");
 		PROPERTIES.setProperty(PROP_URL, STAN_URL);
 	}
 

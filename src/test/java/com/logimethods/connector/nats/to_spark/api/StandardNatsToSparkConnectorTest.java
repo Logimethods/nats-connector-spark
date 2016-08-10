@@ -7,7 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.to_spark.api;
 
-import static com.logimethods.connector.nats.to_spark.NatsToSparkConnector.NATS_SUBJECTS;
+import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static org.junit.Assert.fail;
 
 import java.util.Properties;
@@ -76,7 +76,7 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final Properties properties = new Properties();
-		properties.setProperty(NATS_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
+		properties.setProperty(PROP_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
 		properties.setProperty(PROP_URL, NATS_SERVER_URL);
 		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withProperties(properties));
 

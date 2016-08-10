@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.nats_spark.Utilities;
 
+import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
+
 /**
  * A NATS to Spark Connector.
  * <p>
@@ -42,7 +44,6 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 	protected String 			 queue;
 	protected String 			 natsUrl;
 
-	public static final String NATS_SUBJECTS = "nats.io.connector.nats2spark.subjects";
 	protected final static String CLIENT_ID = "NatsToSparkConnector_";
 
 	protected NatsToSparkConnector(StorageLevel storageLevel) {
@@ -137,7 +138,7 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 	protected Collection<String> getSubjects() throws IncompleteException {
 		if ((subjects ==  null) || (subjects.size() == 0)) {
 			final String subjectsStr = getProperties() != null ? 
-											getProperties().getProperty(NATS_SUBJECTS)
+											getProperties().getProperty(PROP_SUBJECTS)
 											: null;
 			if (subjectsStr == null) {
 				throw new IncompleteException("NatsToSparkConnector needs at least one NATS Subject.");
