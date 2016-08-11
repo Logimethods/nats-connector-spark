@@ -65,6 +65,16 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 		}
 	}
 
+	protected static Connection getConnectionFromPool(Integer hashCode) {
+		synchronized(connectionsPoolMap) {
+			final LinkedList<Connection> connectionsList = connectionsPoolMap.get(hashCode);
+			if (connectionsList != null) {
+				return connectionsList.pollFirst();
+			}
+		}
+		return null;
+	}
+
 	public static long poolSize() {
 		int size = 0;
 		for (LinkedList<Connection> poolList: connectionsPoolMap.values()){

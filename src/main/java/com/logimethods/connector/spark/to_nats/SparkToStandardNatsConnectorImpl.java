@@ -99,6 +99,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 
 	protected synchronized Connection getConnection() throws Exception {
 		if (connection == null) {
+			connection = SparkToStandardNatsConnectorPool.getConnectionFromPool(sealedHashCode());
 			connection = createConnection();
 			logger.debug("A NATS Connection {} has been created for {}", connection, this);
 		}

@@ -14,8 +14,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Date;
@@ -165,29 +167,22 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 
 		Thread.sleep(1000);
 
-		final File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
-		final PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
-		for(String str: data) {
-			writer.println(str);
-		}		
-		writer.close();
+		writeTmpFile(data);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
 	}
 
-	@Test(timeout=11000)
+	@Test(timeout=20000)
 	public void testStaticSparkToNatsWithConnectionTimeout() throws Exception {  
 		long poolSize = SparkToStandardNatsConnectorPool.poolSize();
 		
 		final List<String> data = getData();
 
 		final String subject1 = "subject1";
-		final StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
 
 		final String subject2 = "subject2";
-		final StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
 
 		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(2);		
 		
@@ -203,17 +198,22 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 
 		TimeUnit.SECONDS.sleep(1);
 
-		final File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
-		final PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
-		for(String str: data) {
-			writer.println(str);
-		}		
-		writer.close();
-
+		final StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
+		final StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
+		writeTmpFile(data);
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
-		
+
+		TimeUnit.SECONDS.sleep(1);
+
+		final StandardNatsSubscriber ns1p = getStandardNatsSubscriber(data, subject1);
+		final StandardNatsSubscriber ns2p = getStandardNatsSubscriber(data, subject2);
+		writeTmpFile(data);
+		// wait for the subscribers to complete.
+		ns1p.waitForCompletion();
+		ns2p.waitForCompletion();
+
 		ssc.stop();
 		ssc = null;
 		
@@ -229,6 +229,15 @@ System.out.println("DATE:  " + new Date());
 		
 		assertTrue("NO connections should be still open when exiting the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
 		assertTrue("The pool size should have been reduced to its original value", SparkToStandardNatsConnectorPool.poolSize() == poolSize);
+	}
+
+	private void writeTmpFile(final List<String> data) throws FileNotFoundException, UnsupportedEncodingException {
+		final File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
+		final PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
+		for(String str: data) {
+			writer.println(str);
+		}		
+		writer.close();
 	}
 
 	@Test(timeout=8000)
@@ -249,12 +258,7 @@ System.out.println("DATE:  " + new Date());
 
 		Thread.sleep(1000);
 
-		final File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
-		final PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
-		for(String str: data) {
-			writer.println(str);
-		}		
-		writer.close();
+		writeTmpFile(data);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
@@ -283,12 +287,7 @@ System.out.println("DATE:  " + new Date());
 
 		Thread.sleep(1000);
 
-		final File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
-		final PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
-		for(String str: data) {
-			writer.println(str);
-		}		
-		writer.close();
+		writeTmpFile(data);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
