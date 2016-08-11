@@ -55,6 +55,7 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 
 	@Override
 	protected void returnConnection(int hashCode, SparkToNatsConnector<?> connector) {
+		logger.debug("returnConnection({}, {})", hashCode, connector);
 		synchronized(connectionsPoolMap) {
 			LinkedList<Connection> connectorsPoolList = connectionsPoolMap.get(hashCode);
 			if (connectorsPoolList == null) {
@@ -62,6 +63,7 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 				connectionsPoolMap.put(hashCode, connectorsPoolList);
 			}
 			connectorsPoolList.add(((SparkToStandardNatsConnectorImpl)connector).connection);
+			logger.debug("connectorsPoolList: {}", connectorsPoolList);
 		}
 	}
 
@@ -69,7 +71,9 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 		synchronized(connectionsPoolMap) {
 			final LinkedList<Connection> connectionsList = connectionsPoolMap.get(hashCode);
 			if (connectionsList != null) {
-				return connectionsList.pollFirst();
+				final Connection connection = connectionsList.pollFirst();
+				logger.debug("getConnectionFromPool({}): {}", hashCode, connection);
+				return connection;
 			}
 		}
 		return null;
