@@ -46,6 +46,7 @@ import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
 import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
+import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorPool;
 
 //@Ignore
 @SuppressWarnings("serial")
@@ -95,7 +96,7 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		SparkToNatsConnector.CONNECTIONS.clear();
 
 		// Create a local StreamingContext with two working thread and batch interval of 1 second
-		SparkConf conf = new SparkConf().setMaster("local[2]").setAppName("My Spark Streaming Job");
+		SparkConf conf = new SparkConf().setMaster("local[3]").setAppName("My Spark Streaming Job");
 		ssc = new JavaStreamingContext(conf, Durations.seconds(1));
 		
 	    tempDir = Files.createTempDir();
@@ -176,9 +177,9 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		ns2.waitForCompletion();
 	}
 
-	@Test //(timeout=11000)
+	@Test(timeout=11000)
 	public void testStaticSparkToNatsWithConnectionTimeout() throws Exception {  
-		long poolSize = SparkToNatsConnectorPool.poolSize();
+		long poolSize = SparkToStandardNatsConnectorPool.poolSize();
 		
 		final List<String> data = getData();
 
@@ -188,7 +189,7 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		final String subject2 = "subject2";
 		final StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
 
-		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(2);		
 		
 		assertTrue("NO connections should be open when entering the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
 
@@ -218,7 +219,7 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		
 		logger.debug("Spark Context Stopped");
 		
-		assertTrue("The pool size should have been increased from " + poolSize, SparkToNatsConnectorPool.poolSize() > poolSize);
+		assertTrue("The pool size should have been increased from " + poolSize, SparkToStandardNatsConnectorPool.poolSize() > poolSize);
 		assertFalse("Some connections should have been opened", SparkToNatsConnector.CONNECTIONS.isEmpty());
 		
 System.out.println("DATE:  " + new Date());
@@ -227,7 +228,7 @@ System.out.println("DATE:  " + new Date());
 		logger.debug("After 5 sec delay");
 		
 		assertTrue("NO connections should be still open when exiting the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
-		assertTrue("The pool size should have been reduced to its original value", SparkToNatsConnectorPool.poolSize() == poolSize);
+		assertTrue("The pool size should have been reduced to its original value", SparkToStandardNatsConnectorPool.poolSize() == poolSize);
 	}
 
 	@Test(timeout=8000)

@@ -7,9 +7,15 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+
+import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
 
 public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<SparkToStandardNatsConnectorPool> {
+
+	protected static final HashMap<Integer, LinkedList<Connection>> connectionsPoolMap = new HashMap<Integer, LinkedList<Connection>>();
 
 	/**
 	 * 
@@ -45,6 +51,26 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 	 */
 	protected void setConnectionFactory(ConnectionFactory factory) {
 		connectionFactory = factory;
+	}
+
+	@Override
+	protected void returnConnection(int hashCode, SparkToNatsConnector<?> connector) {
+		synchronized(connectionsPoolMap) {
+			LinkedList<Connection> connectorsPoolList = connectionsPoolMap.get(hashCode);
+			if (connectorsPoolList == null) {
+				connectorsPoolList = new LinkedList<Connection>();
+				connectionsPoolMap.put(hashCode, connectorsPoolList);
+			}
+			connectorsPoolList.add(((SparkToStandardNatsConnectorImpl)connector).connection);
+		}
+	}
+
+	public static long poolSize() {
+		int size = 0;
+		for (LinkedList<Connection> poolList: connectionsPoolMap.values()){
+			size += poolList.size();
+		}
+		return size;
 	}
 
 	/* (non-Javadoc)

@@ -100,6 +100,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	};
 
 	protected void registerItself() {
+		logger.debug("Register {}", this);
 		SparkToNatsConnectorPool.register(internalId, sealedHashCode(), this);
 	}
 	

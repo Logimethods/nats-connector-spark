@@ -121,11 +121,9 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	protected Connection createConnection() throws IOException, TimeoutException, Exception {
 		final Connection newConnection = getConnectionFactory().createConnection();
 		
-		registerItself();
-		
 		if (recordConnections) synchronized(CONNECTIONS) {
 			CONNECTIONS.add(newConnection);
-			logger.debug(Arrays.toString(CONNECTIONS.toArray()));
+			logger.debug("CONNECTIONS: " + Arrays.toString(CONNECTIONS.toArray()));
 		}
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
@@ -135,6 +133,8 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 				newConnection.close();
 			}
 		}));
+		
+		registerItself();
 		
 		return newConnection;
 	}
