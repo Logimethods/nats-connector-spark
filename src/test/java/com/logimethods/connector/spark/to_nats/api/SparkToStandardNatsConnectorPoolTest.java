@@ -213,8 +213,8 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
 		
-//		ssc.stop();
-//		ssc = null;
+		ssc.stop();
+		ssc = null;
 		
 		logger.debug("Spark Context Stopped");
 		

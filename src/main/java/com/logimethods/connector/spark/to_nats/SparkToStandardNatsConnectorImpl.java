@@ -19,8 +19,6 @@ import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.logimethods.connector.nats_spark.Utilities;
-
 import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
 import io.nats.client.Message;
@@ -35,7 +33,6 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	protected Properties enrichedProperties;
 	protected transient ConnectionFactory connectionFactory;
 	protected transient Connection connection;
-	protected transient long internalID = Utilities.generateUniqueID();
 
 	/**
 	 * @param properties
@@ -124,6 +121,8 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	protected Connection createConnection() throws IOException, TimeoutException, Exception {
 		final Connection newConnection = getConnectionFactory().createConnection();
 		
+		registerItself();
+		
 		if (recordConnections) synchronized(CONNECTIONS) {
 			CONNECTIONS.add(newConnection);
 			logger.debug(Arrays.toString(CONNECTIONS.toArray()));
@@ -179,7 +178,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	@Override
 	public String toString() {
 		return "SparkToStandardNatsConnectorImpl ["
-				+ internalID + " / "
+				+ internalId + " / "
 				+ super.toString() + " : "
 				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
 				+ "connection=" + connection + ", "

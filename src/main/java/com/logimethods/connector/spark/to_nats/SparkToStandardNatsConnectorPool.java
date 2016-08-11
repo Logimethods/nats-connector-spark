@@ -57,6 +57,6 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")
 				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
-				+ ("connectorsPoolMap=" + connectorsPoolMap) + "]";
+				+ ("connectionsPoolMap=" + connectionsPoolMap) + "]";
 	}
 }

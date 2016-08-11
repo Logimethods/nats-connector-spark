@@ -9,7 +9,6 @@ package com.logimethods.connector.spark.to_nats;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -21,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.logimethods.connector.nats_spark.Utilities;
 
 /**
  * A Spark to NATS connector.
@@ -41,6 +42,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected Long connectionTimeout;
 	protected transient ScheduledFuture<?> closingFuture;
 	protected List<SparkToNatsConnector<?>> poolList;
+	protected long internalId = Utilities.generateUniqueID();
 	
 	/**
 	 * 
@@ -96,6 +98,10 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 			publishToStr(str);
 		}
 	};
+
+	protected void registerItself() {
+		SparkToNatsConnectorPool.register(internalId, sealedHashCode(), this);
+	}
 	
 	/**
 	 * @param properties the properties to set
@@ -162,6 +168,13 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	@Override
 	protected void setConnectionTimeout(Long connectionTimeout) {
 		this.connectionTimeout = connectionTimeout;
+	}
+
+	/**
+	 * @return the internalId
+	 */
+	public long getInternalId() {
+		return internalId;
 	}
 
 	/**

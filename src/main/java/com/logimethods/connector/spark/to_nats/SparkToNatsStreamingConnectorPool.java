@@ -60,6 +60,6 @@ public class SparkToNatsStreamingConnectorPool extends SparkToNatsConnectorPool<
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")
 				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
-				+ ("connectorsPoolMap=" + connectorsPoolMap) + "]";
+				+ ("connectionsPoolMap=" + connectionsPoolMap) + "]";
 	}
 }
