@@ -100,8 +100,13 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	protected synchronized Connection getConnection() throws Exception {
 		if (connection == null) {
 			connection = SparkToStandardNatsConnectorPool.getConnectionFromPool(sealedHashCode());
-			connection = createConnection();
-			logger.debug("A NATS Connection {} has been created for {}", connection, this);
+			if (connection == null) {
+				logger.debug("No Connection available on the Pool({}), need to create a new one", sealedHashCode());
+				connection = createConnection();
+			} else {
+				logger.debug("The Pool({}) returned ", sealedHashCode(), connection);				
+			}
+			registerItself();
 		}
 		return connection;
 	}
@@ -121,6 +126,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	
 	protected Connection createConnection() throws IOException, TimeoutException, Exception {
 		final Connection newConnection = getConnectionFactory().createConnection();
+		logger.debug("A NATS Connection {} has been created for {}", newConnection, this);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
 			@Override
@@ -129,9 +135,6 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 				newConnection.close();
 			}
 		}));
-		
-		registerItself();
-		
 		return newConnection;
 	}
 

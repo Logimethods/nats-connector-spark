@@ -120,36 +120,6 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
     }
 
     @Test(timeout=8000)
-    public void testStreamingSparkToNatsWithConnectionTimeout() throws InterruptedException, IOException, TimeoutException {
-    	// TODO Replace the deleted assertions
-///    	SparkToNatsConnector.CONNECTIONS.clear();
-    	
-		String subject1 = "subject1";
-		String subject2 = "subject2";
-		final Properties properties = new Properties();
-		properties.setProperty(PROP_URL, STAN_URL);
-		final SparkToNatsConnectorPool<?> connectorPool = 
-				SparkToNatsConnectorPool
-					.newStreamingPool(clusterID)
-					.withProperties(properties)
-					.withConnectionTimeout(Duration.ofSeconds(2))
-					.withSubjects(DEFAULT_SUBJECT, subject1, subject2);
-
-
-///    	assertTrue("NO connections should be opened when entering the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
-
-		validateConnectorPool(subject1, subject2, connectorPool);
-    	
-///    	assertFalse("Some connections should have been opened", SparkToNatsConnector.CONNECTIONS.isEmpty());
-		
-		TimeUnit.SECONDS.sleep(5);
-		
-///		assertTrue("NO connections should be still opened when exiting the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
-		
-///		AbstractSparkToNatsConnector.recordConnections = recordConnections;
-    }
-
-    @Test(timeout=8000)
     public void testStreamingSparkToNatsWithFullPropertiesPublish() throws InterruptedException, IOException, TimeoutException {
 		String subject1 = "subject1";
 		String subject2 = "subject2";
@@ -175,10 +145,10 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
     	
         // Run a STAN server
     	runServer(clusterID, false);
-    	ConnectionFactory connectionFactory = new ConnectionFactory(clusterID, getUniqueClientName());
-    	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
-    	Connection stanc = connectionFactory.createConnection();
-    	logger.debug("ConnectionFactory ready: " + stanc);
+//    	ConnectionFactory connectionFactory = new ConnectionFactory(clusterID, getUniqueClientName());
+//    	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
+//    	Connection stanc = connectionFactory.createConnection();
+//    	logger.debug("ConnectionFactory ready: " + stanc);
     	final List<String> data = getData();
 
     	NatsStreamingSubscriber ns1 = getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1");

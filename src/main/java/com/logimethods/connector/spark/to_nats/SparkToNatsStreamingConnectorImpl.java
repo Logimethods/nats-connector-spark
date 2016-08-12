@@ -98,8 +98,14 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 
 	protected synchronized Connection getConnection() throws Exception {
 		if (connection == null) {
-			connection = createConnection();
-			logger.debug("A NATS Connection {} has been created for {}", connection, this);
+			connection = SparkToNatsStreamingConnectorPool.getConnectionFromPool(sealedHashCode());
+			if (connection == null) {
+				logger.debug("No Connection available on the Pool({}), need to create a new one", sealedHashCode());
+				connection = createConnection();
+			} else {
+				logger.debug("The Pool({}) returned ", sealedHashCode(), connection);				
+			}
+			registerItself();
 		}
 		return connection;
 	}
@@ -114,6 +120,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	
 	protected Connection createConnection() throws IOException, TimeoutException, Exception {
 		final Connection newConnection = getConnectionFactory().createConnection();
+		logger.debug("A NATS Connection {} has been created for {}", newConnection, this);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
 			@Override
@@ -128,7 +135,6 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 				}
 			}
 		}));
-		
 		return newConnection;
 	}
 
@@ -136,7 +142,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	protected synchronized void closeConnection() {
 		logger.debug("Ready to close '{}' by {}", connection, super.toString());
 		removeFromPool();
-		
+
 		if (connection != null) {
 			try {
 				connection.close();
@@ -159,7 +165,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	protected boolean hasANotNullConnection() {
 		return connection != null;
 	}
-
+	
 	protected String getsNatsUrlKey() {
 		return PROP_URL;
 	}

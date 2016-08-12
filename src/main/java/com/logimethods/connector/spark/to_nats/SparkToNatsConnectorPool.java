@@ -112,6 +112,8 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 					}
 				}
 				connectorsByIdMap.remove(internalId);
+			} else {
+				logger.debug("connectorsByIdMap.get({}) is null, therefore the {} connector cannot be returned", internalId, rootConnector);
 			}
 		}
 	}
@@ -119,6 +121,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	protected abstract void returnConnection(int hashCode, SparkToNatsConnector<?> connector);
 
 	protected static void register(long internalID, int hashCode, SparkToNatsConnector<?> sparkToNatsConnector) {
+		logger.debug("register({}, {}, {})", internalID, hashCode, sparkToNatsConnector);
 		synchronized(connectorsByIdMap){
 			RegisteredConnectors connectors = connectorsByIdMap.get(internalID);
 			if (connectors == null){
@@ -126,7 +129,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 				connectorsByIdMap.put(internalID, connectors);
 			}
 			connectors.addConnector(sparkToNatsConnector);
-			logger.debug(connectors.toString());
+			logger.debug("New RegisteredConnectors: {}", connectors);
 		}
 	}
 	

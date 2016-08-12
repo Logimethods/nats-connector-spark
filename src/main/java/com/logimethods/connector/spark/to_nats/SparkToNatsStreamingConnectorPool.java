@@ -58,6 +58,7 @@ public class SparkToNatsStreamingConnectorPool extends SparkToNatsConnectorPool<
 
 	@Override
 	protected void returnConnection(int hashCode, SparkToNatsConnector<?> connector) {
+		logger.debug("returnConnection({}, {})", hashCode, connector);
 		synchronized(connectionsPoolMap) {
 			LinkedList<Connection> connectorsPoolList = connectionsPoolMap.get(hashCode);
 			if (connectorsPoolList == null) {
@@ -65,6 +66,7 @@ public class SparkToNatsStreamingConnectorPool extends SparkToNatsConnectorPool<
 				connectionsPoolMap.put(hashCode, connectorsPoolList);
 			}
 			connectorsPoolList.add(((SparkToNatsStreamingConnectorImpl)connector).connection);
+			logger.debug("connectorsPoolList: {}", connectorsPoolList);
 		}
 	}
 
@@ -93,12 +95,14 @@ public class SparkToNatsStreamingConnectorPool extends SparkToNatsConnectorPool<
 		}
 	}
 
-	public static long poolSize() {
-		int size = 0;
-		for (LinkedList<Connection> poolList: connectionsPoolMap.values()){
-			size += poolList.size();
+	protected static long poolSize() {
+		synchronized(connectionsPoolMap) {
+			int size = 0;
+			for (LinkedList<Connection> poolList: connectionsPoolMap.values()){
+				size += poolList.size();
+			}
+			return size;
 		}
-		return size;
 	}
 
 	/* (non-Javadoc)
