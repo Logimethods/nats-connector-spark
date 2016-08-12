@@ -40,7 +40,6 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected transient Integer sealedHashCode;
 	protected Long connectionTimeout;
 	protected transient ScheduledFuture<?> closingFuture;
-	protected List<SparkToNatsConnector<?>> poolList;
 	protected long internalId = Utilities.generateUniqueID();
 	
 	/**
@@ -205,12 +204,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 
 	protected abstract boolean hasANotNullConnection();
 	
-	protected void removeFromPool() {
-		if (poolList != null) {
-			poolList.remove(this);
-		}
-		SparkToNatsConnectorPool.removeConnectorFromPool(this);
-	}
+	protected abstract void removeFromPool();
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

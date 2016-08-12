@@ -149,6 +149,11 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 			connection = null;
 		}
 	}
+	
+	@Override
+	protected void removeFromPool() {
+		SparkToNatsStreamingConnectorPool.removeConnectorFromPool(this);
+	}
 
 	@Override
 	protected boolean hasANotNullConnection() {

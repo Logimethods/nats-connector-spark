@@ -9,7 +9,6 @@ package com.logimethods.connector.spark.to_nats;
 
 import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Duration;
@@ -83,7 +82,7 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 		
 		TimeUnit.MILLISECONDS.sleep(100);
 		assertEquals("The connections Pool size should be the same a the number of Spark partitions", 
-					partitionsNb, SparkToStandardNatsConnectorPool.poolSize());
+				poolSize + partitionsNb, SparkToStandardNatsConnectorPool.poolSize());
 				
 		final StandardNatsSubscriber ns1p = getStandardNatsSubscriber(data, subject1);
 		final StandardNatsSubscriber ns2p = getStandardNatsSubscriber(data, subject2);
@@ -93,16 +92,14 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 		ns2p.waitForCompletion();
 		TimeUnit.MILLISECONDS.sleep(100);
 		assertEquals("The connections Pool size should be the same a the number of Spark partitions", 
-					partitionsNb, SparkToStandardNatsConnectorPool.poolSize());
+				poolSize + partitionsNb, SparkToStandardNatsConnectorPool.poolSize());
 
 		ssc.stop();
 		ssc = null;
 		
 		logger.debug("Spark Context Stopped");
 		
-System.out.println("DATE:  " + new Date());
 		TimeUnit.SECONDS.sleep(5);
-System.out.println("DATE:  " + new Date());
 		logger.debug("After 5 sec delay");
 		
 		System.out.println(SparkToStandardNatsConnectorPool.connectionsPoolMap);

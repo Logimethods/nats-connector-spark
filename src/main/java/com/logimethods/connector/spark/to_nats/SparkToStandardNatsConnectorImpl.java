@@ -146,6 +146,11 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 			connection = null;
 		}
 	}
+	
+	@Override
+	protected void removeFromPool() {
+		SparkToStandardNatsConnectorPool.removeConnectorFromPool(this);
+	}
 
 	@Override
 	protected boolean hasANotNullConnection() {
@@ -178,7 +183,6 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")
 				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
-				+ (poolList != null ? "poolList=" + poolList + ", " : "")
 				+ (publishToNats != null ? "publishToNats=" + publishToNats : "") + "]";
 	}
 

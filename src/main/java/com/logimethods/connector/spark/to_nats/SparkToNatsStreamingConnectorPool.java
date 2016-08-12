@@ -68,6 +68,31 @@ public class SparkToNatsStreamingConnectorPool extends SparkToNatsConnectorPool<
 		}
 	}
 
+	protected static Connection getConnectionFromPool(Integer hashCode) {
+		synchronized(connectionsPoolMap) {
+			final LinkedList<Connection> connectionsList = connectionsPoolMap.get(hashCode);
+			if (connectionsList != null) {
+				final Connection connection = connectionsList.pollFirst();
+				logger.debug("getConnectionFromPool({}): {}", hashCode, connection);
+				return connection;
+			}
+		}
+		return null;
+	}
+
+	protected static void removeConnectorFromPool(SparkToNatsConnector<?> connector) {
+		logger.debug("Removing {} from pool", connector);
+		synchronized(connectionsPoolMap) {
+			int hashCode = connector.sealedHashCode();
+			final LinkedList<Connection> connectionsList = connectionsPoolMap.get(hashCode);
+			if (connectionsList != null) {
+				final Connection connection = ((SparkToNatsStreamingConnectorImpl)connector).connection;
+				logger.debug("Connection {} removed from Pool({})", connection, connectionsList);
+				connectionsList.remove(connection);
+			}			
+		}
+	}
+
 	public static long poolSize() {
 		int size = 0;
 		for (LinkedList<Connection> poolList: connectionsPoolMap.values()){

@@ -79,6 +79,19 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 		return null;
 	}
 
+	protected static void removeConnectorFromPool(SparkToNatsConnector<?> connector) {
+		logger.debug("Removing {} from pool", connector);
+		synchronized(connectionsPoolMap) {
+			int hashCode = connector.sealedHashCode();
+			final LinkedList<Connection> connectionsList = connectionsPoolMap.get(hashCode);
+			if (connectionsList != null) {
+				final Connection connection = ((SparkToStandardNatsConnectorImpl)connector).connection;
+				logger.debug("Connection {} removed from Pool({})", connection, connectionsList);
+				connectionsList.remove(connection);
+			}			
+		}
+	}
+
 	protected static long poolSize() {
 		synchronized(connectionsPoolMap) {
 			int size = 0;
