@@ -49,8 +49,6 @@ public class AbstractSparkToNatsConnectorTest implements Serializable {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		SparkToNatsConnector.CONNECTIONS.clear();
-	
 		// Create a local StreamingContext with two working thread and batch interval of 1 second
 		SparkConf conf = new SparkConf().setMaster("local[3]").setAppName("My Spark Streaming Job");
 		ssc = new JavaStreamingContext(conf, Durations.seconds(1));

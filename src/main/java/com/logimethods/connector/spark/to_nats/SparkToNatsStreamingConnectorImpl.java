@@ -115,11 +115,6 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	protected Connection createConnection() throws IOException, TimeoutException, Exception {
 		final Connection newConnection = getConnectionFactory().createConnection();
 		
-		if (recordConnections) synchronized(CONNECTIONS) {
-			CONNECTIONS.add(newConnection);
-			logger.debug(Arrays.toString(CONNECTIONS.toArray()));
-		}
-		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
 			@Override
 			public void run() {
@@ -144,9 +139,6 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 		
 		if (connection != null) {
 			try {
-				if (recordConnections) synchronized(CONNECTIONS) {
-					CONNECTIONS.remove(connection);
-				}
 				connection.close();
 				logger.debug("{} has been CLOSED by {}", connection, super.toString());
 			} catch (IOException | TimeoutException e) {

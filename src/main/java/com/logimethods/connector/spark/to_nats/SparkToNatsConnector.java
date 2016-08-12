@@ -32,7 +32,6 @@ import com.logimethods.connector.nats_spark.Utilities;
 public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnector<T> {
 
 	protected static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-	public static final Set<Object> CONNECTIONS = new HashSet<Object>(); 
 
 	protected Properties properties;
 

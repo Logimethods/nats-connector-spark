@@ -21,8 +21,6 @@ import static com.logimethods.connector.nats_spark.Constants.*;
 
 @SuppressWarnings("serial")
 public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
-	
-	public static boolean recordConnections = false;
 
 	/**
 	 * 

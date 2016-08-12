@@ -8,17 +8,13 @@
 package com.logimethods.connector.spark.to_nats;
 
 import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
-import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
-import static io.nats.client.Constants.PROP_URL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.Serializable;
 import java.time.Duration;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Level;
@@ -30,9 +26,6 @@ import org.slf4j.LoggerFactory;
 import com.logimethods.connector.nats.spark.StandardNatsSubscriber;
 import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
-import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
-import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
-import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorPool;
 
 //@Ignore
 @SuppressWarnings("serial")
@@ -43,8 +36,6 @@ public class SparkToStandardNatsConnectorTimeoutTest extends AbstractSparkToNats
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		AbstractSparkToNatsConnector.recordConnections = true;
-	
 		// Enable tracing for debugging as necessary.
 		Level level = Level.TRACE;
 		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, level);
@@ -73,8 +64,6 @@ public class SparkToStandardNatsConnectorTimeoutTest extends AbstractSparkToNats
 		final int partitionsNb = 2;
 		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(partitionsNb);		
 		
-		assertTrue("NO connections should be open when entering the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
-
 		SparkToNatsConnectorPool.newPool()
 			.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
 			.withNatsURL(NATS_SERVER_URL)
@@ -109,14 +98,12 @@ public class SparkToStandardNatsConnectorTimeoutTest extends AbstractSparkToNats
 		logger.debug("Spark Context Stopped");
 		
 		assertTrue("The pool size should have been increased from " + poolSize, SparkToStandardNatsConnectorPool.poolSize() > poolSize);
-		assertFalse("Some connections should have been opened", SparkToNatsConnector.CONNECTIONS.isEmpty());
 		
 System.out.println("DATE:  " + new Date());
 		TimeUnit.SECONDS.sleep(5);
 System.out.println("DATE:  " + new Date());
 		logger.debug("After 5 sec delay");
 		
-		assertTrue("NO connections should be still open when exiting the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
 		assertTrue("The pool size should have been reduced to its original value", SparkToStandardNatsConnectorPool.poolSize() == poolSize);
 	}
 }

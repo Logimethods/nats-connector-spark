@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import com.logimethods.connector.nats.spark.StandardNatsSubscriber;
 import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
-import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnectorTest;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
@@ -38,8 +37,6 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		AbstractSparkToNatsConnector.recordConnections = true;
-
 		// Enable tracing for debugging as necessary.
 		Level level = Level.TRACE;
 		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, level);
