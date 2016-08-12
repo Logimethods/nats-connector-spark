@@ -9,37 +9,23 @@ package com.logimethods.connector.spark.to_nats.api;
 
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Constants.PROP_URL;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Level;
-import org.apache.spark.SparkConf;
-import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaDStream;
-import org.apache.spark.streaming.api.java.JavaStreamingContext;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.Files;
 import com.logimethods.connector.nats.spark.NatsStreamingSubscriber;
 import com.logimethods.connector.nats.spark.STANServer;
 import com.logimethods.connector.nats.spark.TestClient;
@@ -47,7 +33,7 @@ import com.logimethods.connector.nats.spark.UnitTestUtilities;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.nats_spark.Utilities;
-import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnector;
+import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnectorTest;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
 import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorImpl;
@@ -56,21 +42,13 @@ import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
 
 // Call first $ nats-streaming-server -m 8222 -p 4223
-public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
+public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsConnectorTest {
 
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	static final String clusterID = "test-cluster"; //"my_test_cluster";
-//    static final String clientName = "me";
-
-	protected static final String DEFAULT_SUBJECT = "spark2natsStreamingSubject";
-	private static final int STANServerPORT = 4223;
-	private static final String STAN_URL = "nats://localhost:" + STANServerPORT;
-	static JavaStreamingContext ssc;
-	static Logger logger = null;
-	File tempDir;
 
 	/**
 	 * @throws java.lang.Exception
@@ -89,67 +67,6 @@ public class SparkToNatsStreamingConnectorPoolTest implements Serializable {
 		UnitTestUtilities.setLogLevel("org.spark-project", Level.WARN);
 
 		logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorPoolTest.class);       
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-		// Create a local StreamingContext with two working thread and batch interval of 1 second
-		SparkConf conf = new SparkConf().setMaster("local[2]").setAppName("My Spark Streaming Job");
-		ssc = new JavaStreamingContext(conf, Durations.seconds(1));
-		
-	    tempDir = Files.createTempDir();
-	    tempDir.deleteOnExit();
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@After
-	public void tearDown() throws Exception {
-	    ssc.stop();
-	    ssc = null;
-	}
-
-	/**
-	 * @return
-	 */
-	protected List<String> getData() {
-		final List<String> data = Arrays.asList(new String[] {
-				"data_1",
-				"data_2",
-				"data_3",
-				"data_4",
-				"data_5",
-				"data_6"
-		});
-		return data;
-	}
-
-	/**
-	 * @param data
-	 * @return
-	 */
-	protected NatsStreamingSubscriber getNatsStreamingSubscriber(final List<String> data, String subject, String clusterName, String clientName) {
-		ExecutorService executor = Executors.newFixedThreadPool(1);
-
-		NatsStreamingSubscriber ns = new NatsStreamingSubscriber(STAN_URL, subject + "_id", subject, clusterName, clientName, data.size());
-
-		// start the subscribers apps
-		executor.execute(ns);
-
-		// wait for subscribers to be ready.
-		ns.waitUntilReady();
-		return ns;
 	}
 
     @Test(timeout=6000)

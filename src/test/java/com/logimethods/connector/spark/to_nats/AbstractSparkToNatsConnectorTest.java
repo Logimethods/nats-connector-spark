@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
+import com.logimethods.connector.nats.spark.NatsStreamingSubscriber;
 import com.logimethods.connector.nats.spark.StandardNatsSubscriber;
 import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
@@ -35,6 +36,9 @@ public class AbstractSparkToNatsConnectorTest implements Serializable {
 	protected static Logger logger = null;
 	protected File tempDir;
 	protected int fileTmpIncr = 0;
+
+	protected static final int STANServerPORT = 4223;
+	protected static final String STAN_URL = "nats://localhost:" + STANServerPORT;
 
 	/**
 	 * @throws java.lang.Exception
@@ -95,6 +99,23 @@ public class AbstractSparkToNatsConnectorTest implements Serializable {
 		// start the subscribers apps
 		executor.execute(ns);
 	
+		// wait for subscribers to be ready.
+		ns.waitUntilReady();
+		return ns;
+	}
+
+	/**
+	 * @param data
+	 * @return
+	 */
+	protected NatsStreamingSubscriber getNatsStreamingSubscriber(final List<String> data, String subject, String clusterName, String clientName) {
+		ExecutorService executor = Executors.newFixedThreadPool(1);
+
+		NatsStreamingSubscriber ns = new NatsStreamingSubscriber(STAN_URL, subject + "_id", subject, clusterName, clientName, data.size());
+
+		// start the subscribers apps
+		executor.execute(ns);
+
 		// wait for subscribers to be ready.
 		ns.waitUntilReady();
 		return ns;
