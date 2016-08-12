@@ -29,7 +29,7 @@ import com.logimethods.connector.nats.spark.UnitTestUtilities;
 
 //@Ignore
 @SuppressWarnings("serial")
-public class SparkToStandardNatsConnectorTimeoutTest extends AbstractSparkToNatsConnectorTest {
+public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNatsConnectorTest {
 
 	/**
 	 * @throws java.lang.Exception
@@ -41,18 +41,18 @@ public class SparkToStandardNatsConnectorTimeoutTest extends AbstractSparkToNats
 		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, level);
 		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, level);
-		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorTimeoutTest.class, level);
+		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorLifecycleTest.class, level);
 		UnitTestUtilities.setLogLevel(TestClient.class, level);
 		UnitTestUtilities.setLogLevel("org.apache.spark", Level.WARN);
 		UnitTestUtilities.setLogLevel("org.spark-project", Level.WARN);
 	
-		logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorTimeoutTest.class);       
+		logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorLifecycleTest.class);       
 		
 		UnitTestUtilities.startDefaultServer();
 	}
 
 	@Test(timeout=20000)
-	public void testStaticSparkToNatsWithConnectionTimeout() throws Exception {  
+	public void testStaticSparkToNatsWithConnectionLifecycle() throws Exception {  
 		long poolSize = SparkToStandardNatsConnectorPool.poolSize();
 		
 		final List<String> data = getData();
