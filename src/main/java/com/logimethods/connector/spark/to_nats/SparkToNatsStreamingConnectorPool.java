@@ -89,8 +89,13 @@ public class SparkToNatsStreamingConnectorPool extends SparkToNatsConnectorPool<
 			final LinkedList<Connection> connectionsList = connectionsPoolMap.get(hashCode);
 			if (connectionsList != null) {
 				final Connection connection = ((SparkToNatsStreamingConnectorImpl)connector).connection;
-				logger.debug("Connection {} removed from Pool({})", connection, connectionsList);
+				logger.debug("Connection {} will be removed from Pool({})", connection, connectionsList);
 				connectionsList.remove(connection);
+				
+				if (connectionsList.size() == 0) {
+					connectionsPoolMap.remove(hashCode);
+					logger.debug("{} which is empty has been removed from {}", connectionsList, connectionsPoolMap);
+				}
 			}			
 		}
 	}

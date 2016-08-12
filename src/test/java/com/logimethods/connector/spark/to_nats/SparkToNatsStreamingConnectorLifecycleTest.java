@@ -7,7 +7,6 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
 import static io.nats.client.Constants.PROP_URL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -58,6 +57,8 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
     	runServer(clusterID, false);
 
     	long poolSize = SparkToNatsStreamingConnectorPool.poolSize();
+		final int connectionsPoolKeysNb = SparkToNatsStreamingConnectorPool.connectionsPoolMap.size();
+		final int connectorsByIdMapKeysNb = SparkToNatsStreamingConnectorPool.connectorsByIdMap.size();
 		
 		final List<String> data = getData();
 
@@ -90,9 +91,12 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		ns2.waitForCompletion();
 		
 		TimeUnit.MILLISECONDS.sleep(100);
-System.out.println(SparkToNatsStreamingConnectorPool.connectionsPoolMap);
-		assertEquals("The connections Pool size should be the same a the number of Spark partitions", 
+		assertEquals("The connections Pool size should be the same as the number of Spark partitions", 
 				poolSize + partitionsNb, SparkToNatsStreamingConnectorPool.poolSize());
+		assertEquals("The connectionsPoolMap " + SparkToNatsStreamingConnectorPool.connectionsPoolMap + " should contain ONE extra key", 
+				connectionsPoolKeysNb + 1, SparkToNatsStreamingConnectorPool.connectionsPoolMap.size());
+		assertEquals("The connectorsByIdMap " + SparkToNatsStreamingConnectorPool.connectorsByIdMap + " should not contain anymore extra keys", 
+				connectorsByIdMapKeysNb, SparkToNatsStreamingConnectorPool.connectorsByIdMap.size());
 				
 		final NatsStreamingSubscriber ns1p = getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1");
 		final NatsStreamingSubscriber ns2p = getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB1");
@@ -101,8 +105,12 @@ System.out.println(SparkToNatsStreamingConnectorPool.connectionsPoolMap);
 		ns1p.waitForCompletion();
 		ns2p.waitForCompletion();
 		TimeUnit.MILLISECONDS.sleep(100);
-		assertEquals("The connections Pool size should be the same a the number of Spark partitions", 
+		assertEquals("The connections Pool size should be the same as the number of Spark partitions", 
 				poolSize + partitionsNb, SparkToNatsStreamingConnectorPool.poolSize());
+		assertEquals("The connectionsPoolMap " + SparkToNatsStreamingConnectorPool.connectionsPoolMap + " should contain ONE extra key", 
+				connectionsPoolKeysNb + 1, SparkToNatsStreamingConnectorPool.connectionsPoolMap.size());
+		assertEquals("The connectorsByIdMap " + SparkToNatsStreamingConnectorPool.connectorsByIdMap + " should not contain anymore extra keys", 
+				connectorsByIdMapKeysNb, SparkToNatsStreamingConnectorPool.connectorsByIdMap.size());
 
 		ssc.stop();
 		ssc = null;
@@ -112,8 +120,11 @@ System.out.println(SparkToNatsStreamingConnectorPool.connectionsPoolMap);
 		TimeUnit.SECONDS.sleep(5);
 		logger.debug("After 5 sec delay");
 		
-		System.out.println(SparkToNatsStreamingConnectorPool.connectionsPoolMap);
 		assertTrue("The pool size should have been reduced to its original value", SparkToNatsStreamingConnectorPool.poolSize() == poolSize);
+		assertEquals("The connectionsPoolMap " + SparkToNatsStreamingConnectorPool.connectionsPoolMap + " should not contain anymore extra keys", 
+				connectionsPoolKeysNb, SparkToNatsStreamingConnectorPool.connectionsPoolMap.size());
+		assertEquals("The connectorsByIdMap " + SparkToNatsStreamingConnectorPool.connectorsByIdMap + " should not contain anymore extra keys", 
+				connectorsByIdMapKeysNb, SparkToNatsStreamingConnectorPool.connectorsByIdMap.size());
 	}
 
     static STANServer runServer(String clusterID, boolean debug) {
