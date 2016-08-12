@@ -171,15 +171,6 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 		return PROP_URL;
 	}
 
-	@Override
-	protected Properties getEnrichedProperties() {
-		// TODO Inverse : from properties to url...
-/*		if ((getProperties() != null) && (enrichedProperties == null)) {
-			enrichedProperties = getProperties();
-		}*/
-		return properties;
-	}
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */

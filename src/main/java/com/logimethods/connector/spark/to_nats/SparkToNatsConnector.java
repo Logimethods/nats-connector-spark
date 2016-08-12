@@ -9,10 +9,7 @@ package com.logimethods.connector.spark.to_nats;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -110,8 +107,6 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		this.properties = properties;
 	}
 
-	protected abstract Properties getEnrichedProperties();
-
 	protected abstract void publishToStr(String str) throws Exception;
 
 	/**
@@ -147,7 +142,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 */
 	protected String getNatsURL() {
 		if (natsURL == null) {
-			natsURL = getEnrichedProperties().getProperty(getsNatsUrlKey());
+			natsURL = getProperties().getProperty(getsNatsUrlKey());
 		}
 		return natsURL;
 	}

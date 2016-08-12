@@ -10,7 +10,6 @@ package com.logimethods.connector.spark.to_nats;
 import static io.nats.client.Constants.PROP_URL;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Properties;
@@ -31,7 +30,6 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 */
 	private static final long serialVersionUID = 1L;
 	protected static final Logger logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorImpl.class);
-	protected Properties enrichedProperties;
 	protected transient ConnectionFactory connectionFactory;
 	protected transient Connection connection;
 
@@ -163,15 +161,6 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	
 	protected String getsNatsUrlKey() {
 		return PROP_URL;
-	}
-
-	@Override
-	protected Properties getEnrichedProperties() {
-		if ((enrichedProperties == null) && (getProperties() != null)) {
-			enrichedProperties = getProperties();
-			enrichedProperties.setProperty(getsNatsUrlKey(), getNatsURL());
-		}
-		return enrichedProperties;
 	}
 
 	/* (non-Javadoc)
