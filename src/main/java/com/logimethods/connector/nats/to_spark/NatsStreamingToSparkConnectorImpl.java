@@ -217,8 +217,8 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 
 		// Make connection and initialize streams			  
 		final ConnectionFactory connectionFactory = new ConnectionFactory(clusterID, clientID);
-		if (natsUrl != null) {
-			connectionFactory.setNatsUrl(natsUrl);
+		if (getNatsUrl() != null) {
+			connectionFactory.setNatsUrl(getNatsUrl());
 		}
 		final Connection connection = connectionFactory.createConnection();
 //		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);

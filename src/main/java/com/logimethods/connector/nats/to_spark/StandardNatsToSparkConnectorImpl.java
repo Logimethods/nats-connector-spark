@@ -120,7 +120,7 @@ public class StandardNatsToSparkConnectorImpl extends NatsToSparkConnector<Stand
 
 	protected Properties getEnrichedProperties() throws IncompleteException {
 		if (enrichedProperties == null) {
-			enrichedProperties = getProperties(); // TODO Clone?
+			enrichedProperties = getProperties();
 			if (enrichedProperties == null) {
 				enrichedProperties = new Properties();
 			}

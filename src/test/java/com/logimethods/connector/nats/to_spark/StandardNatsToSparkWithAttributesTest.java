@@ -30,6 +30,7 @@ public class StandardNatsToSparkWithAttributesTest {
 	protected final static String CLUSTER_ID = "CLUSTER_ID";
 	private static final int STANServerPORT = 4223;
 	private static final String STAN_URL = "nats://localhost:" + STANServerPORT;
+	private static final String ALT_STAN_URL = "nats://1.1.1.1:" + STANServerPORT;
 	protected final static String DURABLE_NAME = "$DURABLE_NAME";
 	protected final static Properties PROPERTIES = new Properties();
 	
@@ -39,81 +40,38 @@ public class StandardNatsToSparkWithAttributesTest {
 	}
 
 	@Test
-	public void testNatsStandardToSparkConnectorImpl_1() {
+	public void testNatsStandardToSparkConnectorImpl_0() throws IncompleteException {
+		StandardNatsToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY())
+				.withProperties(PROPERTIES);
+		assertTrue(connector instanceof StandardNatsToSparkConnectorImpl);
+		assertEquals(STAN_URL, connector.getEnrichedProperties().getProperty(PROP_URL));
+		assertEquals(3, connector.getSubjects().size());
+	}
+
+	@Test
+	public void testNatsStandardToSparkConnectorImpl_1() throws IncompleteException {
 		StandardNatsToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY())
 				.withProperties(PROPERTIES).withSubjects("SUBJECT");
 		assertTrue(connector instanceof StandardNatsToSparkConnectorImpl);
-		// TODO Check natsURL
+		assertEquals(STAN_URL, connector.getEnrichedProperties().getProperty(PROP_URL));
+		assertEquals(1, connector.getSubjects().size());
 	}
 
 	@Test
-	public void testNatsStandardToSparkConnectorImpl_2() {
+	public void testNatsStandardToSparkConnectorImpl_2() throws IncompleteException {
 		StandardNatsToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY())
 			.withSubjects("SUBJECT").withProperties(PROPERTIES);
 		assertTrue(connector instanceof StandardNatsToSparkConnectorImpl);
-	}
-
-	@Test
-	public void testNatsStreamingToSparkConnectorImpl_1() {
-		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-				.withNatsURL(STAN_URL).withProperties(PROPERTIES).withSubjects("SUBJECT");
-		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
-	}
-
-	@Test
-	public void testNatsStreamingToSparkConnectorImpl_2() {
-		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME);
-		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-				.withNatsURL(STAN_URL).withProperties(PROPERTIES).withSubscriptionOptionsBuilder(optsBuilder).withSubjects("SUBJECT");
-		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
-		assertEquals(DURABLE_NAME, connector.getSubscriptionOptions().getDurableName());
-	}
-
-	@Test
-	public void testNatsStreamingToSparkConnectorImpl_3() {
-		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-				.withNatsURL(STAN_URL).startWithLastReceived().setDurableName(DURABLE_NAME).withSubjects("SUBJECT");
-		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
-		assertEquals(DURABLE_NAME, connector.getSubscriptionOptions().getDurableName());
-	}
-
-	@Test
-	public void testNatsStreamingToSparkConnectorImpl_4() {
-		final Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
-		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME).startAtTime(start);
-		final String newName = "NEW NAME";
-		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-				.withNatsURL(STAN_URL).withProperties(PROPERTIES).withSubscriptionOptionsBuilder(optsBuilder).setDurableName(newName).withSubjects("SUBJECT");
-		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
-		assertEquals(newName, connector.getSubscriptionOptions().getDurableName());
-		assertEquals(start, connector.getSubscriptionOptions().getStartTime());
-	}
-
-	@Test
-	public void testNatsStreamingToSparkConnectorImpl_5() {
-		final Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
-		NatsStreamingToSparkConnectorImpl connector = NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-				.withNatsURL(STAN_URL).withProperties(PROPERTIES).setDurableName(DURABLE_NAME).startAtTime(start).withSubjects("SUBJECT");
-		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
-		assertEquals(DURABLE_NAME, connector.getSubscriptionOptions().getDurableName());
-		assertEquals(start, connector.getSubscriptionOptions().getStartTime());
+		assertEquals(STAN_URL, connector.getEnrichedProperties().getProperty(PROP_URL));
+		assertEquals(1, connector.getSubjects().size());
 	}
 	
 	/**
 	 * Test method for {@link com.logimethods.connector.nats.to_spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
 	 * @throws Exception 
 	 */
-	@Test(timeout=6000)
+	@Test(timeout=6000, expected=IncompleteException.class)
 	public void testNatsToSparkConnectorWITHOUTSubjects() throws Exception {
-		
-		try {
-			NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withNatsURL(NATS_SERVER_URL).receive();
-		} catch (IncompleteException e) {
-			e.printStackTrace();
-			return;
-		}	
-
-		fail("An Exception(\"NatsToSparkConnector needs at least one Subject\") should have been raised.");
+		NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withNatsURL(NATS_SERVER_URL).receive();
 	}
-
 }

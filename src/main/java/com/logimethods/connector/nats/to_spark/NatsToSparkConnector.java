@@ -19,6 +19,7 @@ import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.nats_spark.Utilities;
 
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
+import static io.nats.client.Constants.PROP_URL;
 
 /**
  * A NATS to Spark Connector.
@@ -140,6 +141,14 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 			logger.debug("Subject(s) provided by the Properties: '{}'", subjects);
 		}
 		return subjects;
+	}    		
+
+	protected String getNatsUrl() {
+		if (natsUrl ==  null) {
+			natsUrl = getProperties() != null ?  getProperties().getProperty(PROP_URL) : null;
+			logger.debug("NatsUrl provided by the Properties: '{}'", natsUrl);
+		}
+		return natsUrl;
 	}    		
 
 	protected static String getUniqueClientName() {
