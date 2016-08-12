@@ -132,7 +132,6 @@ JavaReceiverInputDStream<String> messages =
 
 The optional settings are:
 * `withSubjects(String... subjects)`
-* `withQueue(String queue)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
 
@@ -152,7 +151,6 @@ JavaReceiverInputDStream<String> messages =
 
 The optional settings are:
 * `withSubjects(String... subjects)`
-* `withQueue(String queue)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
 
