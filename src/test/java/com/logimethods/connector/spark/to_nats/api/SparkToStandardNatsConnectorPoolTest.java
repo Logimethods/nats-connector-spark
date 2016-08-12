@@ -10,57 +10,28 @@ package com.logimethods.connector.spark.to_nats.api;
 import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Constants.PROP_URL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Level;
-import org.apache.spark.SparkConf;
-import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaDStream;
-import org.apache.spark.streaming.api.java.JavaStreamingContext;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.Files;
 import com.logimethods.connector.nats.spark.StandardNatsSubscriber;
 import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
 import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnector;
+import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnectorTest;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
 import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
-import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorPool;
 
 //@Ignore
 @SuppressWarnings("serial")
-public class SparkToStandardNatsConnectorPoolTest implements Serializable {
-
-	protected static final String DEFAULT_SUBJECT = "spark2natsSubject";
-//	public static final String NATS_URL = "nats://localhost:4222";
-	static JavaStreamingContext ssc;
-	static Logger logger = null;
-	File tempDir;
-	protected int fileTmpIncr = 0;
+public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsConnectorTest {
 
 	/**
 	 * @throws java.lang.Exception
@@ -82,73 +53,6 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorPoolTest.class);       
 		
 		UnitTestUtilities.startDefaultServer();
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-		UnitTestUtilities.stopDefaultServer();
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-		SparkToNatsConnector.CONNECTIONS.clear();
-
-		// Create a local StreamingContext with two working thread and batch interval of 1 second
-		SparkConf conf = new SparkConf().setMaster("local[3]").setAppName("My Spark Streaming Job");
-		ssc = new JavaStreamingContext(conf, Durations.seconds(1));
-		
-	    tempDir = Files.createTempDir();
-	    tempDir.deleteOnExit();
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@After
-	public void tearDown() throws Exception {
-	    if (ssc != null) {
-			ssc.stop();
-			ssc = null;
-		}
-	}
-
-
-	/**
-	 * @return
-	 */
-	protected List<String> getData() {
-		final List<String> data = Arrays.asList(new String[] {
-				"data_1",
-				"data_2",
-				"data_3",
-				"data_4",
-				"data_5",
-				"data_6"
-		});
-		return data;
-	}
-
-	/**
-	 * @param data
-	 * @return
-	 */
-	protected StandardNatsSubscriber getStandardNatsSubscriber(final List<String> data, String subject) {
-		ExecutorService executor = Executors.newFixedThreadPool(1);
-
-		final StandardNatsSubscriber ns = new StandardNatsSubscriber(NATS_SERVER_URL, subject + "_id", subject, data.size());
-
-		// start the subscribers apps
-		executor.execute(ns);
-
-		// wait for subscribers to be ready.
-		ns.waitUntilReady();
-		return ns;
 	}
 
 	@Test(timeout=8000)
@@ -174,66 +78,6 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
-	}
-
-	@Test(timeout=20000)
-	public void testStaticSparkToNatsWithConnectionTimeout() throws Exception {  
-		long poolSize = SparkToStandardNatsConnectorPool.poolSize();
-		
-		final List<String> data = getData();
-
-		final String subject1 = "subject1";
-
-		final String subject2 = "subject2";
-
-		final int partitionsNb = 2;
-		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(partitionsNb);		
-		
-		assertTrue("NO connections should be open when entering the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
-
-		SparkToNatsConnectorPool.newPool()
-			.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
-			.withNatsURL(NATS_SERVER_URL)
-			.withConnectionTimeout(Duration.ofSeconds(partitionsNb))
-			.publishToNats(lines);
-		
-		ssc.start();
-
-		TimeUnit.SECONDS.sleep(1);
-
-		final StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
-		final StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
-		writeTmpFile(data);
-		// wait for the subscribers to complete.
-		ns1.waitForCompletion();
-		ns2.waitForCompletion();
-		assertEquals("The connections Pool size should be the same a the number of Spark partitions", 
-					partitionsNb, SparkToStandardNatsConnectorPool.poolSize());
-				
-		final StandardNatsSubscriber ns1p = getStandardNatsSubscriber(data, subject1);
-		final StandardNatsSubscriber ns2p = getStandardNatsSubscriber(data, subject2);
-		writeTmpFile(data);
-		// wait for the subscribers to complete.
-		ns1p.waitForCompletion();
-		ns2p.waitForCompletion();
-		assertEquals("The connections Pool size should be the same a the number of Spark partitions", 
-					partitionsNb, SparkToStandardNatsConnectorPool.poolSize());
-
-		ssc.stop();
-		ssc = null;
-		
-		logger.debug("Spark Context Stopped");
-		
-		assertTrue("The pool size should have been increased from " + poolSize, SparkToStandardNatsConnectorPool.poolSize() > poolSize);
-		assertFalse("Some connections should have been opened", SparkToNatsConnector.CONNECTIONS.isEmpty());
-		
-System.out.println("DATE:  " + new Date());
-		TimeUnit.SECONDS.sleep(5);
-System.out.println("DATE:  " + new Date());
-		logger.debug("After 5 sec delay");
-		
-		assertTrue("NO connections should be still open when exiting the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
-		assertTrue("The pool size should have been reduced to its original value", SparkToStandardNatsConnectorPool.poolSize() == poolSize);
 	}
 
 	@Test(timeout=8000)
@@ -288,14 +132,5 @@ System.out.println("DATE:  " + new Date());
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
-	}
-
-	private void writeTmpFile(final List<String> data) throws FileNotFoundException, UnsupportedEncodingException {
-		final File tmpFile = new File(tempDir.getAbsolutePath(), "tmp" + fileTmpIncr++ +".txt");
-		final PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
-		for(String str: data) {
-			writer.println(str);
-		}		
-		writer.close();
 	}
 }
