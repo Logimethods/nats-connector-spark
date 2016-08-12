@@ -79,12 +79,14 @@ public class SparkToStandardNatsConnectorPool extends SparkToNatsConnectorPool<S
 		return null;
 	}
 
-	public static long poolSize() {
-		int size = 0;
-		for (LinkedList<Connection> poolList: connectionsPoolMap.values()){
-			size += poolList.size();
+	protected static long poolSize() {
+		synchronized(connectionsPoolMap) {
+			int size = 0;
+			for (LinkedList<Connection> poolList: connectionsPoolMap.values()){
+				size += poolList.size();
+			}
+			return size;
 		}
-		return size;
 	}
 
 	/* (non-Javadoc)

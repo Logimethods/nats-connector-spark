@@ -80,6 +80,8 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
+		
+		TimeUnit.MILLISECONDS.sleep(100);
 		assertEquals("The connections Pool size should be the same a the number of Spark partitions", 
 					partitionsNb, SparkToStandardNatsConnectorPool.poolSize());
 				
@@ -89,6 +91,7 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 		// wait for the subscribers to complete.
 		ns1p.waitForCompletion();
 		ns2p.waitForCompletion();
+		TimeUnit.MILLISECONDS.sleep(100);
 		assertEquals("The connections Pool size should be the same a the number of Spark partitions", 
 					partitionsNb, SparkToStandardNatsConnectorPool.poolSize());
 
@@ -97,13 +100,12 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 		
 		logger.debug("Spark Context Stopped");
 		
-		assertTrue("The pool size should have been increased from " + poolSize, SparkToStandardNatsConnectorPool.poolSize() > poolSize);
-		
 System.out.println("DATE:  " + new Date());
 		TimeUnit.SECONDS.sleep(5);
 System.out.println("DATE:  " + new Date());
 		logger.debug("After 5 sec delay");
 		
+		System.out.println(SparkToStandardNatsConnectorPool.connectionsPoolMap);
 		assertTrue("The pool size should have been reduced to its original value", SparkToStandardNatsConnectorPool.poolSize() == poolSize);
 	}
 }
