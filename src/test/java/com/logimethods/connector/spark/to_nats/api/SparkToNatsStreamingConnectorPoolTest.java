@@ -56,7 +56,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		Level level = Level.DEBUG;
+		Level level = Level.WARN;
 		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, level);
 		UnitTestUtilities.setLogLevel(NatsToSparkConnector.class, level);
 		UnitTestUtilities.setLogLevel(SparkToNatsStreamingConnectorPoolTest.class, level);

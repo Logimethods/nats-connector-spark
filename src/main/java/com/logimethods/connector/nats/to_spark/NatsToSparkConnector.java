@@ -62,13 +62,6 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 		this.subjects = Utilities.transformIntoAList(subjects);
 		return (T)this;
 	}
-	
-	// TODO Test the validity of that attribute when used by NatsStreamingToSparkConnectorImpl
-	@SuppressWarnings("unchecked")
-	public T withQueue(String queue) {
-		this.queue = queue;
-		return (T)this;
-	}
 
 	@SuppressWarnings("unchecked")
 	public T withProperties(Properties properties) {
@@ -128,7 +121,7 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 	protected abstract void receive() throws Exception;
 	
 	protected void setQueue() {
-		queue = "Q" + System.identityHashCode(this) ;
+		queue = "NatsToSparkConnector_" + Utilities.generateUniqueID(this) ;
 	}
 
 	protected Properties getProperties(){

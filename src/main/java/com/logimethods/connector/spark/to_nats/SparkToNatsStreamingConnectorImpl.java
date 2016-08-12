@@ -72,7 +72,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 */
 	protected String getClientID() {
 		if (clientID == null ) {
-			clientID = CLIENT_ID_ROOT + Utilities.generateUniqueID();
+			clientID = CLIENT_ID_ROOT + Utilities.generateUniqueID(this);
 		}
 		return clientID;
 	}

@@ -163,38 +163,6 @@ public class SparkToStandardNatsConnectorTest {
 		ns2.waitForCompletion();
 	}
 
-	@Test(timeout=8000)
-	public void testStaticSparkToNatsWithTimeout() throws Exception { 
-	   	// TODO Replace the deleted assertions
-		final List<String> data = getData();
-
-		String subject1 = "subject1";
-		StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
-
-		String subject2 = "subject2";
-		StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
-
-		JavaRDD<String> rdd = sc.parallelize(data);
-		
-///		assertTrue("NO connections should be opened when entering the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
-
-		rdd.foreach(
-				SparkToNatsConnector
-					.newConnection().withNatsURL(NATS_SERVER_URL).withSubjects(DEFAULT_SUBJECT, subject1, subject2)
-					.withConnectionTimeout(Duration.ofSeconds(2))
-					.publishToNats());	
-
-		// wait for the subscribers to complete.
-		ns1.waitForCompletion();
-		ns2.waitForCompletion();
-		
-///		assertFalse("Some connections should have been opened", SparkToNatsConnector.CONNECTIONS.isEmpty());
-		
-		TimeUnit.SECONDS.sleep(5);
-		
-///		assertTrue("NO connections should be still opened when exiting the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
-	}
-
 	@Test(timeout=2000)
 	public void testStaticSparkToNatsWithProperties() throws Exception {   
 		final List<String> data = getData();

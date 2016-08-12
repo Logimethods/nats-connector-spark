@@ -24,6 +24,10 @@ public class Utilities {
 		return list;
 	}
 	
+	public static long generateUniqueID(Object obj) {
+		return System.identityHashCode(obj) + Thread.currentThread().getId() + java.lang.System.currentTimeMillis();
+	}
+	
 	public static long generateUniqueID() {
 		return Thread.currentThread().getId() + java.lang.System.currentTimeMillis();
 	}

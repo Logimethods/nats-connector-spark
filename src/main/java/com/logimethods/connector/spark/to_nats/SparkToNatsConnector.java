@@ -41,7 +41,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected transient Integer sealedHashCode;
 	protected Long connectionTimeout;
 	protected transient ScheduledFuture<?> closingFuture;
-	protected long internalId = Utilities.generateUniqueID();
+	protected long internalId = Utilities.generateUniqueID(this);
 	
 	/**
 	 * 
