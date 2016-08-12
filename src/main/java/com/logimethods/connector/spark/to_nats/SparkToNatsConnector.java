@@ -8,6 +8,7 @@
 package com.logimethods.connector.spark.to_nats;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -188,13 +189,16 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 */
 	protected void resetClosingTimeout() {
 		if (connectionTimeout != null) {
+			logger.debug("At {}, READY to resetClosingTimeout({})", new Date().getTime(), this);
 			synchronized(scheduler) {
+				logger.debug("At {}, STARTING to resetClosingTimeout({})", new Date().getTime(), this);
 				if ((closingFuture != null) && (closingFuture.getDelay(TimeUnit.NANOSECONDS) < connectionTimeout)) {
 					closingFuture.cancel(false);
 					closingFuture = null;
 				}
 				if (closingFuture == null) {
 					closingFuture = scheduler.schedule(() -> closeConnection(), 2 * connectionTimeout, TimeUnit.NANOSECONDS);
+					logger.debug("Will start at {}, STARTING to resetClosingTimeout({})", new Date().getTime() + closingFuture.getDelay(TimeUnit.MILLISECONDS), this);
 				}
 			}
 		}

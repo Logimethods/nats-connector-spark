@@ -12,6 +12,7 @@ import static io.nats.client.Constants.PROP_URL;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
@@ -140,7 +141,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 
 	@Override
 	protected synchronized void closeConnection() {
-		logger.debug("Ready to close '{}' by {}", connection, super.toString());
+		logger.debug("At {}, ready to close '{}' by {}", new Date().getTime(), connection, super.toString());
 		removeFromPool();
 
 		if (connection != null) {

@@ -40,7 +40,7 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		Level level = Level.TRACE;
+		Level level = Level.WARN;
 		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, level);
 		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
 		UnitTestUtilities.setLogLevel(SparkToNatsStreamingConnectorImpl.class, level);
@@ -66,7 +66,7 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 
 		final String subject2 = "subject2";
 
-		final int partitionsNb = 2;
+		final int partitionsNb = 3;
 		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(partitionsNb);		
 		
 		final Properties properties = new Properties();
@@ -76,7 +76,6 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 			.withProperties(properties)
 			.withConnectionTimeout(Duration.ofSeconds(2))
 			.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
-			.withConnectionTimeout(Duration.ofSeconds(partitionsNb))
 			.publishToNats(lines);
 		
 		ssc.start();
@@ -120,7 +119,8 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		TimeUnit.SECONDS.sleep(5);
 		logger.debug("After 5 sec delay");
 		
-		assertTrue("The pool size should have been reduced to its original value", SparkToNatsStreamingConnectorPool.poolSize() == poolSize);
+		assertTrue("The poolSize() of " + SparkToNatsStreamingConnectorPool.connectionsPoolMap + " should have been reverted to its original value",
+				SparkToNatsStreamingConnectorPool.poolSize() == poolSize);
 		assertEquals("The connectionsPoolMap " + SparkToNatsStreamingConnectorPool.connectionsPoolMap + " should not contain anymore extra keys", 
 				connectionsPoolKeysNb, SparkToNatsStreamingConnectorPool.connectionsPoolMap.size());
 		assertEquals("The connectorsByIdMap " + SparkToNatsStreamingConnectorPool.connectorsByIdMap + " should not contain anymore extra keys", 

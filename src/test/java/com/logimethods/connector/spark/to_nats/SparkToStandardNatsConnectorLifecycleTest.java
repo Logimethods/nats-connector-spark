@@ -35,7 +35,7 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		Level level = Level.TRACE;
+		Level level = Level.WARN;
 		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, level);
 		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, level);
@@ -61,13 +61,14 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 
 		final String subject2 = "subject2";
 
-		final int partitionsNb = 2;
+		final int partitionsNb = 3;
 		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(partitionsNb);		
 		
-		SparkToNatsConnectorPool.newPool()
-			.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
+		SparkToNatsConnectorPool
+			.newPool()
 			.withNatsURL(NATS_SERVER_URL)
-			.withConnectionTimeout(Duration.ofSeconds(partitionsNb))
+			.withConnectionTimeout(Duration.ofSeconds(2))
+			.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
 			.publishToNats(lines);
 		
 		ssc.start();
@@ -112,7 +113,8 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 		TimeUnit.SECONDS.sleep(5);
 		logger.debug("After 5 sec delay");
 		
-		assertTrue("The pool size should have been reduced to its original value", SparkToStandardNatsConnectorPool.poolSize() == poolSize);
+		assertTrue("The poolSize() of " + SparkToStandardNatsConnectorPool.connectionsPoolMap + " should have been reverted to its original value",
+				SparkToStandardNatsConnectorPool.poolSize() == poolSize);
 		assertEquals("The connectionsPoolMap " + SparkToStandardNatsConnectorPool.connectionsPoolMap + " should not contain anymore extra keys", 
 				connectionsPoolKeysNb, SparkToStandardNatsConnectorPool.connectionsPoolMap.size());
 		assertEquals("The connectorsByIdMap " + SparkToStandardNatsConnectorPool.connectorsByIdMap + " should not contain anymore extra keys", 

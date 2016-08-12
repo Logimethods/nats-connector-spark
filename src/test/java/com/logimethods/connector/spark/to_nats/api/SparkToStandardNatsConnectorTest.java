@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import com.logimethods.connector.nats.spark.StandardNatsSubscriber;
 import com.logimethods.connector.nats.spark.TestClient;
 import com.logimethods.connector.nats.spark.UnitTestUtilities;
-import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
 
@@ -54,7 +53,7 @@ public class SparkToStandardNatsConnectorTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		Level level = Level.TRACE;
+		Level level = Level.WARN;
 		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, level);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorTest.class, level);
