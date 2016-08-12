@@ -10,6 +10,7 @@ package com.logimethods.connector.spark.to_nats.api;
 import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Constants.PROP_URL;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -185,14 +186,15 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 
 		final String subject2 = "subject2";
 
-		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(2);		
+		final int partitionsNb = 2;
+		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(partitionsNb);		
 		
 		assertTrue("NO connections should be open when entering the test", SparkToNatsConnector.CONNECTIONS.isEmpty());
 
 		SparkToNatsConnectorPool.newPool()
 			.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
 			.withNatsURL(NATS_SERVER_URL)
-			.withConnectionTimeout(Duration.ofSeconds(2))
+			.withConnectionTimeout(Duration.ofSeconds(partitionsNb))
 			.publishToNats(lines);
 		
 		ssc.start();
@@ -205,6 +207,8 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
+		assertEquals("The connections Pool size should be the same a the number of Spark partitions", 
+					partitionsNb, SparkToStandardNatsConnectorPool.poolSize());
 				
 		final StandardNatsSubscriber ns1p = getStandardNatsSubscriber(data, subject1);
 		final StandardNatsSubscriber ns2p = getStandardNatsSubscriber(data, subject2);
@@ -212,6 +216,8 @@ public class SparkToStandardNatsConnectorPoolTest implements Serializable {
 		// wait for the subscribers to complete.
 		ns1p.waitForCompletion();
 		ns2p.waitForCompletion();
+		assertEquals("The connections Pool size should be the same a the number of Spark partitions", 
+					partitionsNb, SparkToStandardNatsConnectorPool.poolSize());
 
 		ssc.stop();
 		ssc = null;
