@@ -7,8 +7,9 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
+import static io.nats.client.Constants.PROP_URL;
+
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Properties;
@@ -21,8 +22,6 @@ import com.logimethods.connector.nats_spark.Utilities;
 
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
-
-import static io.nats.client.Constants.*;
 
 public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNatsStreamingConnectorImpl> {
 
