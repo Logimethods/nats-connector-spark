@@ -5,11 +5,12 @@ build:
     - script:
         name: Populate local maven repo
         code: |
-          cp -R repository/ "/root/.m2/repository"
-          ls "/root/.m2/repository"
+          ls -R .
+          cp -R ./repository/ "/root/.m2/repository/"
+          ls -R "/root/.m2/"
     - xenoterracide/maven:
         name: Compile & Test
-        goals: compile test
+        goals: -X compile test
 
 deploy_snapshot:
   steps:
