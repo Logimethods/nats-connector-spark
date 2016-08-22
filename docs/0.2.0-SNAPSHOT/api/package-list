@@ -1,1 +1,3 @@
-com.logimethods.nats.connector.spark
+com.logimethods.connector.nats.to_spark
+com.logimethods.connector.nats_spark
+com.logimethods.connector.spark.to_nats
