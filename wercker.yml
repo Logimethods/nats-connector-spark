@@ -3,14 +3,17 @@ box: logimethods/maven-nats
 build:
   steps:
     - script:
-        name: Populate local maven repo
+        name: (TMP) Populate local maven repo
         code: |
-          echo "WERCKER_CACHE_DIR $WERCKER_CACHE_DIR"
           cp -v -R "./repository/io/nats/java-nats-streaming/" "${WERCKER_CACHE_DIR}/io/nats/"
-          ls -alsR "${WERCKER_CACHE_DIR}/io/nats/java-nats-streaming"
+    - script:
+        name: Start NATS servers
+        code: |
+          gnatsd -p 4221&
+          nats-streaming-server -p 4223&
     - xenoterracide/maven:
         name: Compile & Test
-        goals: -X compile test
+        goals: clean compile test
 
 deploy_snapshot:
   steps:
