@@ -6,8 +6,6 @@ build:
         name: Populate local maven repo
         code: |
           ls -R .
-#          cp -R ./repository/ "/root/.m2/repository/"
-#          ls -R "/root/.m2/"
           cp -R ./repository/ /pipeline/cache/
           cp -R ./repository/ /pipeline/repository/
           ls -R "/pipeline/cache/"
