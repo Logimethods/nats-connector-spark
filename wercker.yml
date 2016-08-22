@@ -6,8 +6,8 @@ build:
         name: Populate local maven repo
         code: |
           echo "WERCKER_CACHE_DIR $WERCKER_CACHE_DIR"
-          cp -v -R "./repository/" ${WERCKER_CACHE_DIR}/
-          ls -alsR "/pipeline/cache/io/nats/java-nats-streaming"
+          cp -v -R "./repository/io/nats/java-nats-streaming/" "${WERCKER_CACHE_DIR}/io/nats/"
+          ls -alsR "${WERCKER_CACHE_DIR}/io/nats/java-nats-streaming"
     - xenoterracide/maven:
         name: Compile & Test
         goals: -X compile test
