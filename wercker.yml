@@ -5,10 +5,9 @@ build:
     - script:
         name: Populate local maven repo
         code: |
-          ls -R .
-          cp -R "./repository/*" /pipeline/cache/
           echo "WERCKER_CACHE_DIR $WERCKER_CACHE_DIR"
-          ls -R "/pipeline/cache/"
+          cp -R "./repository/" /pipeline/cache/
+          ls -R "/pipeline/cache/io/"
     - xenoterracide/maven:
         name: Compile & Test
         goals: -X compile test
