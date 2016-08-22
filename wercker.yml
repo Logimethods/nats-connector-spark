@@ -3,9 +3,10 @@ box: logimethods/maven-nats
 build:
   steps:
     - script:
-        name: Get Maven Repo Path
+        name: Populate local maven repo
         code: |
-          mvn help:evaluate -Dexpression=settings.localRepository
+          cp -R repository/ "/root/.m2/repository"
+          ls "/root/.m2/repository"
     - xenoterracide/maven:
         name: Compile & Test
         goals: compile test

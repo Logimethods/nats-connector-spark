@@ -1,0 +1,344 @@
+<!-- Copyright (c) 2015-2016 Apcera Inc. All rights reserved. This program 
+    and the accompanying materials are made available under the terms of the 
+    MIT License (MIT) which accompanies this distribution, and is available at 
+    http://opensource.org/licenses/MIT -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.nats</groupId>
+        <artifactId>nats-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>io.nats</groupId>
+    <artifactId>java-nats-streaming</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>java-nats-streaming</name>
+    <description>Java client library for NATS Streaming</description>
+    <url>https://github.com/nats-io/java-nats-streaming</url>
+    <inceptionYear>2016</inceptionYear>
+    <organization>
+        <url>http://nats.io</url>
+        <name>Apcera, Inc.</name>
+    </organization>
+    <scm>
+        <url>https://github.com/nats-io/java-nats-streaming</url>
+        <connection>scm:git:git://github.com/nats-io/java-nats-streaming.git</connection>
+        <developerConnection>scm:git:git@github.com:nats-io/java-nats-streaming.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+    <issueManagement>
+        <url>https://github.com/nats-io/java-nats-streaming/issues/</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
+    <ciManagement>
+        <system>Travis</system>
+        <url>https://travis-ci.org/nats-io/java-nats-streaming/</url>
+    </ciManagement>
+
+    <properties>
+        <!-- protobuf paths -->
+        <protobuf.input.directory>${project.basedir}/src/main/proto</protobuf.input.directory>
+        <protobuf.output.directory>${project.build.directory}/generated-sources</protobuf.output.directory>
+
+        <!-- library versions -->
+        <jnats-version>0.5.0-SNAPSHOT</jnats-version>
+        
+        <!-- plugin configuration -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        
+    </properties>
+
+    <dependencyManagement />
+    <dependencies>
+        <!-- COMPILE -->
+        <dependency>
+            <groupId>io.nats</groupId>
+            <artifactId>jnats</artifactId>
+            <version>${jnats-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf-java-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava-version}</version>
+        </dependency>
+
+        <!-- TEST -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>${groovy-version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- copy protoc binary artifact -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-protoc</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.google.protobuf</groupId>
+                                    <artifactId>protoc</artifactId>
+                                    <version>${protobuf-java-version}</version>
+                                    <classifier>${os.detected.classifier}</classifier>
+                                    <type>exe</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
+            <!-- compile proto buffer files using copied protoc binary -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>exec-protoc</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <target>
+                                <property name="protoc.filename"
+                                    value="protoc-${protobuf-java-version}-${os.detected.classifier}.exe" />
+                                <property name="protoc.filepath"
+                                    value="${project.build.directory}/${protoc.filename}" />
+                                <chmod file="${protoc.filepath}"
+                                    perm="ugo+rx" />
+                                <mkdir dir="${protobuf.output.directory}" />
+                                <path id="protobuf.input.filepaths.path">
+                                    <fileset
+                                        dir="${protobuf.input.directory}">
+                                        <include name="*.proto" />
+                                    </fileset>
+                                </path>
+                                <pathconvert pathsep=" "
+                                    property="protobuf.input.filepaths"
+                                    refid="protobuf.input.filepaths.path" />
+                                <exec executable="${protoc.filepath}"
+                                    failonerror="true">
+                                    <arg value="-I" />
+                                    <arg value="${protobuf.input.directory}" />
+                                    <arg value="--proto_path" />
+                                    <arg
+                                        value="/usr/include:/usr/local/include" />
+                                    <arg value="--java_out" />
+                                    <arg value="${protobuf.output.directory}" />
+                                    <arg line="${protobuf.input.filepaths}" />
+                                </exec>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- add generated proto buffer classes into the package -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-classes</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${protobuf.output.directory}</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- this should go away when the repo is public. -->
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <configuration>
+                    <serviceName>travis-pro</serviceName>
+                    <repoToken>${env.COVERALLS_TOKEN}</repoToken>
+                    <jacocoFile>${project.reporting.outputDirectory}/jacoco-ut/jacoco.xml</jacocoFile>
+                    <sourceEncoding>${project.reporting.sourceEncoding}</sourceEncoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <header>java-nats-streaming:${project.version}</header>
+                    <footer>java-nats-streaming:${project.version}</footer>
+                    <author>false</author>
+                    <doctitle>${project.name} (${project.version})</doctitle>
+                    <!-- <stylesheetfile>${basedir}/src/main/javadoc/kenai-stylesheet.css</stylesheetfile> 
+                        <javadocDirectory>${basedir}/src/main/javadoc</javadocDirectory> -->
+                    <docfilessubdirs>true</docfilessubdirs>
+                    <additionalJOption>-J-Xmx1024m</additionalJOption>
+                    <excludePackageNames>io.nats.stan.protobuf</excludePackageNames>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                            <goal>aggregate</goal>
+                        </goals>
+                        <configuration>
+                            <failOnError>true</failOnError>
+                            <show>public</show>
+                            <nohelp>true</nohelp>
+                            <header>java-nats-streaming:${project.version}</header>
+                            <footer>java-nats-streaming:${project.version}</footer>
+                            <doctitle>java-nats-streaming (${project.version})</doctitle>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-publish-plugin</artifactId>
+                <configuration>
+                    <checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
+                    <checkinComment>Publishing javadoc for
+                        ${project.artifactId}:${project.version}</checkinComment>
+                    <content>${project.reporting.outputDirectory}/apidocs</content>
+                    <skipDeletedFiles>true</skipDeletedFiles>
+                    <pubScmUrl>scm:git:git@github.com:nats-io/${project.artifactId}.git</pubScmUrl>
+                    <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>ossrh</id>
+            <properties>
+                <gpg.executable>gpg</gpg.executable>
+                <gpg.keyname>${env.GPG_KEYNAME}</gpg.keyname>
+                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+                <gpg.defaultKeyring>false</gpg.defaultKeyring>
+                <gpg.publicKeyring>${env.GPG_DIR}/pubring.gpg</gpg.publicKeyring>
+                <gpg.secretKeyring>${env.GPG_DIR}/secring.gpg</gpg.secretKeyring>
+            </properties>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin-version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>${nexus-staging-maven-plugin}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>unitTests</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <groups>io.nats.stan.UnitTest</groups>
+                            <argLine>${argLine}</argLine>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <!-- <id>run-unit-tests</id> -->
+                                <id>default-test</id>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>benchTests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <groups>io.nats.stan.BenchmarkTest</groups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
