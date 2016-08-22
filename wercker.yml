@@ -2,6 +2,10 @@ box: logimethods/maven-nats
 
 build:
   steps:
+    - script:
+        name: Get Maven Repo Path
+        code: |
+          mvn help:evaluate -Dexpression=settings.localRepository
     - xenoterracide/maven:
         name: Compile & Test
         goals: compile test
