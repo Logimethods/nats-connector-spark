@@ -7,10 +7,11 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
+import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
+import static io.nats.client.Constants.PROP_URL;
+
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.spark.api.java.JavaRDD;
@@ -20,9 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats_spark.Utilities;
-
-import static com.logimethods.connector.nats_spark.Constants.*;
-import static io.nats.client.Constants.*;
 
 /**
  * A pool of SparkToNatsConnector(s).
