@@ -26,10 +26,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import com.logimethods.connector.nats.spark.NatsStreamingSubscriber;
-import com.logimethods.connector.nats.spark.STANServer;
-import com.logimethods.connector.nats.spark.TestClient;
-import com.logimethods.connector.nats.spark.UnitTestUtilities;
+import com.logimethods.connector.nats.spark.test.NatsStreamingSubscriber;
+import com.logimethods.connector.nats.spark.test.STANServer;
+import com.logimethods.connector.nats.spark.test.TestClient;
+import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.nats_spark.Utilities;
@@ -149,12 +149,12 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 //    	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
 //    	Connection stanc = connectionFactory.createConnection();
 //    	logger.debug("ConnectionFactory ready: " + stanc);
-    	final List<String> data = getData();
+    	final List<String> data = UnitTestUtilities.getData();
 
-    	NatsStreamingSubscriber ns1 = getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1");
+    	NatsStreamingSubscriber ns1 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
     	logger.debug("ns1 NatsStreamingSubscriber ready");
 
-    	NatsStreamingSubscriber ns2 = getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB2");
+    	NatsStreamingSubscriber ns2 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB2", STAN_URL);
     	logger.debug("ns2 NatsStreamingSubscriber ready");
 
     	JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());

@@ -5,7 +5,9 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.connector.nats.spark;
+package com.logimethods.connector.nats.spark.test;
+
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,6 +15,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Level;
 
@@ -169,5 +175,54 @@ public class UnitTestUtilities {
 	
 	public static void setLogLevel(String clazz, Level level){
 		System.setProperty(ORG_SLF4J_SIMPLE_LOGGER_LOG + clazz, level.toString());
+	}
+
+	/**
+	 * @return
+	 */
+	public static List<String> getData() {
+		final List<String> data = Arrays.asList(new String[] {
+				"data_1",
+				"data_2",
+				"data_3",
+				"data_4",
+				"data_5",
+				"data_6"
+		});
+		return data;
+	}
+
+	/**
+	 * @param data
+	 * @return
+	 */
+	public static StandardNatsSubscriber getStandardNatsSubscriber(final List<String> data, String subject, String url) {
+		ExecutorService executor = Executors.newFixedThreadPool(1);
+	
+		final StandardNatsSubscriber ns = new StandardNatsSubscriber(url, subject + "_id", subject, data.size());
+	
+		// start the subscribers apps
+		executor.execute(ns);
+	
+		// wait for subscribers to be ready.
+		ns.waitUntilReady();
+		return ns;
+	}
+
+	/**
+	 * @param data
+	 * @return
+	 */
+	public static NatsStreamingSubscriber getNatsStreamingSubscriber(final List<String> data, String subject, String clusterName, String clientName, String url) {
+		ExecutorService executor = Executors.newFixedThreadPool(1);
+
+		NatsStreamingSubscriber ns = new NatsStreamingSubscriber(url, subject + "_id", subject, clusterName, clientName, data.size());
+
+		// start the subscribers apps
+		executor.execute(ns);
+
+		// wait for subscribers to be ready.
+		ns.waitUntilReady();
+		return ns;
 	}
 }

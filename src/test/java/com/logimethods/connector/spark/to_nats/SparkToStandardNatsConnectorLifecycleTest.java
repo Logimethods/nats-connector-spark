@@ -7,7 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -21,9 +21,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import com.logimethods.connector.nats.spark.StandardNatsSubscriber;
-import com.logimethods.connector.nats.spark.TestClient;
-import com.logimethods.connector.nats.spark.UnitTestUtilities;
+import com.logimethods.connector.nats.spark.test.StandardNatsSubscriber;
+import com.logimethods.connector.nats.spark.test.TestClient;
+import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 
 //@Ignore
 @SuppressWarnings("serial")
@@ -55,7 +55,7 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 		final int connectionsPoolKeysNb = SparkToStandardNatsConnectorPool.connectionsPoolMap.size();
 		final int connectorsByIdMapKeysNb = SparkToStandardNatsConnectorPool.connectorsByIdMap.size();
 		
-		final List<String> data = getData();
+		final List<String> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
 
@@ -75,8 +75,8 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 
 		TimeUnit.SECONDS.sleep(1);
 
-		final StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
-		final StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
+		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
+		final StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
 		writeTmpFile(data);
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
@@ -90,8 +90,8 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 		assertEquals("The connectorsByIdMap " + SparkToStandardNatsConnectorPool.connectorsByIdMap + " should not contain anymore extra keys", 
 				connectorsByIdMapKeysNb, SparkToStandardNatsConnectorPool.connectorsByIdMap.size());
 				
-		final StandardNatsSubscriber ns1p = getStandardNatsSubscriber(data, subject1);
-		final StandardNatsSubscriber ns2p = getStandardNatsSubscriber(data, subject2);
+		final StandardNatsSubscriber ns1p = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
+		final StandardNatsSubscriber ns2p = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
 
 		writeTmpFile(data);
 		// wait for the subscribers to complete.

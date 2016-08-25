@@ -7,6 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.to_spark.api;
 
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static org.junit.Assert.fail;
 
@@ -18,12 +19,11 @@ import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.junit.Test;
 
-import com.logimethods.connector.nats.spark.NatsPublisher;
-import com.logimethods.connector.nats.spark.StandardNatsPublisher;
+import com.logimethods.connector.nats.spark.test.NatsPublisher;
+import com.logimethods.connector.nats.spark.test.StandardNatsPublisher;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 import com.logimethods.connector.nats_spark.IncompleteException;
 
-import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
 import static io.nats.client.Constants.*;
 
 public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {

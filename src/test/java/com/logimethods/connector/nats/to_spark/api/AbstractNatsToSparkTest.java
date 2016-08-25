@@ -23,9 +23,9 @@ import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.logimethods.connector.nats.spark.NatsPublisher;
-import com.logimethods.connector.nats.spark.TestClient;
-import com.logimethods.connector.nats.spark.UnitTestUtilities;
+import com.logimethods.connector.nats.spark.test.NatsPublisher;
+import com.logimethods.connector.nats.spark.test.TestClient;
+import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 
 public abstract class AbstractNatsToSparkTest {

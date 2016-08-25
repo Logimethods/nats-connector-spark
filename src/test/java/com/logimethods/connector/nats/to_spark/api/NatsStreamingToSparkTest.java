@@ -21,11 +21,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import com.logimethods.connector.nats.spark.NatsPublisher;
-import com.logimethods.connector.nats.spark.NatsStreamingPublisher;
-import com.logimethods.connector.nats.spark.STANServer;
-import com.logimethods.connector.nats.spark.TestClient;
-import com.logimethods.connector.nats.spark.UnitTestUtilities;
+import com.logimethods.connector.nats.spark.test.NatsPublisher;
+import com.logimethods.connector.nats.spark.test.NatsStreamingPublisher;
+import com.logimethods.connector.nats.spark.test.STANServer;
+import com.logimethods.connector.nats.spark.test.TestClient;
+import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.nats.to_spark.NatsStreamingToSparkConnectorImpl;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 import com.logimethods.connector.nats_spark.Utilities;

@@ -1,6 +1,6 @@
 package com.logimethods.connector.spark.to_nats;
 
-import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -24,10 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
-import com.logimethods.connector.nats.spark.NatsStreamingSubscriber;
-import com.logimethods.connector.nats.spark.StandardNatsSubscriber;
-import com.logimethods.connector.nats.spark.TestClient;
-import com.logimethods.connector.nats.spark.UnitTestUtilities;
+import com.logimethods.connector.nats.spark.test.NatsStreamingSubscriber;
+import com.logimethods.connector.nats.spark.test.StandardNatsSubscriber;
+import com.logimethods.connector.nats.spark.test.TestClient;
+import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 
 public class AbstractSparkToNatsConnectorTest implements Serializable {
 
@@ -70,55 +70,6 @@ public class AbstractSparkToNatsConnectorTest implements Serializable {
 			ssc.stop();
 			ssc = null;
 		}
-	}
-
-	/**
-	 * @return
-	 */
-	protected List<String> getData() {
-		final List<String> data = Arrays.asList(new String[] {
-				"data_1",
-				"data_2",
-				"data_3",
-				"data_4",
-				"data_5",
-				"data_6"
-		});
-		return data;
-	}
-
-	/**
-	 * @param data
-	 * @return
-	 */
-	protected StandardNatsSubscriber getStandardNatsSubscriber(final List<String> data, String subject) {
-		ExecutorService executor = Executors.newFixedThreadPool(1);
-	
-		final StandardNatsSubscriber ns = new StandardNatsSubscriber(NATS_SERVER_URL, subject + "_id", subject, data.size());
-	
-		// start the subscribers apps
-		executor.execute(ns);
-	
-		// wait for subscribers to be ready.
-		ns.waitUntilReady();
-		return ns;
-	}
-
-	/**
-	 * @param data
-	 * @return
-	 */
-	protected NatsStreamingSubscriber getNatsStreamingSubscriber(final List<String> data, String subject, String clusterName, String clientName) {
-		ExecutorService executor = Executors.newFixedThreadPool(1);
-
-		NatsStreamingSubscriber ns = new NatsStreamingSubscriber(STAN_URL, subject + "_id", subject, clusterName, clientName, data.size());
-
-		// start the subscribers apps
-		executor.execute(ns);
-
-		// wait for subscribers to be ready.
-		ns.waitUntilReady();
-		return ns;
 	}
 
 	protected void writeTmpFile(final List<String> data) throws FileNotFoundException, UnsupportedEncodingException {

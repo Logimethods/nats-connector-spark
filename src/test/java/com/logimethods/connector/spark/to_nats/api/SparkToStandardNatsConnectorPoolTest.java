@@ -7,7 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats.api;
 
-import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Constants.PROP_URL;
 
@@ -20,9 +20,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import com.logimethods.connector.nats.spark.StandardNatsSubscriber;
-import com.logimethods.connector.nats.spark.TestClient;
-import com.logimethods.connector.nats.spark.UnitTestUtilities;
+import com.logimethods.connector.nats.spark.test.StandardNatsSubscriber;
+import com.logimethods.connector.nats.spark.test.TestClient;
+import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnectorTest;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
@@ -54,13 +54,13 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 
 	@Test(timeout=8000)
 	public void testStaticSparkToNatsIncludingMultipleSubjects() throws Exception {   
-		final List<String> data = getData();
+		final List<String> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
-		final StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
+		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
 
 		final String subject2 = "subject2";
-		final StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
+		final StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
 
 		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
@@ -79,13 +79,13 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 
 	@Test(timeout=8000)
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
-		final List<String> data = getData();
+		final List<String> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
-		final StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
+		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
 
 		final String subject2 = "subject2";
-		final StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
+		final StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
 
 		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 
@@ -104,13 +104,13 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 
 	@Test(timeout=8000)
 	public void testStaticSparkToNatsWithMultipleProperties() throws Exception {   
-		final List<String> data = getData();
+		final List<String> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
-		final StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
+		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
 
 		final String subject2 = "subject2";
-		final StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
+		final StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
 
 		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 

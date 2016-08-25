@@ -6,7 +6,7 @@
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
 
-package com.logimethods.connector.nats.spark;
+package com.logimethods.connector.nats.spark.test;
 
 import java.io.File;
 import java.io.IOException;

@@ -22,10 +22,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import com.logimethods.connector.nats.spark.NatsStreamingSubscriber;
-import com.logimethods.connector.nats.spark.STANServer;
-import com.logimethods.connector.nats.spark.TestClient;
-import com.logimethods.connector.nats.spark.UnitTestUtilities;
+import com.logimethods.connector.nats.spark.test.NatsStreamingSubscriber;
+import com.logimethods.connector.nats.spark.test.STANServer;
+import com.logimethods.connector.nats.spark.test.TestClient;
+import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.nats_spark.Utilities;
 
 //@Ignore
@@ -60,7 +60,7 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		final int connectionsPoolKeysNb = SparkToNatsStreamingConnectorPool.connectionsPoolMap.size();
 		final int connectorsByIdMapKeysNb = SparkToNatsStreamingConnectorPool.connectorsByIdMap.size();
 		
-		final List<String> data = getData();
+		final List<String> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
 
@@ -82,8 +82,8 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 
 		TimeUnit.SECONDS.sleep(1);
 
-		final NatsStreamingSubscriber ns1 = getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1");
-		final NatsStreamingSubscriber ns2 = getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB1");
+		final NatsStreamingSubscriber ns1 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
+		final NatsStreamingSubscriber ns2 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
 		writeTmpFile(data);
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
@@ -97,8 +97,8 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		assertEquals("The connectorsByIdMap " + SparkToNatsStreamingConnectorPool.connectorsByIdMap + " should not contain anymore extra keys", 
 				connectorsByIdMapKeysNb, SparkToNatsStreamingConnectorPool.connectorsByIdMap.size());
 				
-		final NatsStreamingSubscriber ns1p = getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1");
-		final NatsStreamingSubscriber ns2p = getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB1");
+		final NatsStreamingSubscriber ns1p = UnitTestUtilities.getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
+		final NatsStreamingSubscriber ns2p = UnitTestUtilities.getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
 		writeTmpFile(data);
 		// wait for the subscribers to complete.
 		ns1p.waitForCompletion();

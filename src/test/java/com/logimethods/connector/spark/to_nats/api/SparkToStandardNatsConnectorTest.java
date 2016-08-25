@@ -29,13 +29,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.logimethods.connector.nats.spark.StandardNatsSubscriber;
-import com.logimethods.connector.nats.spark.TestClient;
-import com.logimethods.connector.nats.spark.UnitTestUtilities;
+import com.logimethods.connector.nats.spark.test.StandardNatsSubscriber;
+import com.logimethods.connector.nats.spark.test.TestClient;
+import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
 
-import static com.logimethods.connector.nats.spark.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
 import static com.logimethods.connector.nats_spark.Constants.*;
 import static io.nats.client.Constants.*;
 import static org.junit.Assert.*;
@@ -112,7 +112,7 @@ public class SparkToStandardNatsConnectorTest {
 	 * @param data
 	 * @return
 	 */
-	protected StandardNatsSubscriber getStandardNatsSubscriber(final List<String> data, String subject) {
+/*	protected StandardNatsSubscriber getStandardNatsSubscriber(final List<String> data, String subject) {
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 
 		StandardNatsSubscriber ns1 = new StandardNatsSubscriber(NATS_SERVER_URL, subject + "_id", subject, data.size());
@@ -123,7 +123,7 @@ public class SparkToStandardNatsConnectorTest {
 		// wait for subscribers to be ready.
 		ns1.waitUntilReady();
 		return ns1;
-	}
+	}*/
 
 	@Test(timeout=2000)
 	public void testStaticSparkToNatsNoSubjects() throws Exception {   
@@ -148,10 +148,10 @@ public class SparkToStandardNatsConnectorTest {
 		final List<String> data = getData();
 
 		String subject1 = "subject1";
-		StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, subject1);
+		StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
 
 		String subject2 = "subject2";
-		StandardNatsSubscriber ns2 = getStandardNatsSubscriber(data, subject2);
+		StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
 
 		JavaRDD<String> rdd = sc.parallelize(data);
 
@@ -167,7 +167,7 @@ public class SparkToStandardNatsConnectorTest {
 	public void testStaticSparkToNatsWithProperties() throws Exception {   
 		final List<String> data = getData();
 
-		StandardNatsSubscriber ns1 = getStandardNatsSubscriber(data, DEFAULT_SUBJECT);
+		StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, DEFAULT_SUBJECT, NATS_SERVER_URL);
 
 		JavaRDD<String> rdd = sc.parallelize(data);
 
