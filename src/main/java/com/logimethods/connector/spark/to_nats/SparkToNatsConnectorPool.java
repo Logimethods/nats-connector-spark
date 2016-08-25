@@ -139,16 +139,16 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	public void publishToNats(final JavaDStream<String> rdd) {
 		rdd.foreachRDD((Function<JavaRDD<String>, Void>) rdd1 -> {
 			logger.trace("rdd.foreachRDD");
-			final SparkToNatsConnector<?> connector = getConnector();
 			rdd1.foreachPartition(strings -> {
 				logger.trace("rdd1.foreachPartition");
+				final SparkToNatsConnector<?> connector = getConnector();
 				while(strings.hasNext()) {
 					final String str = strings.next();
 					logger.trace("Will publish {}", str);
 					connector.publish(str);
 				}
+				returnConnector(connector);  // return to the pool for future reuse
 			});
-			returnConnector(connector);  // return to the pool for future reuse
 			return null;
 		});
 	}
