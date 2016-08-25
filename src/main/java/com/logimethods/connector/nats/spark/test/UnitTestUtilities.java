@@ -7,8 +7,6 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.spark.test;
 
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +26,12 @@ public class UnitTestUtilities {
 	static NATSServer defaultServer = null;
 	public static final int NATS_SERVER_PORT = 4221;
 	public static final String NATS_SERVER_URL = "nats://localhost:"+NATS_SERVER_PORT;
+
+	public static final int STANServerPORT = 4223;
+	public static final String STAN_URL = "nats://localhost:" + STANServerPORT;	
+	public static final String CLUSTER_ID = "test-cluster";
+
+
 	Process authServerProcess = null;
 
 	public static synchronized void startDefaultServer() {
@@ -46,6 +50,20 @@ public class UnitTestUtilities {
 			defaultServer = null;
 		}
 	}
+
+    public static STANServer startStreamingServer(String clusterID, boolean debug) {
+        STANServer srv = new STANServer(clusterID, STANServerPORT, debug);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return srv;
+    }
+    
+	public static STANServer startStreamingServer(String clusterID) {
+        return startStreamingServer(clusterID, false);
+    }
 
 	public static synchronized void bounceDefaultServer(int delayMillis) {
 		stopDefaultServer();

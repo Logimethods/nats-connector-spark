@@ -7,6 +7,8 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.STAN_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.startStreamingServer;
 import static io.nats.client.Constants.PROP_URL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -23,7 +25,6 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats.spark.test.NatsStreamingSubscriber;
-import com.logimethods.connector.nats.spark.test.STANServer;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.nats_spark.Utilities;
@@ -54,7 +55,7 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 
 	@Test(timeout=20000)
 	public void testStaticSparkToNatsWithConnectionLifecycle() throws Exception {  
-    	runServer(clusterID, false);
+    	startStreamingServer(clusterID, false);
 
     	long poolSize = SparkToNatsStreamingConnectorPool.poolSize();
 		final int connectionsPoolKeysNb = SparkToNatsStreamingConnectorPool.connectionsPoolMap.size();
@@ -126,16 +127,6 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		assertEquals("The connectorsByIdMap " + SparkToNatsStreamingConnectorPool.connectorsByIdMap + " should not contain anymore extra keys", 
 				connectorsByIdMapKeysNb, SparkToNatsStreamingConnectorPool.connectorsByIdMap.size());
 	}
-
-    static STANServer runServer(String clusterID, boolean debug) {
-        STANServer srv = new STANServer(clusterID, STANServerPORT, debug);
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return srv;
-    }
     
     static String getUniqueClientName() {
     	return "clientName_" + Utilities.generateUniqueID();

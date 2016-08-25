@@ -7,6 +7,9 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats.api;
 
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.STANServerPORT;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.STAN_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.startStreamingServer;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Constants.PROP_URL;
 import static org.junit.Assert.fail;
@@ -14,10 +17,8 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Level;
@@ -72,7 +73,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
     @Test(timeout=6000)
     public void testBasicPublish() {
         // Run a STAN server
-        try (STANServer s = runServer(clusterID, false)) {
+        try (STANServer s = UnitTestUtilities.startStreamingServer(clusterID, false)) {
         	ConnectionFactory connectionFactory = new ConnectionFactory(clusterID, getUniqueClientName());
         	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
             try ( Connection sc =
@@ -144,7 +145,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
     		final SparkToNatsConnectorPool<?> connectorPool) throws InterruptedException, IOException, TimeoutException {
     	
         // Run a STAN server
-    	runServer(clusterID, false);
+    	startStreamingServer(clusterID, false);
 //    	ConnectionFactory connectionFactory = new ConnectionFactory(clusterID, getUniqueClientName());
 //    	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
 //    	Connection stanc = connectionFactory.createConnection();
@@ -175,20 +176,6 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
     	// wait for the subscribers to complete.
     	ns1.waitForCompletion();
     	ns2.waitForCompletion();
-    }
-    
-    static STANServer runServer(String clusterID) {
-        return runServer(clusterID, false);
-    }
-
-    static STANServer runServer(String clusterID, boolean debug) {
-        STANServer srv = new STANServer(clusterID, STANServerPORT, debug);
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return srv;
     }
     
     static String getUniqueClientName() {

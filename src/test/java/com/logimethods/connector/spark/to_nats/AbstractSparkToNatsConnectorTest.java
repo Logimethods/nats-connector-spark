@@ -37,9 +37,6 @@ public class AbstractSparkToNatsConnectorTest implements Serializable {
 	protected File tempDir;
 	protected int fileTmpIncr = 0;
 
-	protected static final int STANServerPORT = 4223;
-	protected static final String STAN_URL = "nats://localhost:" + STANServerPORT;
-
 	/**
 	 * @throws java.lang.Exception
 	 */
