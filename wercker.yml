@@ -3,10 +3,6 @@ box: logimethods/maven-nats
 build:
   steps:
     - script:
-        name: (TMP) Populate local maven repo
-        code: |
-          cp -v -R "./repository/io/nats/java-nats-streaming/" "${WERCKER_CACHE_DIR}/io/nats/"
-    - script:
         name: Start NATS servers
         code: |
           gnatsd -p 4221&
