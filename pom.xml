@@ -30,18 +30,10 @@
 		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
 		<dependency.locations.enabled>false</dependency.locations.enabled>
 		<!-- NATS -->
-		<!-- 0.4.0 has been compiled for Java 1.8 -->
-		<!-- <jnats.version>0.3.1</jnats.version> -->
-		<jnats.version>0.4.1</jnats.version>
 		<java-nats-streaming.version>v0.1.0</java-nats-streaming.version>
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>io.nats</groupId>
-			<artifactId>jnats</artifactId>
-			<version>${jnats.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>io.nats</groupId>
 			<artifactId>java-nats-streaming</artifactId>
