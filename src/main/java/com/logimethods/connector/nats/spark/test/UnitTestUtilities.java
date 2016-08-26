@@ -200,12 +200,12 @@ public class UnitTestUtilities {
 	 */
 	public static List<String> getData() {
 		final List<String> data = Arrays.asList(new String[] {
-				"data_1",
-				"data_2",
-				"data_3",
-				"data_4",
-				"data_5",
-				"data_6"
+				"1",
+				"2",
+				"3",
+				"4",
+				"5",
+				"6"
 		});
 		return data;
 	}
