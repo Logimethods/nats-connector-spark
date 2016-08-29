@@ -3,6 +3,11 @@ box: logimethods/maven-nats
 build:
   steps:
     - script:
+        name: (TMP) Populate local maven repo
+        code: |
+          mkdir -p "/root/.m2/repository/io/nats/nats-parent"
+          cp -v -R "./repository/io/nats/nats-parent" "/root/.m2/repository/io/nats"
+    - script:
         name: Start NATS servers
         code: |
           gnatsd -p 4221&
