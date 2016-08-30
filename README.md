@@ -1,4 +1,4 @@
-# NATS / Spark Connectors
+# (Java based) NATS / Spark Connectors
 
 That library provides an [Apache Spark](http://spark.apache.org/) (a fast and general engine for large-scale data processing) integration with the [NATS messaging system](https://nats.io) (a highly performant cloud native messaging system) as well as [NATS Streaming](http://www.nats.io/documentation/streaming/nats-streaming-intro/) (a data streaming system powered by NATS).
 
@@ -231,34 +231,8 @@ The optional settings are:
 * `withProperties(Properties properties)`
 * `withConnectionTimeout(Duration duration)`
 
-## Usage (in Scala)  *WARNING: NEED TO BE UPDATED TO VERSION 0.2.0*
-_See the Java code to get the list of the available options (properties, subjects, etc.)._
-### From NATS to Spark (Streaming)
-```
-val messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(properties, StorageLevel.MEMORY_ONLY, inputSubject))
-```
-
-### From Spark (Streaming) to NATS
-See [Design Patterns for using foreachRDD](http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd)
-```
-messages.foreachRDD { rdd =>
-  val connectorPool = new SparkToNatsConnectorPool(properties, outputSubject)
-  rdd.foreachPartition { partitionOfRecords =>
-    val connector = connectorPool.getConnector()
-    partitionOfRecords.foreach(record => connector.publishToNats(record))
-    connectorPool.returnConnector(connector)  // return to the pool for future reuse
-  }
-}
-```
-
-### From Spark (*WITHOUT Streaming NOR Spark Cluster*) to NATS
-```
-import com.logimethods.nats.connector.spark.SparkToNatsConnector;
-```
-```
-val publishToNats = SparkToNatsConnector.publishToNats(properties, outputSubject)
-messages.foreachRDD { rdd => rdd.foreach { m => publishToNats.call(m.toString()) }}
-```
+## Usage (in Scala)
+You should instead use the dedicated [nats-connector-spark-scala](https://github.com/Logimethods/nats-connector-spark-scala) connector.
 
 ## Testing
 
