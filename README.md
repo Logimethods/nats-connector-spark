@@ -10,6 +10,7 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 
 ## Release Notes
 ### Version 0.2.0-SNAPSHOT
+- A wrapper of that library [dedicated to Scala](https://github.com/Logimethods/nats-connector-spark-scala) has been introduced.
 - Introduces connectors to [Nats Streaming](http://www.nats.io/documentation/streaming/nats-streaming-intro/).
 - That library uses [JNATS](https://github.com/nats-io/jnats) version 0.4.1, which requires a JVM 1.8.
 - The existing API has been unified (no more `new Object(..., ...).getConnector(..)` like methods, but `Class.newConnector(...).withUrl(...).withSubjects(...)` like ones). That way, the API is less prone to confusion between (optional) parameters.
