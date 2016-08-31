@@ -237,9 +237,13 @@ You should instead use the dedicated [nats-connector-spark-scala](https://github
 
 ## Testing
 
-JUnit tests are included. To perform those tests, [gnatsd](http://nats.io/download/nats-io/gnatsd/) is required.
-Take note that they cannot be run on Eclipse (due to the required NATS server), but with Maven:
-
+JUnit tests are included. To perform those tests, [gnatsd](http://nats.io/download/nats-io/gnatsd/) and [nats-streaming-server](http://nats.io/documentation/streaming/nats-streaming-intro/) are required.
+You might have first to start those servers:
+```
+gnatsd -p 4221&
+nats-streaming-server -p 4223&
+````
+Then call Maven:
 ```
 nats-connector-spark> mvn compile test
 ```
