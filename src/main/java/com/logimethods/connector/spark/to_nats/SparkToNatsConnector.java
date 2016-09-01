@@ -93,11 +93,6 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 			publishToStr(str);
 		}
 	};
-
-/*	protected void registerItself() {
-		logger.debug("Register {}", this);
-		SparkToNatsConnectorPool.register(internalId, sealedHashCode(), this);
-	}*/
 	
 	/**
 	 * @param properties the properties to set
@@ -199,23 +194,6 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	}
 
 	protected abstract void closeConnection();
-
-////	protected abstract boolean hasANotNullConnection();
 	
 	protected abstract void removeFromPool();
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-/*	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof SparkToNatsConnector))
-			return false;
-		SparkToNatsConnector<?> other = (SparkToNatsConnector<?>) obj;
-		return (this.sealedHashCode() == other.sealedHashCode());
-	}*/
 }

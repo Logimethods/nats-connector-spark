@@ -36,7 +36,7 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
 		Level level = Level.WARN;
-		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, Level.DEBUG);
+		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, level);
 		UnitTestUtilities.setLogLevel(SparkToNatsConnector.class, level);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorImpl.class, level);
 		UnitTestUtilities.setLogLevel(SparkToStandardNatsConnectorLifecycleTest.class, level);
@@ -52,8 +52,6 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 	@Test(timeout=20000)
 	public void testStaticSparkToNatsWithConnectionLifecycle() throws Exception {  
 		final long poolSize = SparkToStandardNatsConnectorPool.poolSize();
-//		final int connectionsPoolKeysNb = SparkToStandardNatsConnectorPool.connectionsPoolMap.size();
-//		final int connectorsByIdMapKeysNb = SparkToStandardNatsConnectorPool.connectorsByIdMap.size();
 		
 		final List<String> data = UnitTestUtilities.getData();
 
@@ -85,10 +83,6 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 		TimeUnit.MILLISECONDS.sleep(100);
 		assertEquals("The connections Pool size should be the same as the number of Spark partitions", 
 				poolSize + partitionsNb, SparkToStandardNatsConnectorPool.poolSize());
-//		assertEquals("The connectionsPoolMap " + SparkToStandardNatsConnectorPool.connectionsPoolMap + " should contain ONE extra key", 
-//				connectionsPoolKeysNb + 1, SparkToStandardNatsConnectorPool.connectionsPoolMap.size());
-//		assertEquals("The connectorsByIdMap " + SparkToStandardNatsConnectorPool.connectorsByIdMap + " should not contain anymore extra keys", 
-//				connectorsByIdMapKeysNb, SparkToStandardNatsConnectorPool.connectorsByIdMap.size());
 				
 		final StandardNatsSubscriber ns1p = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
 		final StandardNatsSubscriber ns2p = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
@@ -100,10 +94,6 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 		TimeUnit.MILLISECONDS.sleep(100);
 		assertEquals("The connections Pool size should be the same as the number of Spark partitions", 
 				poolSize + partitionsNb, SparkToStandardNatsConnectorPool.poolSize());
-//		assertEquals("The connectionsPoolMap " + SparkToStandardNatsConnectorPool.connectionsPoolMap + " should contain ONE extra key", 
-//				connectionsPoolKeysNb + 1, SparkToStandardNatsConnectorPool.connectionsPoolMap.size());
-//		assertEquals("The connectorsByIdMap " + SparkToStandardNatsConnectorPool.connectorsByIdMap + " should not contain anymore extra keys", 
-//				connectorsByIdMapKeysNb, SparkToStandardNatsConnectorPool.connectorsByIdMap.size());
 
 		ssc.stop();
 		ssc = null;
@@ -115,9 +105,5 @@ public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToNa
 		
 		assertTrue("The poolSize() of " + SparkToStandardNatsConnectorPool.connectorsPoolMap + " should have been reverted to its original value",
 				SparkToStandardNatsConnectorPool.poolSize() == poolSize);
-//		assertEquals("The connectionsPoolMap " + SparkToStandardNatsConnectorPool.connectionsPoolMap + " should not contain anymore extra keys", 
-//				connectionsPoolKeysNb, SparkToStandardNatsConnectorPool.connectionsPoolMap.size());
-//		assertEquals("The connectorsByIdMap " + SparkToStandardNatsConnectorPool.connectorsByIdMap + " should not contain anymore extra keys", 
-//				connectorsByIdMapKeysNb, SparkToStandardNatsConnectorPool.connectorsByIdMap.size());
 	}
 }

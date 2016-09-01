@@ -98,14 +98,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 
 	protected synchronized Connection getConnection() throws Exception {
 		if (connection == null) {
-//			connection = SparkToNatsStreamingConnectorPool.getConnectionFromPool(sealedHashCode());
-//			if (connection == null) {
-//				logger.debug("No Connection available on the Pool({}), need to create a new one", sealedHashCode());
-				connection = createConnection();
-//			} else {
-//				logger.debug("The Pool({}) returned ", sealedHashCode(), connection);				
-//			}
-//			registerItself();
+			connection = createConnection();
 		}
 		return connection;
 	}
@@ -160,35 +153,15 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	protected void removeFromPool() {
 		SparkToNatsStreamingConnectorPool.removeConnectorFromPool(this);
 	}
-
-//	@Override
-//	protected boolean hasANotNullConnection() {
-//		return connection != null;
-//	}
 	
 	protected String getsNatsUrlKey() {
 		return PROP_URL;
 	}
 
 	@Override
-	public int getConnectionSignature() {
-		return sparkToNatsStreamingConnectionSignature(natsURL, properties, subjects, connectionTimeout, clientID, clusterID);
+	public int computeConnectionSignature() {
+		return sparkToNatsStreamingConnectionSignature(natsURL, properties, subjects, connectionTimeout, clusterID);
 	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-/*	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (!(obj instanceof SparkToNatsStreamingConnectorImpl))
-			return false;
-		SparkToNatsStreamingConnectorImpl other = (SparkToNatsStreamingConnectorImpl) obj;
-		return (this.sealedHashCode() == other.sealedHashCode());
-	}*/
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()

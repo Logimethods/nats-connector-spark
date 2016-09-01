@@ -7,15 +7,9 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-
-import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
 
 public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends SparkToNatsConnectorPool<T> {
-
-//	protected static final HashMap<Integer, LinkedList<Connection>> connectionsPoolMap = new HashMap<Integer, LinkedList<Connection>>();
 
 	/**
 	 * 
@@ -56,88 +50,9 @@ public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends Spark
 		connectionFactory = factory;
 	}
 
-/*	@Override
-	protected void returnConnection(int hashCode, SparkToNatsConnector<?> connector) {
-		logger.debug("returnConnection({}, {})", hashCode, connector);
-		synchronized(connectionsPoolMap) {
-			LinkedList<Connection> connectorsPoolList = connectionsPoolMap.get(hashCode);
-			if (connectorsPoolList == null) {
-				connectorsPoolList = new LinkedList<Connection>();
-				connectionsPoolMap.put(hashCode, connectorsPoolList);
-			}
-			connectorsPoolList.add(((SparkToNatsStreamingConnectorImpl)connector).connection);
-			logger.debug("connectorsPoolList: {}", connectorsPoolList);
-		}
-	}*/
-
-/*	protected static Connection getConnectionFromPool(Integer hashCode) {
-		synchronized(connectionsPoolMap) {
-			final LinkedList<Connection> connectionsList = connectionsPoolMap.get(hashCode);
-			if (connectionsList != null) {
-				final Connection connection = connectionsList.pollFirst();
-				logger.debug("getConnectionFromPool({}): {}", hashCode, connection);
-				return connection;
-			}
-		}
-		return null;
-	}
-
-	protected static void removeConnectorFromPool(SparkToNatsConnector<?> connector) {
-		logger.debug("Removing {} from pool", connector);
-		synchronized(connectionsPoolMap) {
-			int hashCode = connector.sealedHashCode();
-			final LinkedList<Connection> connectionsList = connectionsPoolMap.get(hashCode);
-			if (connectionsList != null) {
-				final Connection connection = ((SparkToNatsStreamingConnectorImpl)connector).connection;
-				logger.debug("Connection {} will be removed from Pool({})", connection, connectionsList);
-				connectionsList.remove(connection);
-				
-				if (connectionsList.size() == 0) {
-					connectionsPoolMap.remove(hashCode);
-					logger.debug("{} which is empty has been removed from {}", connectionsList, connectionsPoolMap);
-				}
-			}			
-		}
-	}*/
-
-/*	protected static long poolSize() {
-		synchronized(connectionsPoolMap) {
-			int size = 0;
-			for (LinkedList<Connection> poolList: connectionsPoolMap.values()){
-				size += poolList.size();
-			}
-			return size;
-		}
-	}*/
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-/*	@Override
-	public int hashCode() {
-		// TODO
-		return 0; /// sparkToNatsStreamingConnectionSignature(natsURL, properties, subjects, connectionTimeout, clientID, clusterID);
-	}
-*/
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-/*	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (!(obj instanceof SparkToNatsStreamingConnectorImpl))
-			return false;
-		SparkToNatsStreamingConnectorImpl other = (SparkToNatsStreamingConnectorImpl) obj;
-		return (this.sealedHashCode() == other.sealedHashCode());
-	}*/
-	
 	@Override
-	public int getConnectionSignature() {
-		// TODO
-		return sparkToNatsStreamingConnectionSignature(natsURL, properties, subjects, connectionTimeout, "clientID", clusterID);
+	public int computeConnectionSignature() {
+		return sparkToNatsStreamingConnectionSignature(natsURL, properties, subjects, connectionTimeout, clusterID);
 	}
 
 	/* (non-Javadoc)

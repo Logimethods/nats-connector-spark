@@ -22,7 +22,7 @@ import static com.logimethods.connector.nats_spark.Constants.*;
 @SuppressWarnings("serial")
 public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 
-	protected transient Integer sealedHashCode;
+	protected transient Integer connectionSignature;
 
 	/**
 	 * 
@@ -137,24 +137,30 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 		return result;
 	}
 	
-	public int sparkToNatsStreamingConnectionSignature(String natsURL, Properties properties, Collection<String> subjects, Long connectionTimeout, String clientID, String clusterID) {
+	public int sparkToNatsStreamingConnectionSignature(String natsURL, Properties properties, Collection<String> subjects, Long connectionTimeout, String clusterID) {
 		final int prime = 31;
-		int result = sparkToStandardNatsConnectionSignature(natsURL, properties, subjects, connectionTimeout);
-		result = prime * result + ((clientID == null) ? 0 : clientID.hashCode());
+		int result = 1 + sparkToStandardNatsConnectionSignature(natsURL, properties, subjects, connectionTimeout);
 		result = prime * result + ((clusterID == null) ? 0 : clusterID.hashCode());
 		return result;
 	}
 
-	protected abstract int getConnectionSignature();
+	protected abstract int computeConnectionSignature();
 	
 	/**
 	 * @return the sealedHashCode
 	 */
-	protected Integer sealedHashCode() {
-		if (sealedHashCode == null) {
-			sealedHashCode = hashCode();
+	protected Integer getConnectionSignature() {
+		if (connectionSignature == null) {
+			connectionSignature = computeConnectionSignature();
 		}
-		return sealedHashCode;
+		return connectionSignature;
+	}
+
+	/**
+	 * @param connectionSignature the connectionSignature to set
+	 */
+	protected void setConnectionSignature(Integer connectionSignature) {
+		this.connectionSignature = connectionSignature;
 	}
 
 }

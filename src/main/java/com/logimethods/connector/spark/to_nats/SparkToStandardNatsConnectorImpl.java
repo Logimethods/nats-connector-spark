@@ -98,14 +98,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 
 	protected synchronized Connection getConnection() throws Exception {
 		if (connection == null) {
-//			connection = SparkToStandardNatsConnectorPool.getConnectionFromPool(sealedHashCode());
-//			if (connection == null) {
-//				logger.debug("No Connection available on the Pool({}), need to create a new one", sealedHashCode());
-				connection = createConnection();
-//			} else {
-//				logger.debug("The Pool({}) returned ", sealedHashCode(), connection);				
-//			}
-////			registerItself();
+			connection = createConnection();
 		}
 		return connection;
 	}
@@ -153,18 +146,13 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	protected void removeFromPool() {
 		SparkToStandardNatsConnectorPool.removeConnectorFromPool(this);
 	}
-
-//	@Override
-//	protected boolean hasANotNullConnection() {
-//		return connection != null;
-//	}
 	
 	protected String getsNatsUrlKey() {
 		return PROP_URL;
 	}
 
 	@Override
-	protected int getConnectionSignature() {
+	protected int computeConnectionSignature() {
 		return sparkToStandardNatsConnectionSignature(natsURL, properties, subjects, connectionTimeout);
 	}
 

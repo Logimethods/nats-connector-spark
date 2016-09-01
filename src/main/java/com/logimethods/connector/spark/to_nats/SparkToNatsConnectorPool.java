@@ -40,7 +40,6 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	protected Collection<String>		subjects;
 	protected String 					natsURL;
 	protected Long 						connectionTimeout;
-//	protected /*transient*/ Integer 	connectorHashCode;
 	protected static final HashMap<Integer, LinkedList<SparkToNatsConnector<?>>> connectorsPoolMap = new HashMap<Integer, LinkedList<SparkToNatsConnector<?>>>();
 
 	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnectorPool.class);
@@ -69,22 +68,20 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	public SparkToNatsConnector<?> getConnector() throws Exception {
+		final int localConnectionSignature = getConnectionSignature();
+		logger.debug("getConnector() for '{}' ConnectionSignature", localConnectionSignature);
 		synchronized(connectorsPoolMap) {
-			logger.debug("{}: getConnector() for '{}' ConnectionSignature", super.toString(), getConnectionSignature());
-//			if (connectorHashCode != null) {
-				final LinkedList<SparkToNatsConnector<?>> connectorsPool = connectorsPoolMap.get(getConnectionSignature());
-				if ((connectorsPool != null) && (connectorsPool.size() > 0)) {
-					logger.debug("ConnectorsPool for {} of size {}", getConnectionSignature(), connectorsPool.size());
-					final SparkToNatsConnector<?> connector = connectorsPool.pollFirst();
-///					connector.poolList = null;
-					return connector;
-				} 
-			}			
-			SparkToNatsConnector<?> newConnector = newSparkToNatsConnector();
-//			connectorHashCode = newConnector.sealedHashCode();
-			logger.debug("New SparkToNatsConnector<?> {} created with ConnectionSignature {}", newConnector, getConnectionSignature());
-			return newConnector;
-//		}
+			final LinkedList<SparkToNatsConnector<?>> connectorsPool = connectorsPoolMap.get(localConnectionSignature);
+			if ((connectorsPool != null) && (connectorsPool.size() > 0)) {
+				logger.debug("ConnectorsPool for {} of size {}", localConnectionSignature, connectorsPool.size());
+				final SparkToNatsConnector<?> connector = connectorsPool.pollFirst();
+				return connector;
+			} 
+		}			
+		SparkToNatsConnector<?> newConnector = newSparkToNatsConnector();
+		newConnector.setConnectionSignature(localConnectionSignature);
+		logger.debug("New SparkToNatsConnector<?> {} created with ConnectionSignature {}", newConnector, localConnectionSignature);
+		return newConnector;
 	}
 
 	/**
@@ -97,32 +94,27 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @param connector the SparkToNatsConnector to add to the Pool of Connectors.
 	 */
 	public void returnConnector(SparkToNatsConnector<?> connector) {
+		logger.debug("Returning {} to pool", connector);
 		synchronized(connectorsPoolMap) {
-			logger.debug("{}: Returning {} to pool", super.toString(), connector);
-//			if (connector.hasANotNullConnection()) {
-				final int connectionSignature = connector.getConnectionSignature();
-				LinkedList<SparkToNatsConnector<?>> connectorsPoolList = connectorsPoolMap.get(connectionSignature);
-				if (connectorsPoolList == null) {
-					connectorsPoolList = new LinkedList<SparkToNatsConnector<?>>();
-					connectorsPoolMap.put(connectionSignature, connectorsPoolList);
-				}
-////				connector.poolList = connectorsPoolList;
-				connectorsPoolList.add(connector);
-//			} else {
-//				logger.debug("{} has a NULL connection, therefore will not be returned to a pool", connector);
-//			}
+			final int connectionSignature = connector.getConnectionSignature();
+			LinkedList<SparkToNatsConnector<?>> connectorsPoolList = connectorsPoolMap.get(connectionSignature);
+			if (connectorsPoolList == null) {
+				connectorsPoolList = new LinkedList<SparkToNatsConnector<?>>();
+				connectorsPoolMap.put(connectionSignature, connectorsPoolList);
+			}
+			connectorsPoolList.add(connector);
 		}
 	}
 
 	protected static void removeConnectorFromPool(SparkToNatsConnector<?> connector) {
 		logger.debug("Removing {} from pool", connector);
 		synchronized(connectorsPoolMap) {
-			final int hashCode = connector.getConnectionSignature();
-			LinkedList<SparkToNatsConnector<?>> connectorsPool = connectorsPoolMap.get(hashCode);
+			final int connectionSignature = connector.getConnectionSignature();
+			LinkedList<SparkToNatsConnector<?>> connectorsPool = connectorsPoolMap.get(connectionSignature);
 			if (connectorsPool != null) {
 				connectorsPool.removeFirst(); // All connectors sharing the same ConnectionSignature are equivalent
 				if (connectorsPool.size() == 0) { // No more connectors sharing that hashCode
-					connectorsPoolMap.remove(hashCode);
+					connectorsPoolMap.remove(connectionSignature);
 				}			
 			}
 		}
@@ -229,28 +221,5 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	@Override
 	protected void setConnectionTimeout(Long connectionTimeout) {
 		this.connectionTimeout = connectionTimeout;
-	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return sparkToStandardNatsConnectionSignature(natsURL, properties, subjects, connectionTimeout);
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof SparkToNatsConnector))
-			return false;
-		SparkToNatsConnector<?> other = (SparkToNatsConnector<?>) obj;
-		return (this.sealedHashCode() == other.sealedHashCode());
 	}
 }
