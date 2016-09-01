@@ -22,6 +22,8 @@ import static com.logimethods.connector.nats_spark.Constants.*;
 @SuppressWarnings("serial")
 public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 
+	protected transient Integer sealedHashCode;
+
 	/**
 	 * 
 	 */
@@ -124,4 +126,35 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 		}
 		return getSubjects();
 	}
+	
+	public int sparkToStandardNatsConnectionSignature(String natsURL, Properties properties, Collection<String> subjects, Long connectionTimeout) {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((natsURL == null) ? 0 : natsURL.hashCode());
+		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
+		result = prime * result + ((subjects == null) ? 0 : subjects.hashCode());
+		result = prime * result + ((connectionTimeout == null) ? 0 : connectionTimeout.hashCode());
+		return result;
+	}
+	
+	public int sparkToNatsStreamingConnectionSignature(String natsURL, Properties properties, Collection<String> subjects, Long connectionTimeout, String clientID, String clusterID) {
+		final int prime = 31;
+		int result = sparkToStandardNatsConnectionSignature(natsURL, properties, subjects, connectionTimeout);
+		result = prime * result + ((clientID == null) ? 0 : clientID.hashCode());
+		result = prime * result + ((clusterID == null) ? 0 : clusterID.hashCode());
+		return result;
+	}
+
+	protected abstract int getConnectionSignature();
+	
+	/**
+	 * @return the sealedHashCode
+	 */
+	protected Integer sealedHashCode() {
+		if (sealedHashCode == null) {
+			sealedHashCode = hashCode();
+		}
+		return sealedHashCode;
+	}
+
 }

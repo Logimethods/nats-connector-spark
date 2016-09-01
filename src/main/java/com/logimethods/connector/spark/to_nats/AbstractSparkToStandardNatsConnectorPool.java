@@ -15,7 +15,7 @@ import io.nats.client.ConnectionFactory;
 
 public abstract class AbstractSparkToStandardNatsConnectorPool<T> extends SparkToNatsConnectorPool<T> {
 
-	protected static final HashMap<Integer, LinkedList<Connection>> connectionsPoolMap = new HashMap<Integer, LinkedList<Connection>>();
+//	protected static final HashMap<Integer, LinkedList<Connection>> connectionsPoolMap = new HashMap<Integer, LinkedList<Connection>>();
 
 	/**
 	 * 
@@ -53,7 +53,7 @@ public abstract class AbstractSparkToStandardNatsConnectorPool<T> extends SparkT
 		connectionFactory = factory;
 	}
 
-	@Override
+/*	@Override
 	protected void returnConnection(int hashCode, SparkToNatsConnector<?> connector) {
 		logger.debug("returnConnection({}, {})", hashCode, connector);
 		synchronized(connectionsPoolMap) {
@@ -65,9 +65,9 @@ public abstract class AbstractSparkToStandardNatsConnectorPool<T> extends SparkT
 			connectorsPoolList.add(((SparkToStandardNatsConnectorImpl)connector).connection);
 			logger.debug("connectorsPoolList: {}", connectorsPoolList);
 		}
-	}
+	}*/
 
-	protected static Connection getConnectionFromPool(Integer hashCode) {
+/*	protected static Connection getConnectionFromPool(Integer hashCode) {
 		synchronized(connectionsPoolMap) {
 			final LinkedList<Connection> connectionsList = connectionsPoolMap.get(hashCode);
 			if (connectionsList != null) {
@@ -77,27 +77,27 @@ public abstract class AbstractSparkToStandardNatsConnectorPool<T> extends SparkT
 			}
 		}
 		return null;
-	}
+	}*/
 
-	protected static void removeConnectorFromPool(SparkToNatsConnector<?> connector) {
-		logger.debug("Removing {} from pool", connector);
-		synchronized(connectionsPoolMap) {
-			int hashCode = connector.sealedHashCode();
-			final LinkedList<Connection> connectionsList = connectionsPoolMap.get(hashCode);
-			if (connectionsList != null) {
-				final Connection connection = ((SparkToStandardNatsConnectorImpl)connector).connection;
-				logger.debug("Connection {} will be removed from Pool({})", connection, connectionsList);
-				connectionsList.remove(connection);
-				
-				if (connectionsList.size() == 0) {
-					connectionsPoolMap.remove(hashCode);
-					logger.debug("{} which is empty has been removed from {}", connectionsList, connectionsPoolMap);
-				}
-			}			
-		}
-	}
+//	protected static void removeConnectorFromPool(SparkToNatsConnector<?> connector) {
+//		logger.debug("Removing {} from pool", connector);
+//		synchronized(connectionsPoolMap) {
+//			int hashCode = connector.sealedHashCode();
+//			final LinkedList<Connection> connectionsList = connectionsPoolMap.get(hashCode);
+//			if (connectionsList != null) {
+//				final Connection connection = ((SparkToStandardNatsConnectorImpl)connector).connection;
+//				logger.debug("Connection {} will be removed from Pool({})", connection, connectionsList);
+//				connectionsList.remove(connection);
+//				
+//				if (connectionsList.size() == 0) {
+//					connectionsPoolMap.remove(hashCode);
+//					logger.debug("{} which is empty has been removed from {}", connectionsList, connectionsPoolMap);
+//				}
+//			}			
+//		}
+//	}
 
-	protected static long poolSize() {
+/*	protected static long poolSize() {
 		synchronized(connectionsPoolMap) {
 			int size = 0;
 			for (LinkedList<Connection> poolList: connectionsPoolMap.values()){
@@ -105,6 +105,11 @@ public abstract class AbstractSparkToStandardNatsConnectorPool<T> extends SparkT
 			}
 			return size;
 		}
+	}*/
+	
+	@Override
+	protected int getConnectionSignature() {
+		return sparkToStandardNatsConnectionSignature(natsURL, properties, subjects, connectionTimeout);
 	}
 
 	/* (non-Javadoc)
@@ -116,7 +121,6 @@ public abstract class AbstractSparkToStandardNatsConnectorPool<T> extends SparkT
 				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")
-				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
-				+ ("connectionsPoolMap=" + connectionsPoolMap) + "]";
+				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "") + "]";
 	}
 }

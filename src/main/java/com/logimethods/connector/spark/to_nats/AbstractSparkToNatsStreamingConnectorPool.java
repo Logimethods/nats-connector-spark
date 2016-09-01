@@ -15,7 +15,7 @@ import io.nats.stan.ConnectionFactory;
 
 public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends SparkToNatsConnectorPool<T> {
 
-	protected static final HashMap<Integer, LinkedList<Connection>> connectionsPoolMap = new HashMap<Integer, LinkedList<Connection>>();
+//	protected static final HashMap<Integer, LinkedList<Connection>> connectionsPoolMap = new HashMap<Integer, LinkedList<Connection>>();
 
 	/**
 	 * 
@@ -56,7 +56,7 @@ public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends Spark
 		connectionFactory = factory;
 	}
 
-	@Override
+/*	@Override
 	protected void returnConnection(int hashCode, SparkToNatsConnector<?> connector) {
 		logger.debug("returnConnection({}, {})", hashCode, connector);
 		synchronized(connectionsPoolMap) {
@@ -68,9 +68,9 @@ public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends Spark
 			connectorsPoolList.add(((SparkToNatsStreamingConnectorImpl)connector).connection);
 			logger.debug("connectorsPoolList: {}", connectorsPoolList);
 		}
-	}
+	}*/
 
-	protected static Connection getConnectionFromPool(Integer hashCode) {
+/*	protected static Connection getConnectionFromPool(Integer hashCode) {
 		synchronized(connectionsPoolMap) {
 			final LinkedList<Connection> connectionsList = connectionsPoolMap.get(hashCode);
 			if (connectionsList != null) {
@@ -98,9 +98,9 @@ public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends Spark
 				}
 			}			
 		}
-	}
+	}*/
 
-	protected static long poolSize() {
+/*	protected static long poolSize() {
 		synchronized(connectionsPoolMap) {
 			int size = 0;
 			for (LinkedList<Connection> poolList: connectionsPoolMap.values()){
@@ -108,6 +108,36 @@ public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends Spark
 			}
 			return size;
 		}
+	}*/
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+/*	@Override
+	public int hashCode() {
+		// TODO
+		return 0; /// sparkToNatsStreamingConnectionSignature(natsURL, properties, subjects, connectionTimeout, clientID, clusterID);
+	}
+*/
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+/*	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (!(obj instanceof SparkToNatsStreamingConnectorImpl))
+			return false;
+		SparkToNatsStreamingConnectorImpl other = (SparkToNatsStreamingConnectorImpl) obj;
+		return (this.sealedHashCode() == other.sealedHashCode());
+	}*/
+	
+	@Override
+	public int getConnectionSignature() {
+		// TODO
+		return sparkToNatsStreamingConnectionSignature(natsURL, properties, subjects, connectionTimeout, "clientID", clusterID);
 	}
 
 	/* (non-Javadoc)
@@ -120,6 +150,6 @@ public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends Spark
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")
 				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
-				+ ("connectionsPoolMap=" + connectionsPoolMap) + "]";
+				+ ("connectorsPoolMap=" + connectorsPoolMap) + "]";
 	}
 }

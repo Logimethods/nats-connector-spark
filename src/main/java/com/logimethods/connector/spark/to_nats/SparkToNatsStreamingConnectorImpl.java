@@ -98,14 +98,14 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 
 	protected synchronized Connection getConnection() throws Exception {
 		if (connection == null) {
-			connection = SparkToNatsStreamingConnectorPool.getConnectionFromPool(sealedHashCode());
-			if (connection == null) {
-				logger.debug("No Connection available on the Pool({}), need to create a new one", sealedHashCode());
+//			connection = SparkToNatsStreamingConnectorPool.getConnectionFromPool(sealedHashCode());
+//			if (connection == null) {
+//				logger.debug("No Connection available on the Pool({}), need to create a new one", sealedHashCode());
 				connection = createConnection();
-			} else {
-				logger.debug("The Pool({}) returned ", sealedHashCode(), connection);				
-			}
-			registerItself();
+//			} else {
+//				logger.debug("The Pool({}) returned ", sealedHashCode(), connection);				
+//			}
+//			registerItself();
 		}
 		return connection;
 	}
@@ -161,31 +161,24 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 		SparkToNatsStreamingConnectorPool.removeConnectorFromPool(this);
 	}
 
-	@Override
-	protected boolean hasANotNullConnection() {
-		return connection != null;
-	}
+//	@Override
+//	protected boolean hasANotNullConnection() {
+//		return connection != null;
+//	}
 	
 	protected String getsNatsUrlKey() {
 		return PROP_URL;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((clientID == null) ? 0 : clientID.hashCode());
-		result = prime * result + ((clusterID == null) ? 0 : clusterID.hashCode());
-		return result;
+	public int getConnectionSignature() {
+		return sparkToNatsStreamingConnectionSignature(natsURL, properties, subjects, connectionTimeout, clientID, clusterID);
 	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
-	@Override
+/*	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -194,18 +187,8 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 		if (!(obj instanceof SparkToNatsStreamingConnectorImpl))
 			return false;
 		SparkToNatsStreamingConnectorImpl other = (SparkToNatsStreamingConnectorImpl) obj;
-		if (clientID == null) {
-			if (other.clientID != null)
-				return false;
-		} else if (!clientID.equals(other.clientID))
-			return false;
-		if (clusterID == null) {
-			if (other.clusterID != null)
-				return false;
-		} else if (!clusterID.equals(other.clusterID))
-			return false;
-		return true;
-	}
+		return (this.sealedHashCode() == other.sealedHashCode());
+	}*/
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()

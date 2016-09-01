@@ -35,7 +35,6 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 
 	protected Collection<String> subjects;
 	protected String natsURL;
-	protected transient Integer sealedHashCode;
 	protected Long connectionTimeout;
 	protected transient ScheduledFuture<?> closingFuture;
 	protected long internalId = Utilities.generateUniqueID(this);
@@ -95,10 +94,10 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		}
 	};
 
-	protected void registerItself() {
+/*	protected void registerItself() {
 		logger.debug("Register {}", this);
 		SparkToNatsConnectorPool.register(internalId, sealedHashCode(), this);
-	}
+	}*/
 	
 	/**
 	 * @param properties the properties to set
@@ -201,38 +200,14 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 
 	protected abstract void closeConnection();
 
-	protected abstract boolean hasANotNullConnection();
+////	protected abstract boolean hasANotNullConnection();
 	
 	protected abstract void removeFromPool();
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((natsURL == null) ? 0 : natsURL.hashCode());
-		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
-		result = prime * result + ((subjects == null) ? 0 : subjects.hashCode());
-		result = prime * result + ((connectionTimeout == null) ? 0 : connectionTimeout.hashCode());
-		return result;
-	}
-
-	/**
-	 * @return the sealedHashCode
-	 */
-	protected Integer sealedHashCode() {
-		if (sealedHashCode == null) {
-			sealedHashCode = hashCode();
-		}
-		return sealedHashCode;
-	}
-
-	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
-	@Override
+/*	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -241,31 +216,6 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		if (!(obj instanceof SparkToNatsConnector))
 			return false;
 		SparkToNatsConnector<?> other = (SparkToNatsConnector<?>) obj;
-		if (natsURL == null) {
-			if (other.natsURL != null)
-				return false;
-		} else if (!natsURL.equals(other.natsURL))
-			return false;
-		if (properties == null) {
-			if (other.properties != null)
-				return false;
-		} else if (!properties.equals(other.properties))
-			return false;
-		if (publishToNats == null) {
-			if (other.publishToNats != null)
-				return false;
-		} else if (!publishToNats.equals(other.publishToNats))
-			return false;
-		if (subjects == null) {
-			if (other.subjects != null)
-				return false;
-		} else if (!subjects.equals(other.subjects))
-			return false;
-		if (connectionTimeout == null) {
-			if (other.connectionTimeout != null)
-				return false;
-		} else if (!connectionTimeout.equals(other.connectionTimeout))
-			return false;
-		return true;
-	}
+		return (this.sealedHashCode() == other.sealedHashCode());
+	}*/
 }
