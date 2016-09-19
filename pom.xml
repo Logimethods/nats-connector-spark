@@ -30,7 +30,7 @@
 		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
 		<dependency.locations.enabled>false</dependency.locations.enabled>
 		<!-- NATS -->
-		<java-nats-streaming.version>0.1.2</java-nats-streaming.version>
+		<java-nats-streaming.version>0.3.0</java-nats-streaming.version>
 	</properties>
 
 	<dependencies>
@@ -185,6 +185,27 @@
 				<path>target/apidocs</path> <branch>refs/heads/gh-pages</branch> </configuration> 
 				<executions> <execution> <goals> <goal>site</goal> </goals> <phase>site</phase> 
 				</execution> </executions> </plugin> -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.4.3</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<relocations>
+								<relocation>
+									<pattern>com.google.protobuf</pattern>
+									<shadedPattern>shaded.nats.com.google.protobuf</shadedPattern>
+								</relocation>
+							</relocations>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
