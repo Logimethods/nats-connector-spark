@@ -242,12 +242,12 @@ You should instead use the dedicated [nats-connector-spark-scala](https://github
 
 JUnit tests are included. To perform those tests, [gnatsd](http://nats.io/download/nats-io/gnatsd/) and [nats-streaming-server](http://nats.io/documentation/streaming/nats-streaming-intro/) are required.
 You might have first to start those servers:
-```
+```Shell
 gnatsd -p 4221&
 nats-streaming-server -p 4223&
 ````
 Then call Maven:
-```
+```Shell
 nats-connector-spark> mvn compile test
 ```
 
