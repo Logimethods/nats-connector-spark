@@ -100,10 +100,10 @@ If you don't already have your pom.xml configured for using Maven snapshots from
 ## Usage (in Java)
 ### From NATS to Spark
 #### From NATS to Spark (Streaming)
-```
+```java
 import com.logimethods.nats.connector.spark.NatsToSparkConnector;
 ```
-```
+```java
 SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]");
 JavaSparkContext sc = new JavaSparkContext(sparkConf);
 JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
@@ -111,7 +111,7 @@ JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 ##### While listening to NATS on a list of subjects:
 
-```
+```java
 JavaReceiverInputDStream<String> messages = 
 	ssc.receiverStream(
 		NatsToSparkConnector
@@ -122,7 +122,7 @@ JavaReceiverInputDStream<String> messages =
 
 ##### While listening to a NATS server defined by properties:
 
-```
+```java
 Properties properties = new Properties();
 properties.setProperty(com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS, "SubjectA,SubjectB , SubjectC");
 JavaReceiverInputDStream<String> messages = 
@@ -138,7 +138,8 @@ The optional settings are:
 * `withProperties(Properties properties)`
 
 #### From *NATS Streaming* to Spark (Streaming)
-```
+
+```java
 String clusterID = "test-cluster";
 Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
 JavaReceiverInputDStream<String> messages = 
@@ -173,11 +174,12 @@ as well as options related to [NATS Streaming](https://github.com/nats-io/java-n
 
 ### From Spark to NATS
 #### From Spark (Streaming) to NATS
-```
+
+```java
 import com.logimethods.nats.connector.spark.SparkToNatsConnectorPool;
 JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
 ```
-```
+```java
 SparkToNatsConnectorPool
 	.newPool()
 	.withSubjects("subject1", "subject2")
@@ -194,7 +196,7 @@ The optional settings are:
 
 #### From Spark (Streaming) to *NATS Streaming*
 
-```
+```java
 String clusterID = "test-cluster";
 SparkToNatsConnectorPool
 	.newStreamingPool(clusterID)
@@ -211,13 +213,13 @@ The optional settings are:
 * `withConnectionTimeout(Duration duration)`
 
 #### From Spark (*WITHOUT Streaming NOR Spark Cluster*) to NATS
-```
+```java
 import com.logimethods.nats.connector.spark.SparkToNatsConnector;
 
 List<String> data = getData();
 JavaRDD<String> rdd = sc.parallelize(data);
 ```
-```
+```java
 rdd.foreach(
 	SparkToNatsConnector
 		.newConnection()
