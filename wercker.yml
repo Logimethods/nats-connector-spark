@@ -49,7 +49,7 @@ javadoc:
           git config --global user.name "$GITHUB_USERNAME"
     - xenoterracide/maven:
         name: Publish Javadoc to Github Pages
-        goals: -s ./settings.xml -Dmaven.test.skip=true scm-publish:publish-scm
+        goals: -Dmaven.test.skip=true scm-publish:publish-scm
     - script:
         name: Set index.htm
         code: |-
