@@ -44,6 +44,7 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 	protected Properties		 properties;
 	protected String 			 queue;
 	protected String 			 natsUrl;
+	protected boolean			 subjectAndPayload = false;
 
 	protected final static String CLIENT_ID = "NatsToSparkConnector_";
 
@@ -76,6 +77,14 @@ public abstract class NatsToSparkConnector<T> extends Receiver<String> {
 	@SuppressWarnings("unchecked")
 	public T withNatsURL(String natsURL) {
 		this.natsUrl = natsURL;
+		return (T)this;
+	}
+	
+	/**
+	 */
+	@SuppressWarnings("unchecked")
+	public T withSubjectAndPayload() {
+		this.subjectAndPayload = true;
 		return (T)this;
 	}
 

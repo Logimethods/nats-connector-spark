@@ -24,6 +24,8 @@ import io.nats.stan.MessageHandler;
 import io.nats.stan.Subscription;
 import io.nats.stan.SubscriptionOptions;
 
+import java.nio.ByteBuffer;
+
 /**
  * A NATS to Spark Connector.
  * <p>
@@ -227,11 +229,24 @@ public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<Nats
 			final Subscription sub = connection.subscribe(subject, queue, new MessageHandler() {
 				@Override
 				public void onMessage(Message m) {
-					String s = new String(m.getData());
-					if (logger.isTraceEnabled()) {
-						logger.trace("Received by {} on Subject '{}': {}.", NatsStreamingToSparkConnectorImpl.this, m.getSubject(), s);
+					if (subjectAndPayload) {
+						final String subject = m.getSubject();
+						final byte[] payload = m.getData();
+						final ByteBuffer bytes = ByteBuffer.wrap(payload);
+						
+						if (logger.isTraceEnabled()) {
+							logger.trace("Received by {} on Subject '{}': {}.", NatsStreamingToSparkConnectorImpl.this,
+									m.getSubject(), payload.toString());
+						}
+						store(bytes, subject);
+					} else {
+						String s = new String(m.getData());
+						if (logger.isTraceEnabled()) {
+							logger.trace("Received by {} on Subject '{}': {}.", NatsStreamingToSparkConnectorImpl.this,
+									m.getSubject(), s);
+						}
+						store(s);
 					}
-					store(s);
 				}
 			}, getSubscriptionOptions());
 			logger.info("Listening on {}.", subject);

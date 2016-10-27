@@ -8,6 +8,7 @@
 package com.logimethods.connector.nats.to_spark;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
@@ -92,11 +93,23 @@ public class StandardNatsToSparkConnectorImpl extends NatsToSparkConnector<Stand
 			final Subscription sub = connection.subscribe(subject, queue, new MessageHandler() {
 				@Override
 				public void onMessage(Message m) {
-					String s = new String(m.getData());
-					if (logger.isTraceEnabled()) {
-						logger.trace("Received by {} on Subject '{}' sharing Queue '{}': {}.", StandardNatsToSparkConnectorImpl.this, m.getSubject(), queue, s);
+					if (subjectAndPayload) {
+						final String subject = m.getSubject();
+						final byte[] payload = m.getData();
+						final ByteBuffer bytes = ByteBuffer.wrap(payload);
+						
+						if (logger.isTraceEnabled()) {
+							logger.trace("Received by {} on Subject '{}': {}.", StandardNatsToSparkConnectorImpl.this,
+									m.getSubject(), payload.toString());
+						}
+						store(bytes, subject);
+					} else {
+						String s = new String(m.getData());
+						if (logger.isTraceEnabled()) {
+							logger.trace("Received by {} on Subject '{}' sharing Queue '{}': {}.", StandardNatsToSparkConnectorImpl.this, m.getSubject(), queue, s);
+						}
+						store(s);
 					}
-					store(s);
 				}
 			});
 			logger.info("Listening on {}.", subject);
