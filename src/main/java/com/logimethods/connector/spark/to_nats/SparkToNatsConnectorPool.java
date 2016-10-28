@@ -18,6 +18,7 @@ import java.util.Properties;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,11 +123,9 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	
 	/**
 	 * @param rdd
-	 * @see http://spark.apache.org/docs/1.6.2/streaming-programming-guide.html#design-patterns-for-using-foreachrdd
 	 */
-	@SuppressWarnings("deprecation")
 	public void publishToNats(final JavaDStream<String> rdd) {
-		rdd.foreachRDD((Function<JavaRDD<String>, Void>) rdd1 -> {
+		rdd.foreachRDD((VoidFunction<JavaRDD<String>>) rdd1 -> {
 			logger.trace("rdd.foreachRDD");
 			rdd1.foreachPartition(strings -> {
 				logger.trace("rdd1.foreachPartition");
@@ -138,7 +137,6 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 				}
 				returnConnector(connector);  // return to the pool for future reuse
 			});
-			return null;
 		});
 	}
 

@@ -13,6 +13,7 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
@@ -104,11 +105,11 @@ public abstract class AbstractNatsToSparkTest {
 			messages.print();
 		}
 		
-		messages.foreachRDD(new Function<JavaRDD<String>, Void>() {
+		messages.foreachRDD(new VoidFunction<JavaRDD<String>>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public Void call(JavaRDD<String> rdd) throws Exception {
+			public void call(JavaRDD<String> rdd) throws Exception {
 				logger.debug("RDD received: {}", rdd.collect());
 				
 				final long count = rdd.count();
@@ -126,8 +127,6 @@ public abstract class AbstractNatsToSparkTest {
 							payload = str;
 						}
 				}
-				
-				return null;
 			}			
 		});
 		
