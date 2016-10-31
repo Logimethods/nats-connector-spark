@@ -44,7 +44,6 @@ public abstract class NatsToSparkConnector<T,R> extends Receiver<R> {
 	protected Properties		 properties;
 	protected String 			 queue;
 	protected String 			 natsUrl;
-	protected boolean			 subjectAndPayload = false;
 
 	protected final static String CLIENT_ID = "NatsToSparkConnector_";
 
@@ -57,8 +56,23 @@ public abstract class NatsToSparkConnector<T,R> extends Receiver<R> {
 		this.subjects = Utilities.transformIntoAList(subjects);
 	}
 	
+	/**
+	 * @param storageLevel
+	 * @param subjects
+	 * @param properties
+	 * @param queue
+	 * @param natsUrl
+	 */
+	protected NatsToSparkConnector(StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
+		super(storageLevel);
+		this.subjects = subjects;
+		this.properties = properties;
+		this.queue = queue;
+		this.natsUrl = natsUrl;
+	}
+
 	/* with... */
-	
+
 	@SuppressWarnings("unchecked")
 	public T withSubjects(String... subjects) {
 		this.subjects = Utilities.transformIntoAList(subjects);
@@ -83,8 +97,7 @@ public abstract class NatsToSparkConnector<T,R> extends Receiver<R> {
 	/**
 	 */
 	@SuppressWarnings("unchecked")
-	public T withSubjectAndPayload() {
-		this.subjectAndPayload = true;
+	public T storedAsKeyValue() {
 		return (T)this;
 	}
 

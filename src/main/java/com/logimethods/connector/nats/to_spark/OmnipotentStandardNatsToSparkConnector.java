@@ -8,6 +8,7 @@
 package com.logimethods.connector.nats.to_spark;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
@@ -43,7 +44,6 @@ import static io.nats.client.Constants.*;
 @SuppressWarnings("serial")
 public abstract class OmnipotentStandardNatsToSparkConnector<T,R> extends NatsToSparkConnector<T,R> {
 
-
 	protected OmnipotentStandardNatsToSparkConnector(Properties properties, StorageLevel storageLevel, String... subjects) {
 		super(storageLevel, subjects);
 		this.properties = properties;
@@ -64,6 +64,17 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R> extends NatsTo
 	protected OmnipotentStandardNatsToSparkConnector(StorageLevel storageLevel) {
 		super(storageLevel);
 		setQueue();
+	}
+	
+	protected OmnipotentStandardNatsToSparkConnector(StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
+		super(storageLevel, subjects, properties, queue, natsUrl);
+	}
+
+	/**
+	 */
+	@SuppressWarnings("unchecked")
+	public T storedAsKeyValue() {
+		return (T) new StandardNatsToKeyValueSparkConnectorImpl(storageLevel(), subjects, properties, queue, natsUrl);
 	}
 
 	protected Properties enrichedProperties;

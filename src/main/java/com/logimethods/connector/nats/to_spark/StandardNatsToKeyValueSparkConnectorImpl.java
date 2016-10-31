@@ -8,6 +8,7 @@
 package com.logimethods.connector.nats.to_spark;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
@@ -40,44 +41,53 @@ import static io.nats.client.Constants.*;
  * </pre>
  * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
-public class StandardNatsToSparkConnectorImpl extends OmnipotentStandardNatsToSparkConnector<StandardNatsToSparkConnectorImpl, String> {
+public class StandardNatsToKeyValueSparkConnectorImpl extends OmnipotentStandardNatsToSparkConnector<StandardNatsToKeyValueSparkConnectorImpl, Tuple2<String, String>> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	static final Logger logger = LoggerFactory.getLogger(StandardNatsToSparkConnectorImpl.class);
+	static final Logger logger = LoggerFactory.getLogger(StandardNatsToKeyValueSparkConnectorImpl.class);
 
-	protected StandardNatsToSparkConnectorImpl(Properties properties, StorageLevel storageLevel, String... subjects) {
+	protected Properties enrichedProperties;
+
+	protected StandardNatsToKeyValueSparkConnectorImpl(Properties properties, StorageLevel storageLevel, String... subjects) {
 		super(storageLevel, subjects);
 		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
 
-	protected StandardNatsToSparkConnectorImpl(StorageLevel storageLevel, String... subjects) {
+	protected StandardNatsToKeyValueSparkConnectorImpl(StorageLevel storageLevel, String... subjects) {
 		super(storageLevel, subjects);
 		logger.debug("CREATE NatsToSparkConnector {} with Storage Level {} and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
-	protected StandardNatsToSparkConnectorImpl(Properties properties, StorageLevel storageLevel) {
+	protected StandardNatsToKeyValueSparkConnectorImpl(Properties properties, StorageLevel storageLevel) {
 		super(storageLevel);
 		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}' and Storage Level {}.", this, properties, storageLevel);
 	}
 
-	protected StandardNatsToSparkConnectorImpl(StorageLevel storageLevel) {
+	protected StandardNatsToKeyValueSparkConnectorImpl(StorageLevel storageLevel) {
 		super(storageLevel);
 		logger.debug("CREATE NatsToSparkConnector {}.", this, properties, storageLevel);
+	}
+	
+	protected StandardNatsToKeyValueSparkConnectorImpl(StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
+		super(storageLevel, subjects, properties, queue, natsUrl);
 	}
 
 	protected MessageHandler getMessageHandler() {
 		return new MessageHandler() {
 			@Override
 			public void onMessage(Message m) {
-				String s = new String(m.getData());
+				final String subject = m.getSubject();
+				final String s = new String(m.getData());
+				
 				if (logger.isTraceEnabled()) {
-					logger.trace("Received by {} on Subject '{}' sharing Queue '{}': {}.", StandardNatsToSparkConnectorImpl.this, m.getSubject(), queue, s);
+					logger.trace("Received by {} on Subject '{}': {}.", StandardNatsToKeyValueSparkConnectorImpl.this, m.getSubject(), s);
 				}
-				store(s);
+										
+				store(new Tuple2<String, String>(subject, s));
 			}
 		};
 	}
