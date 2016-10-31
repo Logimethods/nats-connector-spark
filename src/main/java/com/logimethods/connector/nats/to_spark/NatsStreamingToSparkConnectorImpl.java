@@ -40,7 +40,7 @@ import java.nio.ByteBuffer;
  * </pre>
  * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
-public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<NatsStreamingToSparkConnectorImpl> {
+public class NatsStreamingToSparkConnectorImpl extends NatsToSparkConnector<NatsStreamingToSparkConnectorImpl, String> {
 
 	/**
 	 * 

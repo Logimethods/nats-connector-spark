@@ -36,7 +36,7 @@ import static io.nats.client.Constants.PROP_URL;
  * @see <a href="http://spark.apache.org/docs/1.6.1/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
 @SuppressWarnings("serial")
-public abstract class NatsToSparkConnector<T> extends Receiver<String> {
+public abstract class NatsToSparkConnector<T,R> extends Receiver<R> {
 
 	static final Logger logger = LoggerFactory.getLogger(NatsToSparkConnector.class);
 	
