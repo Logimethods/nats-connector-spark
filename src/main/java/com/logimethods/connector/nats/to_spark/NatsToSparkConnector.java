@@ -95,11 +95,11 @@ public abstract class NatsToSparkConnector<T,R> extends Receiver<R> {
 	}
 	
 	/**
-	 */
 	@SuppressWarnings("unchecked")
 	public T storedAsKeyValue() {
 		return (T)this;
 	}
+	 */
 
 	/* **************** STANDARD NATS **************** */
 	

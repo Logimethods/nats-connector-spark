@@ -73,8 +73,8 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R> extends NatsTo
 	/**
 	 */
 	@SuppressWarnings("unchecked")
-	public T storedAsKeyValue() {
-		return (T) new StandardNatsToKeyValueSparkConnectorImpl(storageLevel(), subjects, properties, queue, natsUrl);
+	public StandardNatsToKeyValueSparkConnectorImpl storedAsKeyValue() {
+		return new StandardNatsToKeyValueSparkConnectorImpl(storageLevel(), subjects, properties, queue, natsUrl);
 	}
 
 	protected Properties enrichedProperties;
