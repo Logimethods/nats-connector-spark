@@ -11,20 +11,37 @@ import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_S
 
 import java.time.Duration;
 
+import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.streaming.api.java.JavaDStream;
+import org.apache.spark.streaming.api.java.JavaPairDStream;
+
+import scala.Tuple2;
 
 //@Ignore
 @SuppressWarnings("serial")
-public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToStandardNatsConnectorLifecycleTest {
+public class KeyValueSparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToStandardNatsConnectorLifecycleTest {
 
 	protected void publishToNats(final String subject1, final String subject2, final int partitionsNb) {
 		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(partitionsNb);		
+		
+		JavaPairDStream<String, String> stream1 = 
+				lines.mapToPair((PairFunction<String, String, String>) str -> {
+									return new Tuple2<String, String>(subject1, str);
+								});
+		JavaPairDStream<String, String> stream2 = 
+				lines.mapToPair((PairFunction<String, String, String>) str -> {
+									return new Tuple2<String, String>(subject2, str);
+								});
+		final JavaPairDStream<String, String> stream = stream1.union(stream2);
+		
+		if (logger.isDebugEnabled()) {
+			stream.print();
+		}		
 		
 		SparkToNatsConnectorPool
 			.newPool()
 			.withNatsURL(NATS_SERVER_URL)
 			.withConnectionTimeout(Duration.ofSeconds(2))
-			.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
-			.publishToNats(lines);
+			.publishToNats(stream);
 	}
 }

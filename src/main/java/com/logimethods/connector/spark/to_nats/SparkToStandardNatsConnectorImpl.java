@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
 import io.nats.client.Message;
+import scala.Tuple2;
 
 public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStandardNatsConnectorImpl> {
 
@@ -73,6 +74,16 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	public VoidFunction<Tuple2<String,String>> publishAsKeyValueToNats() throws Exception {
+		setStoredAsKeyValue(true);
+		return publishKeyValueToNats;
+	}
+
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
 	 * @param obj the String that will be published to NATS.
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
@@ -93,6 +104,33 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 			localConnection.publish(natsMessage);
 	
 			logger.trace("Send '{}' from Spark to NATS ({})", str, subject);
+		}
+	}
+
+	// TODO Check Javadoc
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param obj the String that will be published to NATS.
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	@Override
+	protected void publishToStr(String postSubject, String message) throws Exception {
+		resetClosingTimeout();
+		
+		logger.debug("publishToStr '{}' by {} through {} with '{}' Subject", message, super.toString(), postSubject);
+
+		final Message natsMessage = new Message();
+		
+		final byte[] payload = message.getBytes();
+		natsMessage.setData(payload, 0, payload.length);
+	
+		final Connection localConnection = getConnection();
+		for (String preSubject : getDefinedSubjects()) {
+			final String subject = preSubject + postSubject;
+			natsMessage.setSubject(subject);
+			localConnection.publish(natsMessage);
+	
+			logger.trace("Send '{}' from Spark to NATS ({})", message, subject);
 		}
 	}
 
@@ -171,5 +209,4 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
 				+ (publishToNats != null ? "publishToNats=" + publishToNats : "") + "]";
 	}
-
 }

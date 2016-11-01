@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats_spark.Utilities;
 
+import scala.Tuple2;
+
 /**
  * A Spark to NATS connector.
  * <p>
@@ -38,6 +40,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected Long connectionTimeout;
 	protected transient ScheduledFuture<?> closingFuture;
 	protected long internalId = Utilities.generateUniqueID(this);
+	protected boolean storedAsKeyValue = false;
 	
 	/**
 	 * 
@@ -70,10 +73,15 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @param obj the object from which the toString() will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	public void publish(Object obj) throws Exception {
+/*	public void publish(String obj) throws Exception {
 		final String str = obj.toString();
 		publishToStr(str);
 	}
+	
+	public void publish(String subject, String message) throws Exception {
+//		final String str = obj.toString();
+		publishToStr(message);
+	}*/
 
 	/**
 	 */
@@ -93,6 +101,19 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 			publishToStr(str);
 		}
 	};
+
+	/**
+	 * A VoidFunction&lt;String&gt; method that will publish the provided String into NATS through the defined subjects.
+	 */
+	protected VoidFunction<Tuple2<String, String>> publishKeyValueToNats = new VoidFunction<Tuple2<String, String>>() {
+		private static final long serialVersionUID = -3056486640490904222L;
+
+		@Override
+		public void call(Tuple2<String, String> tuple) throws Exception {
+			logger.trace("Publish to NATS: " + tuple);
+			publishToStr(tuple._1, tuple._2);
+		}
+	};
 	
 	/**
 	 * @param properties the properties to set
@@ -101,7 +122,21 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		this.properties = properties;
 	}
 
+	// TODO Check JavaDoc
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
 	protected abstract void publishToStr(String str) throws Exception;
+
+	// TODO Check JavaDoc
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	protected abstract void publishToStr(String subject, String message) throws Exception;
 
 	/**
 	 * @param subjects the subjects to set
@@ -164,6 +199,20 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 */
 	public long getInternalId() {
 		return internalId;
+	}
+
+	/**
+	 * @return the storedAsKeyValue
+	 */
+	protected boolean isStoredAsKeyValue() {
+		return storedAsKeyValue;
+	}
+
+	/**
+	 * @param storedAsKeyValue the storedAsKeyValue to set
+	 */
+	protected void setStoredAsKeyValue(boolean storedAsKeyValue) {
+		this.storedAsKeyValue = storedAsKeyValue;
 	}
 
 	/**

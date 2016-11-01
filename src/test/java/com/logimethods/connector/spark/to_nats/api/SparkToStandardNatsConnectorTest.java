@@ -7,18 +7,20 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats.api;
 
-import java.time.Duration;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
+import static io.nats.client.Constants.PROP_URL;
+import static org.junit.Assert.fail;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Level;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -35,10 +37,7 @@ import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
 
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
-import static com.logimethods.connector.nats_spark.Constants.*;
-import static io.nats.client.Constants.*;
-import static org.junit.Assert.*;
+import scala.Tuple2;
 
 //@Ignore
 public class SparkToStandardNatsConnectorTest {
@@ -144,6 +143,20 @@ public class SparkToStandardNatsConnectorTest {
 	}
 
 	@Test(timeout=2000)
+	public void testStaticKeyValueSparkToNatsNoSubjects() throws Exception {   
+		final List<String> data = getData();
+
+		JavaRDD<String> rdd = sc.parallelize(data);
+				
+		String subject1 = "subject1";
+		JavaRDD<Tuple2<String, String>> stream = 
+				rdd.map((Function<String, Tuple2<String, String>>) str -> {
+									return new Tuple2<String, String>(subject1, str);
+								});		
+		stream.foreach(SparkToNatsConnector.newConnection().storedAsKeyValue().withNatsURL(NATS_SERVER_URL).publishAsKeyValueToNats());
+	}
+
+	@Test(timeout=2000)
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
 		final List<String> data = getData();
 
@@ -155,8 +168,49 @@ public class SparkToStandardNatsConnectorTest {
 
 		JavaRDD<String> rdd = sc.parallelize(data);
 
-		final VoidFunction<String> publishToNats = SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).withSubjects(DEFAULT_SUBJECT, subject1, subject2).publishToNats();
+		final VoidFunction<String> publishToNats = 
+				SparkToNatsConnector
+					.newConnection()
+					.withNatsURL(NATS_SERVER_URL)
+					.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
+					.publishToNats();
 		rdd.foreach(publishToNats);	
+
+		// wait for the subscribers to complete.
+		ns1.waitForCompletion();
+		ns2.waitForCompletion();
+	}
+
+	@Test(timeout=4000)
+	public void testStaticKeyValueSparkToNatsWithMultipleSubjects() throws Exception {   
+		final List<String> data = getData();
+		
+		final String rootSubject = "ROOT";
+
+		String subject1 = "subject1";
+		StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, rootSubject + "." + subject1 + ".>", NATS_SERVER_URL);
+
+		String subject2 = "subject2";
+		StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, rootSubject + "." + subject2 + ".>", NATS_SERVER_URL);
+
+		JavaRDD<String> rdd = sc.parallelize(data);
+		JavaRDD<Tuple2<String, String>> stream1 = 
+				rdd.map((Function<String, Tuple2<String, String>>) str -> {
+									return new Tuple2<String, String>(subject1 + "." + str, str);
+								});		
+		JavaRDD<Tuple2<String, String>> stream2 = 
+				rdd.map((Function<String, Tuple2<String, String>>) str -> {
+									return new Tuple2<String, String>(subject2 + "." + str, str);
+								});		
+		JavaRDD<Tuple2<String, String>> stream = stream1.union(stream2);
+
+		final VoidFunction<Tuple2<String, String>> publishToNats = 
+				SparkToNatsConnector
+					.newConnection()
+					.withNatsURL(NATS_SERVER_URL)
+					.withSubjects(rootSubject + ".")
+					.publishAsKeyValueToNats();
+		stream.foreach(publishToNats);	
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();

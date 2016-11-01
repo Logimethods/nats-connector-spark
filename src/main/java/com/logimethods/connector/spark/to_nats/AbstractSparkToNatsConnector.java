@@ -9,6 +9,8 @@ package com.logimethods.connector.spark.to_nats;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 
@@ -70,11 +72,20 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	/**
 	 * @return the connectionTimeout
 	 */
-	protected abstract Long getConnectionTimeout();
+	protected abstract Long getConnectionTimeout();	
 	/**
 	 * @param connectionTimeout the connectionTimeout to set
 	 */
 	protected abstract void setConnectionTimeout(Long connectionTimeout);
+
+	/**
+	 * @return the storedAsKeyValue
+	 */
+	protected abstract boolean isStoredAsKeyValue();
+	/**
+	 * @param storedAsKeyValue the storedAsKeyValue to set
+	 */
+	protected abstract void setStoredAsKeyValue(boolean storedAsKeyValue);
 
 	/**
 	 * @param properties the properties to set
@@ -113,16 +124,27 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 		return (T)this;
 	}
 
+	@SuppressWarnings("unchecked")
+	public T storedAsKeyValue() {
+		setStoredAsKeyValue(true);
+		return (T)this;
+	}
+
 	protected Collection<String> getDefinedSubjects() throws IncompleteException {
 		if ((getSubjects() ==  null) || (getSubjects().size() == 0)) {
 			final String subjectsStr = getProperties() != null ? 
 											getProperties().getProperty(PROP_SUBJECTS) : 
 											null;
 			if (subjectsStr == null) {
-				throw new IncompleteException("" + this + " needs at least one NATS Subject.");
+				if (isStoredAsKeyValue()) {
+					setSubjects(new ArrayList<String>(Arrays.asList("")));
+				} else {
+					throw new IncompleteException("" + this + " needs at least one NATS Subject.");
+				}				
+			} else {
+				setSubjects(Utilities.extractCollection(subjectsStr));
+				getLogger().debug("Subject provided by the Properties: '{}'", getSubjects());				
 			}
-			setSubjects(Utilities.extractCollection(subjectsStr));
-			getLogger().debug("Subject provided by the Properties: '{}'", getSubjects());
 		}
 		return getSubjects();
 	}

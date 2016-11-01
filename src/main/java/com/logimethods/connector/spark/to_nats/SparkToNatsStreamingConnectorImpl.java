@@ -96,6 +96,28 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 		}
 	}
 
+	// TODO Check Javadoc
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param obj the String that will be published to NATS.
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	@Override
+	protected void publishToStr(String postSubject, String message) throws Exception {
+		resetClosingTimeout();
+		
+		logger.debug("Received '{}' from Spark with '{}' Subject", message, postSubject);
+		
+		final byte[] payload = message.getBytes();
+		final Connection localConnection = getConnection();
+		for (String preSubject : getDefinedSubjects()) {
+			final String subject = preSubject + postSubject;
+			localConnection.publish(subject, payload);
+	
+			logger.trace("Publish '{}' from Spark to NATS STREAMING ({})", message, subject);
+		}
+	}
+
 	protected synchronized Connection getConnection() throws Exception {
 		if (connection == null) {
 			connection = createConnection();

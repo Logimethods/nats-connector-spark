@@ -12,18 +12,22 @@ import static io.nats.client.Constants.PROP_URL;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.api.java.JavaDStream;
+import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats_spark.Utilities;
+
+import scala.Tuple2;
 
 /**
  * A pool of SparkToNatsConnector(s).
@@ -41,6 +45,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	protected Collection<String>		subjects;
 	protected String 					natsURL;
 	protected Long 						connectionTimeout;
+	protected boolean 					storedAsKeyValue = false;
 	protected static final HashMap<Integer, LinkedList<SparkToNatsConnector<?>>> connectorsPoolMap = new HashMap<Integer, LinkedList<SparkToNatsConnector<?>>>();
 
 	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnectorPool.class);
@@ -124,16 +129,37 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	/**
 	 * @param rdd
 	 */
-	public void publishToNats(final JavaDStream<String> rdd) {
-		rdd.foreachRDD((VoidFunction<JavaRDD<String>>) rdd1 -> {
-			logger.trace("rdd.foreachRDD");
-			rdd1.foreachPartition(strings -> {
-				logger.trace("rdd1.foreachPartition");
+	public void publishToNats(final JavaDStream<String> stream) {
+		stream.foreachRDD((VoidFunction<JavaRDD<String>>) rdd -> {
+			logger.trace("stream.foreachRDD");
+			rdd.foreachPartitionAsync(strings -> {
+				logger.trace("rdd.foreachPartition");
 				final SparkToNatsConnector<?> connector = getConnector();
 				while(strings.hasNext()) {
 					final String str = strings.next();
 					logger.trace("Will publish {}", str);
-					connector.publish(str);
+					connector.publishToStr(str);
+				}
+				returnConnector(connector);  // return to the pool for future reuse
+			});
+		});
+	}
+	
+	/**
+	 * @param rdd
+	 */
+	public void publishToNats(final JavaPairDStream<String, String> stream) {
+		storedAsKeyValue = true;
+		
+		stream.foreachRDD((VoidFunction<JavaPairRDD<String, String>>) rdd -> {
+			logger.trace("stream.foreachRDD");
+			rdd.foreachPartitionAsync((VoidFunction<Iterator<Tuple2<String,String>>>) tuples -> {
+				logger.trace("rdd.foreachPartition");
+				final SparkToNatsConnector<?> connector = getConnector();
+				while(tuples.hasNext()) {
+					final Tuple2<String,String> tuple = tuples.next();
+					logger.trace("Will publish {}", tuple);
+					connector.publishToStr(tuple._1, tuple._2);
 				}
 				returnConnector(connector);  // return to the pool for future reuse
 			});
@@ -219,5 +245,19 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	@Override
 	protected void setConnectionTimeout(Long connectionTimeout) {
 		this.connectionTimeout = connectionTimeout;
+	}
+
+	/**
+	 * @return the storedAsKeyValue
+	 */
+	protected boolean isStoredAsKeyValue() {
+		return storedAsKeyValue;
+	}
+
+	/**
+	 * @param storedAsKeyValue the storedAsKeyValue to set
+	 */
+	protected void setStoredAsKeyValue(boolean storedAsKeyValue) {
+		this.storedAsKeyValue = storedAsKeyValue;
 	}
 }
