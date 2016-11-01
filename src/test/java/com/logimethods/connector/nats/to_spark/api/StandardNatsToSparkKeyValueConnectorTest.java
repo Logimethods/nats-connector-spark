@@ -19,12 +19,11 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.Duration;
-import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
@@ -34,7 +33,6 @@ import com.logimethods.connector.nats.spark.test.NatsPublisher;
 import com.logimethods.connector.nats.spark.test.StandardNatsPublisher;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 import com.logimethods.connector.nats.to_spark.StandardNatsToKeyValueSparkConnectorImpl;
-import com.logimethods.connector.nats.to_spark.StandardNatsToSparkConnectorImpl;
 
 import scala.Tuple2;
 
@@ -135,32 +133,24 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 		if (logger.isDebugEnabled()) {
 			messages.print();
 		}
-		messages.groupByKey().print();
-/*		messages.groupByKey()
-		messages.foreachRDD(new VoidFunction<JavaRDD<String>>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void call(JavaRDD<String> rdd) throws Exception {
-				logger.debug("RDD received: {}", rdd.collect());
-				
-				final long count = rdd.count();
+		
+		JavaPairDStream<String, Integer> pairs = messages.mapToPair(s -> new Tuple2(s._1, 1));		
+		JavaPairDStream<String, Integer> counts = pairs.reduceByKey((a, b) -> a + b);
+		counts.print();
+		
+		counts.foreachRDD((VoidFunction<JavaPairRDD<String, Integer>>) pairRDD -> {
+			pairRDD.foreach((VoidFunction<Tuple2<String, Integer>>) tuple -> {
+				final long count = tuple._2;
 				if ((count != 0) && (count != nbOfMessages)) {
 					rightNumber = false;
 					logger.error("The number of messages received should have been {} instead of {}.", nbOfMessages, count);
 				}
-				
+
 				TOTAL_COUNT.getAndAdd((int) count);
-				
+
 				atLeastSomeData = atLeastSomeData || (count > 0);
-				
-				for (String str :rdd.collect()) {
-					if (! str.startsWith(NatsPublisher.NATS_PAYLOAD)) {
-							payload = str;
-						}
-				}
-			}			
-		});*/
+			});
+		});
 		
 		ssc.start();		
 		Thread.sleep(1000);		
