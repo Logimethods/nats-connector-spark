@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import com.logimethods.connector.nats_spark.IncompleteException;
 
-public class StandardNatsToSparkWithAttributesTest {
+public class StandardNatsToKeyValueSparkWithAttributesTest {
 	protected final static String CLUSTER_ID = "CLUSTER_ID";
 	private static final int STANServerPORT = 4223;
 	private static final String STAN_URL = "nats://localhost:" + STANServerPORT;
@@ -34,35 +34,37 @@ public class StandardNatsToSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStandardToSparkConnectorImpl_0() throws IncompleteException {
-		StandardNatsToSparkConnectorImpl connector = 
+		StandardNatsToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
 					.receiveFromNats(StorageLevel.MEMORY_ONLY())
-					.withProperties(PROPERTIES);
-		assertTrue(connector instanceof StandardNatsToSparkConnectorImpl);
+					.withProperties(PROPERTIES)
+					.storedAsKeyValue();
+		assertTrue(connector instanceof StandardNatsToKeyValueSparkConnectorImpl);
 		assertEquals(STAN_URL, connector.getEnrichedProperties().getProperty(PROP_URL));
 		assertEquals(3, connector.getSubjects().size());
 	}
 
 	@Test
 	public void testNatsStandardToSparkConnectorImpl_1() throws IncompleteException {
-		StandardNatsToSparkConnectorImpl connector = 
+		StandardNatsToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
 					.receiveFromNats(StorageLevel.MEMORY_ONLY())
-					.withProperties(PROPERTIES)
-					.withSubjects("SUBJECT");
-		assertTrue(connector instanceof StandardNatsToSparkConnectorImpl);
+					.withProperties(PROPERTIES).withSubjects("SUBJECT")
+					.storedAsKeyValue();
+		assertTrue(connector instanceof StandardNatsToKeyValueSparkConnectorImpl);
 		assertEquals(STAN_URL, connector.getEnrichedProperties().getProperty(PROP_URL));
 		assertEquals(1, connector.getSubjects().size());
 	}
 
 	@Test
 	public void testNatsStandardToSparkConnectorImpl_2() throws IncompleteException {
-		StandardNatsToSparkConnectorImpl connector = 
+		StandardNatsToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
 					.receiveFromNats(StorageLevel.MEMORY_ONLY())
 					.withSubjects("SUBJECT")
-					.withProperties(PROPERTIES);
-		assertTrue(connector instanceof StandardNatsToSparkConnectorImpl);
+					.withProperties(PROPERTIES)
+					.storedAsKeyValue();
+		assertTrue(connector instanceof StandardNatsToKeyValueSparkConnectorImpl);
 		assertEquals(STAN_URL, connector.getEnrichedProperties().getProperty(PROP_URL));
 		assertEquals(1, connector.getSubjects().size());
 	}
