@@ -130,6 +130,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @param rdd
 	 */
 	public void publishToNats(final JavaDStream<String> stream) {
+		logger.trace("publishToNats(JavaDStream<String> stream)");
 		stream.foreachRDD((VoidFunction<JavaRDD<String>>) rdd -> {
 			logger.trace("stream.foreachRDD");
 			rdd.foreachPartitionAsync(strings -> {
@@ -149,7 +150,8 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @param rdd
 	 */
 	public void publishToNats(final JavaPairDStream<String, String> stream) {
-		storedAsKeyValue = true;
+		logger.trace("publishToNats(JavaPairDStream<String, String> stream)");
+		setStoredAsKeyValue(true);
 		
 		stream.foreachRDD((VoidFunction<JavaPairRDD<String, String>>) rdd -> {
 			logger.trace("stream.foreachRDD");
@@ -251,6 +253,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @return the storedAsKeyValue
 	 */
 	protected boolean isStoredAsKeyValue() {
+		logger.trace("isStoredAsKeyValue() -> {}", storedAsKeyValue);
 		return storedAsKeyValue;
 	}
 
@@ -258,6 +261,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @param storedAsKeyValue the storedAsKeyValue to set
 	 */
 	protected void setStoredAsKeyValue(boolean storedAsKeyValue) {
+		logger.trace("setStoredAsKeyValue({})", storedAsKeyValue);
 		this.storedAsKeyValue = storedAsKeyValue;
 	}
 }

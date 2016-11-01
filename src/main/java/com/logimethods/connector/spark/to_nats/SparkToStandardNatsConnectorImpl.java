@@ -117,7 +117,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	protected void publishToStr(String postSubject, String message) throws Exception {
 		resetClosingTimeout();
 		
-		logger.debug("publishToStr '{}' by {} through {} with '{}' Subject", message, super.toString(), postSubject);
+		logger.debug("publishKeyValueToStr '{}' with '{}' Subject by {} through {}", message, postSubject, super.toString());
 
 		final Message natsMessage = new Message();
 		
