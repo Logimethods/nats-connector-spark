@@ -10,6 +10,7 @@ package com.logimethods.connector.nats.to_spark;
 import java.util.Collection;
 import java.util.Properties;
 
+import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.StreamingContext;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
@@ -19,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.nats_spark.Utilities;
+
+import scala.Tuple2;
 
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Constants.PROP_URL;
@@ -171,5 +174,19 @@ public abstract class NatsToSparkConnector<T,R> extends Receiver<R> {
 	protected static String getUniqueClientName() {
 		return CLIENT_ID + Utilities.generateUniqueID();
 	}    
+	
+	static final protected PairFunction<Tuple2<String, String>, String, String> keepTuple2Func = 
+		new PairFunction<Tuple2<String, String>, String, String>() {
+	
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 4057911245686964676L;
+
+			@Override
+			public Tuple2<String, String> call(Tuple2<String,String> tuple) {
+				return tuple;
+			}
+		};
 }
 

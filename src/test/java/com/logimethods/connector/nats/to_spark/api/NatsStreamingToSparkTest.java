@@ -15,6 +15,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.log4j.Level;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.Duration;
+import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.junit.BeforeClass;
@@ -75,8 +76,27 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final JavaReceiverInputDStream<String> messages = 
-				ssc.receiverStream(NatsToSparkConnector.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-						.withNatsURL(STAN_URL).withSubjects(DEFAULT_SUBJECT));
+				NatsToSparkConnector
+						.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+						.withNatsURL(STAN_URL)
+						.withSubjects(DEFAULT_SUBJECT)
+						.asStreamOf(ssc);
+
+		validateTheReceptionOfMessages(ssc, messages);
+	}
+	
+	@Test(timeout = 8000)
+	public void testNatsToKeyValueSparkConnectorWithAdditionalSubjects() throws InterruptedException {
+		
+		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
+
+		final JavaPairDStream<String, String> messages = 
+				NatsToSparkConnector
+						.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+						.withNatsURL(STAN_URL)
+						.withSubjects(DEFAULT_SUBJECT)
+						.storedAsKeyValue()
+						.asStreamOf(ssc);
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}

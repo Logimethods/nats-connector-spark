@@ -7,25 +7,21 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.to_spark;
 
+import static io.nats.client.Constants.PROP_URL;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.spark.storage.StorageLevel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats_spark.IncompleteException;
 
 import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
-import io.nats.client.Message;
 import io.nats.client.MessageHandler;
 import io.nats.client.Subscription;
-import scala.Tuple2;
-
-import static io.nats.client.Constants.*;
 
 /**
  * A NATS to Spark Connector.
@@ -72,7 +68,6 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R> extends NatsTo
 
 	/**
 	 */
-	@SuppressWarnings("unchecked")
 	public StandardNatsToKeyValueSparkConnectorImpl storedAsKeyValue() {
 		return new StandardNatsToKeyValueSparkConnectorImpl(storageLevel(), subjects, properties, queue, natsUrl);
 	}

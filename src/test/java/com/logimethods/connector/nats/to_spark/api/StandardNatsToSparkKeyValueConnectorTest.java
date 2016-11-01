@@ -10,17 +10,10 @@ package com.logimethods.connector.nats.to_spark.api;
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Constants.PROP_URL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.Duration;
 import org.apache.spark.streaming.api.java.JavaPairDStream;
@@ -30,8 +23,6 @@ import org.junit.Test;
 import com.logimethods.connector.nats.spark.test.NatsPublisher;
 import com.logimethods.connector.nats.spark.test.StandardNatsPublisher;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
-
-import scala.Tuple2;
 
 public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSparkTest implements Serializable {
 	
@@ -55,7 +46,7 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 					.withSubjects(DEFAULT_SUBJECT)
 					.asStreamOf(ssc);
 
-		validateTheReceptionOfKeyValueMessages(ssc, messages);
+		validateTheReceptionOfMessages(ssc, messages);
 	}
 	
 	@Test(timeout=6000)
@@ -71,7 +62,7 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 					.storedAsKeyValue()
 					.asStreamOf(ssc);
 
-		validateTheReceptionOfKeyValueMessages(ssc, messages);
+		validateTheReceptionOfMessages(ssc, messages);
 	}
 	
 	@Test(timeout=6000)
@@ -89,7 +80,7 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 					.storedAsKeyValue()
 					.asStreamOf(ssc);
 
-		validateTheReceptionOfKeyValueMessages(ssc, messages);
+		validateTheReceptionOfMessages(ssc, messages);
 	}
 	
 	@Test(timeout=6000)
@@ -107,50 +98,6 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 					.withProperties(properties)
 					.asStreamOf(ssc);
 
-		validateTheReceptionOfKeyValueMessages(ssc, messages);
-	}
-
-	protected void validateTheReceptionOfKeyValueMessages(final JavaStreamingContext ssc,
-			final JavaPairDStream<String, String> messages) throws InterruptedException {
-
-		ExecutorService executor = Executors.newFixedThreadPool(6);
-
-		final int nbOfMessages = 5;
-		NatsPublisher np = getNatsPublisher(nbOfMessages);
-		
-		if (logger.isDebugEnabled()) {
-			messages.print();
-		}
-		
-		JavaPairDStream<String, Integer> pairs = messages.mapToPair(s -> new Tuple2(s._1, 1));		
-		JavaPairDStream<String, Integer> counts = pairs.reduceByKey((a, b) -> a + b);
-		counts.print();
-		
-		counts.foreachRDD((VoidFunction<JavaPairRDD<String, Integer>>) pairRDD -> {
-			pairRDD.foreach((VoidFunction<Tuple2<String, Integer>>) tuple -> {
-				final long count = tuple._2;
-				if ((count != 0) && (count != nbOfMessages)) {
-					rightNumber = false;
-					logger.error("The number of messages received should have been {} instead of {}.", nbOfMessages, count);
-				}
-
-				TOTAL_COUNT.getAndAdd((int) count);
-
-				atLeastSomeData = atLeastSomeData || (count > 0);
-			});
-		});
-		
-		ssc.start();		
-		Thread.sleep(1000);		
-		// start the publisher
-		executor.execute(np);
-		np.waitUntilReady();		
-		Thread.sleep(500);
-		ssc.close();		
-		Thread.sleep(500);
-		assertTrue("Not a single RDD did received messages.", atLeastSomeData);	
-		assertTrue("Not the right number of messages have been received", rightNumber);
-		assertEquals(nbOfMessages, TOTAL_COUNT.get());
-		assertNull("'" + payload + " should be '" + NatsPublisher.NATS_PAYLOAD + "'", payload);		
+		validateTheReceptionOfMessages(ssc, messages);
 	}
 }

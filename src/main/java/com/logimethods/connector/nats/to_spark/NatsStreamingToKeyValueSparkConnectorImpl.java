@@ -7,18 +7,21 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.to_spark;
 
+import java.util.Collection;
 import java.util.Properties;
 
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.StreamingContext;
-import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
+import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.dstream.ReceiverInputDStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nats.client.Message;
-import io.nats.client.MessageHandler;
+import io.nats.stan.Message;
+import io.nats.stan.MessageHandler;
+import io.nats.stan.SubscriptionOptions;
+import scala.Tuple2;
 
 /**
  * A NATS to Spark Connector.
@@ -34,58 +37,61 @@ import io.nats.client.MessageHandler;
  * </pre>
  * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
-public class StandardNatsToSparkConnectorImpl extends OmnipotentStandardNatsToSparkConnector<StandardNatsToSparkConnectorImpl, String> {
+public class NatsStreamingToKeyValueSparkConnectorImpl 
+				extends OmnipotentNatsStreamingToSparkConnector<NatsStreamingToKeyValueSparkConnectorImpl, Tuple2<String, String>> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	static final Logger logger = LoggerFactory.getLogger(StandardNatsToSparkConnectorImpl.class);
+	static final Logger logger = LoggerFactory.getLogger(NatsStreamingToKeyValueSparkConnectorImpl.class);
 
-	protected StandardNatsToSparkConnectorImpl(Properties properties, StorageLevel storageLevel, String... subjects) {
-		super(storageLevel, subjects);
-		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
+	/* Constructors with subjects provided by the environment */
+	
+	protected NatsStreamingToKeyValueSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID) {
+		super(storageLevel, clusterID, clientID);
 	}
 
-	protected StandardNatsToSparkConnectorImpl(StorageLevel storageLevel, String... subjects) {
-		super(storageLevel, subjects);
-		logger.debug("CREATE NatsToSparkConnector {} with Storage Level {} and NATS Subjects '{}'.", this, properties, subjects);
-	}
-
-	protected StandardNatsToSparkConnectorImpl(Properties properties, StorageLevel storageLevel) {
-		super(storageLevel);
-		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}' and Storage Level {}.", this, properties, storageLevel);
-	}
-
-	protected StandardNatsToSparkConnectorImpl(StorageLevel storageLevel) {
-		super(storageLevel);
-		logger.debug("CREATE NatsToSparkConnector {}.", this, properties, storageLevel);
+	public NatsStreamingToKeyValueSparkConnectorImpl(StorageLevel storageLevel, Collection<String> subjects,
+			Properties properties, String queue, String natsUrl, String clusterID, String clientID, 
+			SubscriptionOptions opts, SubscriptionOptions.Builder optsBuilder) {
+		super(storageLevel, clusterID, clientID);
+		this.subjects = subjects;
+		this.properties = properties;
+		this.queue = queue;
+		this.natsUrl = natsUrl;
+		this.opts = opts;
+		this.optsBuilder = optsBuilder;
 	}
 	
 	/**
 	@SuppressWarnings("unchecked")
 	*/
-	public JavaReceiverInputDStream<String> asStreamOf(JavaStreamingContext ssc) {
-		return ssc.receiverStream(this);
+	public JavaPairDStream<String, String> asStreamOf(JavaStreamingContext ssc) {
+		return ssc.receiverStream(this).mapToPair(keepTuple2Func);
 	}
 	
 	/**
 	@SuppressWarnings("unchecked")
 	*/
-	public ReceiverInputDStream<String> asStreamOf(StreamingContext ssc) {
-		return ssc.receiverStream(this, scala.reflect.ClassTag$.MODULE$.apply(String.class));
+	public ReceiverInputDStream<Tuple2<String, String>> asStreamOf(StreamingContext ssc) {
+		return ssc.receiverStream(this, scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class));
 	}
 
+	@Override
 	protected MessageHandler getMessageHandler() {
 		return new MessageHandler() {
 			@Override
 			public void onMessage(Message m) {
-				String s = new String(m.getData());
+				final String subject = m.getSubject();
+				final String s = new String(m.getData());
+
 				if (logger.isTraceEnabled()) {
-					logger.trace("Received by {} on Subject '{}' sharing Queue '{}': {}.", StandardNatsToSparkConnectorImpl.this, m.getSubject(), queue, s);
+					logger.trace("Received by {} on Subject '{}': {}.", NatsStreamingToKeyValueSparkConnectorImpl.this,
+							m.getSubject(), s);
 				}
-				store(s);
+				store(new Tuple2<String, String>(subject, s));
 			}
 		};
 	}

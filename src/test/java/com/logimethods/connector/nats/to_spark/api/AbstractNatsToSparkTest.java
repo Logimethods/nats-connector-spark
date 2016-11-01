@@ -10,11 +10,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Level;
 import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.api.java.JavaDStream;
+import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.junit.After;
@@ -28,6 +30,8 @@ import com.logimethods.connector.nats.spark.test.NatsPublisher;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
+
+import scala.Tuple2;
 
 public abstract class AbstractNatsToSparkTest {
 	protected static String DEFAULT_SUBJECT_ROOT = "nats2sparkSubject";
@@ -130,6 +134,45 @@ public abstract class AbstractNatsToSparkTest {
 			}			
 		});
 		
+		closeTheValidation(ssc, executor, nbOfMessages, np);		
+	}
+	
+
+	protected void validateTheReceptionOfMessages(final JavaStreamingContext ssc,
+			final JavaPairDStream<String, String> messages) throws InterruptedException {
+
+		ExecutorService executor = Executors.newFixedThreadPool(6);
+
+		final int nbOfMessages = 5;
+		NatsPublisher np = getNatsPublisher(nbOfMessages);
+		
+		if (logger.isDebugEnabled()) {
+			messages.print();
+		}
+		
+		JavaPairDStream<String, Integer> pairs = messages.mapToPair(s -> new Tuple2(s._1, 1));		
+		JavaPairDStream<String, Integer> counts = pairs.reduceByKey((a, b) -> a + b);
+		counts.print();
+		
+		counts.foreachRDD((VoidFunction<JavaPairRDD<String, Integer>>) pairRDD -> {
+			pairRDD.foreach((VoidFunction<Tuple2<String, Integer>>) tuple -> {
+				final long count = tuple._2;
+				if ((count != 0) && (count != nbOfMessages)) {
+					rightNumber = false;
+					logger.error("The number of messages received should have been {} instead of {}.", nbOfMessages, count);
+				}
+
+				TOTAL_COUNT.getAndAdd((int) count);
+
+				atLeastSomeData = atLeastSomeData || (count > 0);
+			});
+		});
+		
+		closeTheValidation(ssc, executor, nbOfMessages, np);		
+	}
+
+	protected void closeTheValidation(JavaStreamingContext ssc, ExecutorService executor, final int nbOfMessages,
+			NatsPublisher np) throws InterruptedException {
 		ssc.start();		
 		Thread.sleep(1000);		
 		// start the publisher
@@ -141,7 +184,7 @@ public abstract class AbstractNatsToSparkTest {
 		assertTrue("Not a single RDD did received messages.", atLeastSomeData);	
 		assertTrue("Not the right number of messages have been received", rightNumber);
 		assertEquals(nbOfMessages, TOTAL_COUNT.get());
-		assertNull("'" + payload + " should be '" + NatsPublisher.NATS_PAYLOAD + "'", payload);		
+		assertNull("'" + payload + " should be '" + NatsPublisher.NATS_PAYLOAD + "'", payload);
 	}
 
 	protected abstract NatsPublisher getNatsPublisher(final int nbOfMessages);
