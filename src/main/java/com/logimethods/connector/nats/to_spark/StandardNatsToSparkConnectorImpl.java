@@ -12,6 +12,10 @@ import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.spark.storage.StorageLevel;
+import org.apache.spark.streaming.StreamingContext;
+import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
+import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.apache.spark.streaming.dstream.ReceiverInputDStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +71,20 @@ public class StandardNatsToSparkConnectorImpl extends OmnipotentStandardNatsToSp
 	protected StandardNatsToSparkConnectorImpl(StorageLevel storageLevel) {
 		super(storageLevel);
 		logger.debug("CREATE NatsToSparkConnector {}.", this, properties, storageLevel);
+	}
+	
+	/**
+	@SuppressWarnings("unchecked")
+	*/
+	public JavaReceiverInputDStream<String> asStreamOf(JavaStreamingContext ssc) {
+		return ssc.receiverStream(this);
+	}
+	
+	/**
+	@SuppressWarnings("unchecked")
+	*/
+	public ReceiverInputDStream<String> asStreamOf(StreamingContext ssc) {
+		return ssc.receiverStream(this, scala.reflect.ClassTag$.MODULE$.apply(String.class));
 	}
 
 	protected MessageHandler getMessageHandler() {

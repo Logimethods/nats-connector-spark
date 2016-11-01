@@ -20,19 +20,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.Duration;
 import org.apache.spark.streaming.api.java.JavaPairDStream;
-import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.junit.Test;
 
 import com.logimethods.connector.nats.spark.test.NatsPublisher;
 import com.logimethods.connector.nats.spark.test.StandardNatsPublisher;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
-import com.logimethods.connector.nats.to_spark.StandardNatsToKeyValueSparkConnectorImpl;
 
 import scala.Tuple2;
 
@@ -50,13 +47,13 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 
 		final Properties properties = new Properties();
 		properties.setProperty(PROP_URL, NATS_SERVER_URL);
-		final StandardNatsToKeyValueSparkConnectorImpl connector = 
+		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
 					.receiveFromNats(StorageLevel.MEMORY_ONLY())
 					.storedAsKeyValue()
 					.withProperties(properties)
-					.withSubjects(DEFAULT_SUBJECT);
-		final JavaReceiverInputDStream<Tuple2<String, String>> messages = ssc.receiverStream(connector);
+					.withSubjects(DEFAULT_SUBJECT)
+					.asStreamOf(ssc);
 
 		validateTheReceptionOfKeyValueMessages(ssc, messages);
 	}
@@ -66,13 +63,13 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
-		final StandardNatsToKeyValueSparkConnectorImpl connector = 
+		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
 					.receiveFromNats(StorageLevel.MEMORY_ONLY())
 					.withNatsURL(NATS_SERVER_URL)
 					.withSubjects(DEFAULT_SUBJECT)
-					.storedAsKeyValue();
-		final JavaReceiverInputDStream<Tuple2<String, String>> messages =  ssc.receiverStream(connector);
+					.storedAsKeyValue()
+					.asStreamOf(ssc);
 
 		validateTheReceptionOfKeyValueMessages(ssc, messages);
 	}
@@ -83,14 +80,14 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final Properties properties = new Properties();
-		final StandardNatsToKeyValueSparkConnectorImpl connector = 
+		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
 					.receiveFromNats(StorageLevel.MEMORY_ONLY())
 					.withNatsURL(NATS_SERVER_URL)
 					.withProperties(properties)
 					.withSubjects(DEFAULT_SUBJECT, "EXTRA_SUBJECT")
-					.storedAsKeyValue();
-		final JavaReceiverInputDStream<Tuple2<String, String>> messages = ssc.receiverStream(connector);
+					.storedAsKeyValue()
+					.asStreamOf(ssc);
 
 		validateTheReceptionOfKeyValueMessages(ssc, messages);
 	}
@@ -103,27 +100,18 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 		final Properties properties = new Properties();
 		properties.setProperty(PROP_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
 		properties.setProperty(PROP_URL, NATS_SERVER_URL);
-		final StandardNatsToKeyValueSparkConnectorImpl connector = 
+		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
 					.receiveFromNats(StorageLevel.MEMORY_ONLY())
 					.storedAsKeyValue()
-					.withProperties(properties);
-		final JavaReceiverInputDStream<Tuple2<String, String>> messages = ssc.receiverStream(connector);
+					.withProperties(properties)
+					.asStreamOf(ssc);
 
 		validateTheReceptionOfKeyValueMessages(ssc, messages);
 	}
 
-	protected void validateTheReceptionOfKeyValueMessages(JavaStreamingContext ssc,
-			JavaReceiverInputDStream<Tuple2<String, String>> stream) throws InterruptedException {
-		JavaPairDStream<String, String> messages = stream.mapToPair(
-				new PairFunction<Tuple2<String, String>, String, String>() {
-					private static final long serialVersionUID = 7263395690866443489L;
-
-					@Override
-					public Tuple2<String, String> call(Tuple2<String,String> tuple) {
-						return tuple;
-					}
-			});
+	protected void validateTheReceptionOfKeyValueMessages(final JavaStreamingContext ssc,
+			final JavaPairDStream<String, String> messages) throws InterruptedException {
 
 		ExecutorService executor = Executors.newFixedThreadPool(6);
 

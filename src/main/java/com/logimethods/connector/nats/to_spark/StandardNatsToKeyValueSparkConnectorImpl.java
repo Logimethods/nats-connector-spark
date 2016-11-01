@@ -12,7 +12,13 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.storage.StorageLevel;
+import org.apache.spark.streaming.StreamingContext;
+import org.apache.spark.streaming.api.java.JavaPairDStream;
+import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
+import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.apache.spark.streaming.dstream.ReceiverInputDStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +47,8 @@ import static io.nats.client.Constants.*;
  * </pre>
  * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
-public class StandardNatsToKeyValueSparkConnectorImpl extends OmnipotentStandardNatsToSparkConnector<StandardNatsToKeyValueSparkConnectorImpl, Tuple2<String, String>> {
+public class StandardNatsToKeyValueSparkConnectorImpl extends 
+	OmnipotentStandardNatsToSparkConnector<StandardNatsToKeyValueSparkConnectorImpl, Tuple2<String, String>> {
 
 	/**
 	 * 
@@ -75,6 +82,13 @@ public class StandardNatsToKeyValueSparkConnectorImpl extends OmnipotentStandard
 	protected StandardNatsToKeyValueSparkConnectorImpl(StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
 		super(storageLevel, subjects, properties, queue, natsUrl);
 	}
+	
+	/**
+	@SuppressWarnings("unchecked")
+	*/
+	public JavaPairDStream<String, String> asStreamOf(JavaStreamingContext ssc) {
+		return ssc.receiverStream(this).mapToPair(keepTuple2Func);
+	}
 
 	protected MessageHandler getMessageHandler() {
 		return new MessageHandler() {
@@ -91,5 +105,19 @@ public class StandardNatsToKeyValueSparkConnectorImpl extends OmnipotentStandard
 			}
 		};
 	}
+	
+	static final protected PairFunction<Tuple2<String, String>, String, String> keepTuple2Func = 
+		new PairFunction<Tuple2<String, String>, String, String>() {
+	
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 4057911245686964676L;
+
+			@Override
+			public Tuple2<String, String> call(Tuple2<String,String> tuple) {
+				return tuple;
+			}
+		};
 }
 

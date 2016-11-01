@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.Properties;
 
 import org.apache.spark.storage.StorageLevel;
+import org.apache.spark.streaming.StreamingContext;
+import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.receiver.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,14 +94,7 @@ public abstract class NatsToSparkConnector<T,R> extends Receiver<R> {
 	public T withNatsURL(String natsURL) {
 		this.natsUrl = natsURL;
 		return (T)this;
-	}
-	
-	/**
-	@SuppressWarnings("unchecked")
-	public T storedAsKeyValue() {
-		return (T)this;
-	}
-	 */
+	}		
 
 	/* **************** STANDARD NATS **************** */
 	

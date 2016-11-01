@@ -38,12 +38,12 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 
 		final Properties properties = new Properties();
 		properties.setProperty(PROP_URL, NATS_SERVER_URL);
-		final StandardNatsToSparkConnectorImpl connector = 
+		final JavaReceiverInputDStream<String> messages =  
 				NatsToSparkConnector
 					.receiveFromNats(StorageLevel.MEMORY_ONLY())
 					.withProperties(properties)
-					.withSubjects(DEFAULT_SUBJECT);
-		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(connector);
+					.withSubjects(DEFAULT_SUBJECT)
+					.asStreamOf(ssc);
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}
@@ -53,13 +53,12 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
-		final StandardNatsToSparkConnectorImpl connector = 
+		final JavaReceiverInputDStream<String> messages = 
 				NatsToSparkConnector
 					.receiveFromNats(StorageLevel.MEMORY_ONLY())
 					.withNatsURL(NATS_SERVER_URL)
-					.withSubjects(DEFAULT_SUBJECT);
-		final JavaReceiverInputDStream<String> messages = 
-				ssc.receiverStream(connector);
+					.withSubjects(DEFAULT_SUBJECT)
+					.asStreamOf(ssc);
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}
@@ -70,14 +69,13 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final Properties properties = new Properties();
-		final StandardNatsToSparkConnectorImpl connector = 
+		final JavaReceiverInputDStream<String> messages = 
 				NatsToSparkConnector
 					.receiveFromNats(StorageLevel.MEMORY_ONLY())
 					.withNatsURL(NATS_SERVER_URL)
 					.withProperties(properties)
-					.withSubjects(DEFAULT_SUBJECT, "EXTRA_SUBJECT");
-		final JavaReceiverInputDStream<String> messages = 
-				ssc.receiverStream(connector);
+					.withSubjects(DEFAULT_SUBJECT, "EXTRA_SUBJECT")
+					.asStreamOf(ssc);
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}
@@ -90,11 +88,11 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 		final Properties properties = new Properties();
 		properties.setProperty(PROP_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
 		properties.setProperty(PROP_URL, NATS_SERVER_URL);
-		final StandardNatsToSparkConnectorImpl connector = 
+		final JavaReceiverInputDStream<String> messages = 
 				NatsToSparkConnector
 					.receiveFromNats(StorageLevel.MEMORY_ONLY())
-					.withProperties(properties);
-		final JavaReceiverInputDStream<String> messages = ssc.receiverStream(connector);
+					.withProperties(properties)
+					.asStreamOf(ssc);
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}
