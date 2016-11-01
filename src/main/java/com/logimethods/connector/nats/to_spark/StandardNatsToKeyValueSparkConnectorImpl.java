@@ -89,6 +89,13 @@ public class StandardNatsToKeyValueSparkConnectorImpl extends
 	public JavaPairDStream<String, String> asStreamOf(JavaStreamingContext ssc) {
 		return ssc.receiverStream(this).mapToPair(keepTuple2Func);
 	}
+	
+	/**
+	@SuppressWarnings("unchecked")
+	*/
+	public ReceiverInputDStream<Tuple2<String, String>> asStreamOf(StreamingContext ssc) {
+		return ssc.receiverStream(this, scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class));
+	}
 
 	protected MessageHandler getMessageHandler() {
 		return new MessageHandler() {
