@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,20 +73,33 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @param obj the object from which the toString() will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	public VoidFunction<String> publishToNats() throws Exception {
-		return publishToNats;
+	@SuppressWarnings("unchecked")
+	public void publishToNats(@SuppressWarnings("rawtypes") JavaRDD rdd) throws Exception {
+		rdd.foreach((VoidFunction<?>) publishToNats);
 	}
 
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param stream 
 	 * @param obj the object from which the toString() will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	public VoidFunction<Tuple2<String,String>> publishAsKeyValueToNats() throws Exception {
+	public void publishAsKeyValueToNats(JavaRDD<? extends Tuple2<?,?>> rdd) throws Exception {
+		setStoredAsKeyValue(true);
+		rdd.foreachAsync((VoidFunction<Tuple2<?, ?>>) publishKeyValueToNats);
+	}
+
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param stream 
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+/*	public VoidFunction<? extends Tuple2<?,?>> publishAsKeyValueToNats() throws Exception {
 		setStoredAsKeyValue(true);
 		return publishKeyValueToNats;
 	}
-
+*/
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.
 	 * @param obj the String that will be published to NATS.

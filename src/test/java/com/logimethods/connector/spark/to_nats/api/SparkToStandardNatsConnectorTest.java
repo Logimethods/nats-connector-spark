@@ -114,7 +114,7 @@ public class SparkToStandardNatsConnectorTest {
 		JavaRDD<String> rdd = UnitTestUtilities.getJavaRDD(sc);
 		
 		try {
-			rdd.foreach(SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).publishToNats());
+			SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).publishToNats(rdd);
 		} catch (Exception e) {
 			if (e.getMessage().contains("needs at least one NATS Subject"))
 				return;
@@ -130,7 +130,7 @@ public class SparkToStandardNatsConnectorTest {
 		String subject1 = "subject1";
 
 		JavaRDD<Tuple2<String, String>> stream = getKeyValueStream(subject1);		
-		stream.foreach(SparkToNatsConnector.newConnection().storedAsKeyValue().withNatsURL(NATS_SERVER_URL).publishAsKeyValueToNats());
+		SparkToNatsConnector.newConnection().storedAsKeyValue().withNatsURL(NATS_SERVER_URL).publishAsKeyValueToNats(stream);
 	}
 
 	protected JavaRDD<Tuple2<String, String>> getKeyValueStream(String subject1) {
@@ -156,13 +156,11 @@ public class SparkToStandardNatsConnectorTest {
 
 		JavaRDD<String> rdd = sc.parallelize(data);
 
-		final VoidFunction<String> publishToNats = 
-				SparkToNatsConnector
+		SparkToNatsConnector
 					.newConnection()
 					.withNatsURL(NATS_SERVER_URL)
 					.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
-					.publishToNats();
-		rdd.foreach(publishToNats);	
+					.publishToNats(rdd);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
@@ -192,13 +190,11 @@ public class SparkToStandardNatsConnectorTest {
 								});		
 		JavaRDD<Tuple2<String, String>> stream = stream1.union(stream2);
 
-		final VoidFunction<Tuple2<String, String>> publishToNats = 
-				SparkToNatsConnector
-					.newConnection()
-					.withNatsURL(NATS_SERVER_URL)
-					.withSubjects(rootSubject + ".")
-					.publishAsKeyValueToNats();
-		stream.foreach(publishToNats);	
+		SparkToNatsConnector
+			.newConnection()
+			.withNatsURL(NATS_SERVER_URL)
+			.withSubjects(rootSubject + ".")
+			.publishAsKeyValueToNats(stream);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
@@ -217,7 +213,8 @@ public class SparkToStandardNatsConnectorTest {
 		properties.setProperty(PROP_URL, NATS_SERVER_URL);
 		properties.setProperty(PROP_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
 
-		rdd.foreach(SparkToNatsConnector.newConnection().withProperties(properties).publishToNats());		
+//		rdd.foreach(SparkToNatsConnector.newConnection().withProperties(properties).publishToNats());		
+		SparkToNatsConnector.newConnection().withProperties(properties).publishToNats(rdd);		
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();

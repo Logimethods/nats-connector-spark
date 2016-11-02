@@ -92,26 +92,26 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	/**
 	 * A VoidFunction&lt;String&gt; method that will publish the provided String into NATS through the defined subjects.
 	 */
-	protected VoidFunction<String> publishToNats = new VoidFunction<String>() {
-		private static final long serialVersionUID = 2107780814969814070L;
+	protected VoidFunction<?> publishToNats = new VoidFunction<Object>() {
+		private static final long serialVersionUID = 3445253313354486580L;
 
 		@Override
-		public void call(String str) throws Exception {
+		public void call(Object str) throws Exception {
 			logger.trace("Publish to NATS: " + str);
-			publishToStr(str);
+			publishToStr(str.toString());
 		}
 	};
 
 	/**
 	 * A VoidFunction&lt;String&gt; method that will publish the provided String into NATS through the defined subjects.
 	 */
-	protected VoidFunction<Tuple2<String, String>> publishKeyValueToNats = new VoidFunction<Tuple2<String, String>>() {
+	protected VoidFunction<Tuple2<?,?>> publishKeyValueToNats = new VoidFunction<Tuple2<?,?>>() {
 		private static final long serialVersionUID = -3056486640490904222L;
 
 		@Override
-		public void call(Tuple2<String, String> tuple) throws Exception {
+		public void call(Tuple2<?,?> tuple) throws Exception {
 			logger.trace("Publish to NATS: " + tuple);
-			publishToStr(tuple._1, tuple._2);
+			publishToStr(tuple._1.toString(), tuple._2.toString());
 		}
 	};
 	
@@ -131,9 +131,8 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 */
 	protected void publish(Object obj) throws Exception {
 		if (storedAsKeyValue) {
-			@SuppressWarnings("unchecked")
-			final Tuple2<String, String> tuple = (Tuple2<String, String>) obj;
-			publishToStr(tuple._1, tuple._2);
+			final Tuple2<?, ?> tuple = (Tuple2<?, ?>) obj;
+			publishToStr(tuple._1.toString(), tuple._2.toString());
 		} else {
 			publishToStr(obj.toString());
 		}
