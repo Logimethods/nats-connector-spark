@@ -13,6 +13,7 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 - Based on Spark 2.0.1
 - `storedAsKeyValue()` is introduced
 - `.asStreamOf(ssc)` is introduced
+
 ### Version 0.2.0
 - A wrapper of that library [dedicated to Scala](https://github.com/Logimethods/nats-connector-spark-scala) has been introduced.
 - Introduces connectors to [Nats Streaming](http://www.nats.io/documentation/streaming/nats-streaming-intro/).
