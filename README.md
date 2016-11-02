@@ -118,11 +118,11 @@ JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 ```java
 JavaReceiverInputDStream<String> messages = 
-	ssc.receiverStream(
-		NatsToSparkConnector
-			.receiveFromNats(StorageLevel.MEMORY_ONLY()
-			.withSubjects("SubjectA", "SubjectB")
-			.withNatsURL("nats://localhost:4222") );
+	NatsToSparkConnector
+		.receiveFromNats(StorageLevel.MEMORY_ONLY()
+		.withSubjects("SubjectA", "SubjectB")
+		.withNatsURL("nats://localhost:4222")
+		.asStreamOf(ssc);
 ```
 
 ##### While listening to a NATS server defined by properties:
@@ -131,10 +131,10 @@ JavaReceiverInputDStream<String> messages =
 Properties properties = new Properties();
 properties.setProperty(com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS, "SubjectA,SubjectB , SubjectC");
 JavaReceiverInputDStream<String> messages = 
-	ssc.receiverStream(
-		NatsToSparkConnector
-			.receiveFromNats(StorageLevel.MEMORY_ONLY())
-			.withProperties(properties) );
+	NatsToSparkConnector
+		.receiveFromNats(StorageLevel.MEMORY_ONLY())
+		.withProperties(properties)
+		.asStreamOf(ssc);
 ```
 
 The optional settings are:
@@ -148,13 +148,13 @@ The optional settings are:
 String clusterID = "test-cluster";
 Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
 JavaReceiverInputDStream<String> messages = 
-	ssc.receiverStream(
-		NatsToSparkConnector
-			.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), clusterID)
-			.withNatsURL(STAN_URL)
-			.withSubjects(DEFAULT_SUBJECT)
-			.setDurableName("MY_DURABLE_NAME")
-			.startAtTime(start) );
+	NatsToSparkConnector
+		.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), clusterID)
+		.withNatsURL(STAN_URL)
+		.withSubjects(DEFAULT_SUBJECT)
+		.setDurableName("MY_DURABLE_NAME")
+		.startAtTime(start)
+		.asStreamOf(ssc);
 ```
 
 The optional settings are:
