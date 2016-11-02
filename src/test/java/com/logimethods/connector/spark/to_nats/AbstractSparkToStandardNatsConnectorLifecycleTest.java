@@ -53,7 +53,7 @@ public abstract class AbstractSparkToStandardNatsConnectorLifecycleTest extends 
 	public void testStaticSparkToNatsWithConnectionLifecycle() throws Exception {  
 		final long poolSize = SparkToStandardNatsConnectorPool.poolSize();
 		
-		final List<String> data = UnitTestUtilities.getData();
+		final List<Integer> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
 

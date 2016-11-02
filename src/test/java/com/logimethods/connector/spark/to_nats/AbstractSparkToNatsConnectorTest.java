@@ -58,10 +58,10 @@ public class AbstractSparkToNatsConnectorTest implements Serializable {
 		}
 	}
 
-	protected void writeTmpFile(final List<String> data) throws FileNotFoundException, UnsupportedEncodingException {
+	protected void writeTmpFile(final List<Integer> data) throws FileNotFoundException, UnsupportedEncodingException {
 		final File tmpFile = new File(tempDir.getAbsolutePath(), "tmp" + fileTmpIncr++ +".txt");
 		final PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
-		for(String str: data) {
+		for(Integer str: data) {
 			writer.println(str);
 		}		
 		writer.close();

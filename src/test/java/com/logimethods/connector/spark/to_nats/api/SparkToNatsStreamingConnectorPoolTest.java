@@ -150,7 +150,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 //    	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
 //    	Connection stanc = connectionFactory.createConnection();
 //    	logger.debug("ConnectionFactory ready: " + stanc);
-    	final List<String> data = UnitTestUtilities.getData();
+    	final List<Integer> data = UnitTestUtilities.getData();
 
     	NatsStreamingSubscriber ns1 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
     	logger.debug("ns1 NatsStreamingSubscriber ready");
@@ -168,7 +168,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 
     	File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
     	PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
-    	for(String str: data) {
+    	for(Integer str: data) {
     		writer.println(str);
     	}		
     	writer.close();

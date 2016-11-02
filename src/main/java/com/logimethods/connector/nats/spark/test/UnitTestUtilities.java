@@ -208,33 +208,33 @@ public class UnitTestUtilities {
 	/**
 	 * @return
 	 */
-	public static List<String> getData() {
-		final List<String> data = Arrays.asList(new String[] {
-				"1",
-				"2",
-				"3",
-				"4",
-				"5",
-				"6"
+	public static List<Integer> getData() {
+		final List<Integer> data = Arrays.asList(new Integer[] {
+				1,
+				2,
+				3,
+				4,
+				5,
+				6
 		});
 		return data;
 	}
 
-	public static JavaRDD<Tuple2<String, String>> getKeyValueStream(JavaSparkContext sc, String subject1) {
-		final List<String> data = getData();
-		JavaRDD<String> rdd = sc.parallelize(data);
+	public static JavaRDD<Tuple2<String, Integer>> getKeyValueStream(JavaSparkContext sc, String subject1) {
+		final List<Integer> data = getData();
+		JavaRDD<Integer> rdd = sc.parallelize(data);
 				
-		JavaRDD<Tuple2<String, String>> stream = 
-				rdd.map((Function<String, Tuple2<String, String>>) str -> {
-									return new Tuple2<String, String>(subject1, str);
+		JavaRDD<Tuple2<String, Integer>> stream = 
+				rdd.map((Function<Integer, Tuple2<String, Integer>>) value -> {
+									return new Tuple2<String, Integer>(subject1, value);
 								});
 		return stream;
 	}
 
-	public static JavaRDD<String> getJavaRDD(JavaSparkContext sc) {
-		final List<String> data = getData();
+	public static JavaRDD<Integer> getJavaRDD(JavaSparkContext sc) {
+		final List<Integer> data = getData();
 
-		JavaRDD<String> rdd = sc.parallelize(data);
+		JavaRDD<Integer> rdd = sc.parallelize(data);
 		return rdd;
 	}
 
@@ -250,7 +250,7 @@ public class UnitTestUtilities {
 	 * @param data
 	 * @return
 	 */
-	public static StandardNatsSubscriber getStandardNatsSubscriber(final List<String> data, String subject, String url) {
+	public static StandardNatsSubscriber getStandardNatsSubscriber(final List<Integer> data, String subject, String url) {
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 	
 		final StandardNatsSubscriber ns = new StandardNatsSubscriber(url, subject + "_id", subject, data.size());
@@ -267,7 +267,7 @@ public class UnitTestUtilities {
 	 * @param data
 	 * @return
 	 */
-	public static NatsStreamingSubscriber getNatsStreamingSubscriber(final List<String> data, String subject, String clusterName, String clientName, String url) {
+	public static NatsStreamingSubscriber getNatsStreamingSubscriber(final List<Integer> data, String subject, String clusterName, String clientName, String url) {
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 
 		NatsStreamingSubscriber ns = new NatsStreamingSubscriber(url, subject + "_id", subject, clusterName, clientName, data.size());

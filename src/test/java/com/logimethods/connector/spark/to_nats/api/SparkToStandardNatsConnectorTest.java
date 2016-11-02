@@ -111,7 +111,7 @@ public class SparkToStandardNatsConnectorTest {
 
 	@Test(timeout=2000)
 	public void testStaticSparkToNatsNoSubjects() throws Exception {   
-		JavaRDD<String> rdd = UnitTestUtilities.getJavaRDD(sc);
+		JavaRDD<Integer> rdd = UnitTestUtilities.getJavaRDD(sc);
 		
 		try {
 			SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).publishToNats(rdd);
@@ -129,24 +129,24 @@ public class SparkToStandardNatsConnectorTest {
 	public void testStaticKeyValueSparkToNatsNoSubjects() throws Exception {   
 		String subject1 = "subject1";
 
-		JavaRDD<Tuple2<String, String>> stream = getKeyValueStream(subject1);		
+		JavaRDD<Tuple2<String, Integer>> stream = getKeyValueStream(subject1);		
 		SparkToNatsConnector.newConnection().storedAsKeyValue().withNatsURL(NATS_SERVER_URL).publishAsKeyValueToNats(stream);
 	}
 
-	protected JavaRDD<Tuple2<String, String>> getKeyValueStream(String subject1) {
-		final List<String> data = UnitTestUtilities.getData();
-		JavaRDD<String> rdd = sc.parallelize(data);
+	protected JavaRDD<Tuple2<String, Integer>> getKeyValueStream(String subject1) {
+		final List<Integer> data = UnitTestUtilities.getData();
+		JavaRDD<Integer> rdd = sc.parallelize(data);
 				
-		JavaRDD<Tuple2<String, String>> stream = 
-				rdd.map((Function<String, Tuple2<String, String>>) str -> {
-									return new Tuple2<String, String>(subject1, str);
+		JavaRDD<Tuple2<String, Integer>> stream = 
+				rdd.map((Function<Integer, Tuple2<String, Integer>>) str -> {
+									return new Tuple2<String, Integer>(subject1, str);
 								});
 		return stream;
 	}
 
 	@Test(timeout=2000)
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
-		final List<String> data = UnitTestUtilities.getData();
+		final List<Integer> data = UnitTestUtilities.getData();
 
 		String subject1 = "subject1";
 		StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
@@ -154,7 +154,7 @@ public class SparkToStandardNatsConnectorTest {
 		String subject2 = "subject2";
 		StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
 
-		JavaRDD<String> rdd = sc.parallelize(data);
+		JavaRDD<Integer> rdd = sc.parallelize(data);
 
 		SparkToNatsConnector
 					.newConnection()
@@ -169,7 +169,7 @@ public class SparkToStandardNatsConnectorTest {
 
 	@Test(timeout=4000)
 	public void testStaticKeyValueSparkToNatsWithMultipleSubjects() throws Exception {   
-		final List<String> data = UnitTestUtilities.getData();
+		final List<Integer> data = UnitTestUtilities.getData();
 		
 		final String rootSubject = "ROOT";
 
@@ -179,16 +179,16 @@ public class SparkToStandardNatsConnectorTest {
 		String subject2 = "subject2";
 		StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, rootSubject + "." + subject2 + ".>", NATS_SERVER_URL);
 
-		JavaRDD<String> rdd = sc.parallelize(data);
-		JavaRDD<Tuple2<String, String>> stream1 = 
-				rdd.map((Function<String, Tuple2<String, String>>) str -> {
-									return new Tuple2<String, String>(subject1 + "." + str, str);
+		JavaRDD<Integer> rdd = sc.parallelize(data);
+		JavaRDD<Tuple2<String, Integer>> stream1 = 
+				rdd.map((Function<Integer, Tuple2<String, Integer>>) str -> {
+									return new Tuple2<String, Integer>(subject1 + "." + str, str);
 								});		
-		JavaRDD<Tuple2<String, String>> stream2 = 
-				rdd.map((Function<String, Tuple2<String, String>>) str -> {
-									return new Tuple2<String, String>(subject2 + "." + str, str);
+		JavaRDD<Tuple2<String, Integer>> stream2 = 
+				rdd.map((Function<Integer, Tuple2<String, Integer>>) str -> {
+									return new Tuple2<String, Integer>(subject2 + "." + str, str);
 								});		
-		JavaRDD<Tuple2<String, String>> stream = stream1.union(stream2);
+		JavaRDD<Tuple2<String, Integer>> stream = stream1.union(stream2);
 
 		SparkToNatsConnector
 			.newConnection()
@@ -203,11 +203,11 @@ public class SparkToStandardNatsConnectorTest {
 
 	@Test(timeout=2000)
 	public void testStaticSparkToNatsWithProperties() throws Exception {   
-		final List<String> data = UnitTestUtilities.getData();
+		final List<Integer> data = UnitTestUtilities.getData();
 
 		StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, DEFAULT_SUBJECT, NATS_SERVER_URL);
 
-		JavaRDD<String> rdd = sc.parallelize(data);
+		JavaRDD<Integer> rdd = sc.parallelize(data);
 
 		final Properties properties = new Properties();
 		properties.setProperty(PROP_URL, NATS_SERVER_URL);

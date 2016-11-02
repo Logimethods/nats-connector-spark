@@ -62,7 +62,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 
 	@Test(timeout=8000)
 	public void testStaticSparkToNatsIncludingMultipleSubjects() throws Exception {   
-		final List<String> data = UnitTestUtilities.getData();
+		final List<Integer> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
 		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
@@ -87,7 +87,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 
 	@Test(timeout=8000)
 	public void testStaticSparkStoredAsKeyValueToNats() throws Exception {   
-		final List<String> data = UnitTestUtilities.getData();
+		final List<Integer> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
 		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1 + ".>", NATS_SERVER_URL);
@@ -108,7 +108,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 
 	@Test(timeout=8000)
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
-		final List<String> data = UnitTestUtilities.getData();
+		final List<Integer> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
 		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
@@ -133,7 +133,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 
 	@Test(timeout=8000)
 	public void testStaticSparkToNatsWithMultipleProperties() throws Exception {   
-		final List<String> data = UnitTestUtilities.getData();
+		final List<Integer> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
 		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);

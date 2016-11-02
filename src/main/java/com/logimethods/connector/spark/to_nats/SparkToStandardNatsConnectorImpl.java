@@ -91,17 +91,6 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param stream 
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
-	 */
-/*	public VoidFunction<? extends Tuple2<?,?>> publishAsKeyValueToNats() throws Exception {
-		setStoredAsKeyValue(true);
-		return publishKeyValueToNats;
-	}
-*/
-	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
 	 * @param obj the String that will be published to NATS.
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
