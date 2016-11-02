@@ -122,6 +122,23 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		this.properties = properties;
 	}
 
+
+	// TODO Check JavaDoc
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	protected void publish(Object obj) throws Exception {
+		if (storedAsKeyValue) {
+			@SuppressWarnings("unchecked")
+			final Tuple2<String, String> tuple = (Tuple2<String, String>) obj;
+			publishToStr(tuple._1, tuple._2);
+		} else {
+			publishToStr(obj.toString());
+		}
+	}
+
 	// TODO Check JavaDoc
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.

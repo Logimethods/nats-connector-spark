@@ -207,6 +207,6 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")
 				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
-				+ (publishToNats != null ? "publishToNats=" + publishToNats : "") + "]";
+				+ "storedAsKeyValue=" + storedAsKeyValue + "]";
 	}
 }

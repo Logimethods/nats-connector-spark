@@ -198,6 +198,6 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")
 				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")
-				+ (publishToNats != null ? "publishToNats=" + publishToNats : "") + "]";
+				+ "storedAsKeyValue=" + storedAsKeyValue + "]";
 	}
 }
