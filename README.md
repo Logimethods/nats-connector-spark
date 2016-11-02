@@ -337,6 +337,26 @@ The optional settings are:
 * `withProperties(Properties properties)`
 * `withConnectionTimeout(Duration duration)`
 
+#### From Spark (*WITHOUT Streaming NOR Spark Cluster*) made of *Key/Value* Pairs to NATS
+
+A Spark `JavaRDD<Tuple2<String, String>>` can publish NATS Messages where the Subject is a composition of the (optional) _Global Subject(s)_ and the _First Element_ of the Pairs ; while the NATS _Payload_ will be the Pair's _Second Element_.
+
+To do so, you should use `.publishAsKeyValueToNats()` instead of `.publishToNats()`.
+
+```java
+JavaRDD<Tuple2<String, String>> tuples = 
+	rdd.map((Function<String, Tuple2<String, String>>) str -> {return new Tuple2<String, String>(subject2 + "." + str, str);});	
+	
+final VoidFunction<Tuple2<String, String>> publishToNats = 
+		SparkToNatsConnector
+			.newConnection()
+			.withNatsURL(NATS_SERVER_URL)
+			.withSubjects(rootSubject + ".")
+			.publishAsKeyValueToNats();
+
+tuples.foreach(publishToNats);	
+```
+
 ## Usage (in Scala)
 You should instead use the dedicated [nats-connector-spark-scala](https://github.com/Logimethods/nats-connector-spark-scala) connector.
 
