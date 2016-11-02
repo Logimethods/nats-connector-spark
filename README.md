@@ -235,11 +235,11 @@ The optional settings are:
 * `withProperties(Properties properties)`
 * `withConnectionTimeout(Duration duration)`
 
-### From Spark (Streaming) made of *Key/Value* Pairs to NATS
+#### From Spark (Streaming) made of *Key/Value* Pairs to NATS
 
 Any Spark Stream of type [JavaPairDStream\<String, String\>](https://spark.apache.org/docs/2.0.1/api/java/org/apache/spark/streaming/api/java/JavaPairDStream.html) will publish NATS Messages where the Subject is a composition of the (optional) _Global Subject(s)_ and the _Key_ of the Pairs ; while the NATS _Payload_ will be the Pair's _Value_.
 
-#### Without Global Subjects
+##### Without Global Subjects
 
 ```java
 JavaPairDStream<String, String> stream = 
@@ -260,7 +260,7 @@ will send to NATS such [subject:payload] messages:
 ...
 ```
 
-#### With Global Subjects
+##### With Global Subjects
 
 ```java
 JavaPairDStream<String, String> stream = 
@@ -299,6 +299,20 @@ The optional settings are:
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
 * `withConnectionTimeout(Duration duration)`
+
+#### From Spark (Streaming) made of *Key/Value* Pairs to *NATS Streaming*
+
+```java
+JavaPairDStream<String, String> stream = 
+	lines.mapToPair((PairFunction<String, String, String>) str -> {return new Tuple2<String, String>("B", str);});
+String clusterID = "test-cluster";
+SparkToNatsConnectorPool
+	.newStreamingPool(clusterID)
+	.withConnectionTimeout(Duration.ofSeconds(6))
+	.withSubjects("subject1", "subject2")
+	.withNatsURL(STAN_URL)
+	.publishToNats(stream);
+```
 
 #### From Spark (*WITHOUT Streaming NOR Spark Cluster*) to NATS
 ```java
