@@ -33,7 +33,13 @@ public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends Spark
 	 */
 	@Override
 	public SparkToNatsStreamingConnectorImpl newSparkToNatsConnector() throws Exception {
-		return new SparkToNatsStreamingConnectorImpl(clusterID, getNatsURL(), getProperties(), getConnectionTimeout(), getConnectionFactory(), getDefinedSubjects());
+		return new SparkToNatsStreamingConnectorImpl(	clusterID, 
+														getNatsURL(), 
+														getProperties(), 
+														getConnectionTimeout(), 
+														getConnectionFactory(), 
+														getDefinedSubjects(),
+														isStoredAsKeyValue());
 	}
 
 	/**

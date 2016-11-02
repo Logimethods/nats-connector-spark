@@ -48,11 +48,14 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 * @param properties
 	 * @param connectionFactory
 	 * @param subjects
+	 * @param b 
 	 */
-	protected SparkToNatsStreamingConnectorImpl(String clusterID, String natsURL, Properties properties, Long connectionTimeout, ConnectionFactory connectionFactory, Collection<String> subjects) {
+	protected SparkToNatsStreamingConnectorImpl(String clusterID, String natsURL, Properties properties, 
+			Long connectionTimeout, ConnectionFactory connectionFactory, Collection<String> subjects, boolean isStoredAsKeyValue) {
 		super(natsURL, properties, connectionTimeout, subjects);
 		this.connectionFactory = connectionFactory;
 		this.clusterID = clusterID;
+		setStoredAsKeyValue(isStoredAsKeyValue);
 	}
 
 	/**

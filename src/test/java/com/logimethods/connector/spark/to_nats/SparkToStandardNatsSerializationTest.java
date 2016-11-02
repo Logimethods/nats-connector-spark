@@ -28,6 +28,7 @@ public class SparkToStandardNatsSerializationTest {
 	private static final Properties properties = new Properties();
 	private static final ConnectionFactory connectionFactory = new ConnectionFactory();
 	private static final Collection<String> subjects = Arrays.asList("Hello", "World!");
+	private static final boolean isStoredAsKeyValue = true;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -37,11 +38,13 @@ public class SparkToStandardNatsSerializationTest {
 	@Test
 	public void SparkToStandardNatsConnectorImplTest() throws IOException {
 		Long duration = 111l;
-		SparkToStandardNatsConnectorImpl source = new SparkToStandardNatsConnectorImpl(natsURL, properties, duration, connectionFactory, subjects);
+		SparkToStandardNatsConnectorImpl source = 
+				new SparkToStandardNatsConnectorImpl(natsURL, properties, duration, connectionFactory, subjects, isStoredAsKeyValue);
 		SparkToStandardNatsConnectorImpl target = SerializationUtils.clone(source);
 		assertEquals(source.getNatsURL(), target.getNatsURL());
 		assertEquals(source.getProperties(), target.getProperties());
 		assertEquals(source.getSubjects(), target.getSubjects());
 		assertEquals(duration, target.connectionTimeout);
+		assertEquals(isStoredAsKeyValue, target.isStoredAsKeyValue());
 	}
 }

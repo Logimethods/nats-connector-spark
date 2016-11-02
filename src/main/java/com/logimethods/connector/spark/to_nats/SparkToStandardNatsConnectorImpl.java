@@ -47,10 +47,13 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @param properties
 	 * @param connectionFactory
 	 * @param subjects
+	 * @param b 
 	 */
-	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, Long connectionTimeout, ConnectionFactory connectionFactory, Collection<String> subjects) {
+	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, Long connectionTimeout, 
+			ConnectionFactory connectionFactory, Collection<String> subjects, boolean isStoredAsKeyValue) {
 		super(natsURL, properties, connectionTimeout, subjects);
 		this.connectionFactory = connectionFactory;
+		setStoredAsKeyValue(isStoredAsKeyValue);
 	}
 
 	/**
@@ -58,7 +61,8 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, Long connectionTimeout, ConnectionFactory connectionFactory, String... subjects) {
+	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, Long connectionTimeout, 
+			ConnectionFactory connectionFactory, String... subjects) {
 		super(natsURL, properties, connectionTimeout, subjects);
 		this.connectionFactory = connectionFactory;
 	}

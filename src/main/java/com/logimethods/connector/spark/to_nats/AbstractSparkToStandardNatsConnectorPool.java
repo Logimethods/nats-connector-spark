@@ -30,7 +30,12 @@ public abstract class AbstractSparkToStandardNatsConnectorPool<T> extends SparkT
 	 * @throws Exception
 	 */
 	protected SparkToStandardNatsConnectorImpl newSparkToNatsConnector() throws Exception {
-		return new SparkToStandardNatsConnectorImpl(getNatsURL(), getProperties(), getConnectionTimeout(), getConnectionFactory(), getDefinedSubjects());
+		return new SparkToStandardNatsConnectorImpl(	getNatsURL(), 
+														getProperties(), 
+														getConnectionTimeout(), 
+														getConnectionFactory(), 
+														getDefinedSubjects(),
+														isStoredAsKeyValue());
 	}
 
 	/**
