@@ -142,6 +142,24 @@ The optional settings are:
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
 
+#### From NATS to Spark (Streaming) stored as *Key / Values*
+
+The Spark Stream is there made of [Key/Value Pairs](https://spark.apache.org/docs/2.0.1/api/java/org/apache/spark/streaming/api/java/JavaPairDStream.html), where the Key is the _Subject_ and the Value is the _Payload_ of the NATS Messages.
+
+```
+JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
+
+JavaPairDStream<String, String> messages = 
+	NatsToSparkConnector
+		.receiveFromNats(StorageLevel.MEMORY_ONLY()
+		.withSubjects("SubjectA.>", "SubjectB.*.result")
+		.withNatsURL("nats://localhost:4222")
+		.storedAsKeyValue()
+		.asStreamOf(ssc);
+				
+messages.groupByKey().print();
+```
+
 #### From *NATS Streaming* to Spark (Streaming)
 
 ```java
@@ -177,9 +195,10 @@ as well as options related to [NATS Streaming](https://github.com/nats-io/java-n
 * `startWithLastReceived()`
 * `deliverAllAvailable()`
 
-#### From *NATS Streaming* to Spark (Streaming) stored as Key / Values
+#### From *NATS Streaming* to Spark (Streaming) stored as *Key / Values*
 
-The Spark Stream is there made of [Key/Value Pairs](https://spark.apache.org/docs/2.0.1/api/java/org/apache/spark/streaming/api/java/JavaPairDStream.html), where the Key is the NATS Subject and the Value is the NATS Message.
+The Spark Stream is there made of [Key/Value Pairs](https://spark.apache.org/docs/2.0.1/api/java/org/apache/spark/streaming/api/java/JavaPairDStream.html), where the Key is the _Subject_ and the Value is the _Payload_ of the NATS Messages.
+
 ```
 JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
