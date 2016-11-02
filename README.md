@@ -346,13 +346,13 @@ To do so, you should use `.publishAsKeyValueToNats()` instead of `.publishToNats
 ```java
 JavaRDD<Tuple2<String, String>> tuples = 
 	rdd.map((Function<String, Tuple2<String, String>>) 
-			str -> {return new Tuple2<String, String>(subject2 + "." + str, str);});	
+			str -> {return new Tuple2<String, String>("sub-subject", str);});	
 	
 final VoidFunction<Tuple2<String, String>> publishToNats = 
 		SparkToNatsConnector
 			.newConnection()
 			.withNatsURL(NATS_SERVER_URL)
-			.withSubjects(rootSubject + ".")
+			.withSubjects("main-subject.")
 			.publishAsKeyValueToNats();
 
 tuples.foreach(publishToNats);	
