@@ -1,32 +1,21 @@
 package com.logimethods.connector.spark.to_nats;
 
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import org.apache.log4j.Level;
 import org.apache.spark.SparkConf;
 import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
-import com.logimethods.connector.nats.spark.test.NatsStreamingSubscriber;
-import com.logimethods.connector.nats.spark.test.StandardNatsSubscriber;
-import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 
 public class AbstractSparkToNatsConnectorTest implements Serializable {
@@ -77,5 +66,4 @@ public class AbstractSparkToNatsConnectorTest implements Serializable {
 		}		
 		writer.close();
 	}
-
 }

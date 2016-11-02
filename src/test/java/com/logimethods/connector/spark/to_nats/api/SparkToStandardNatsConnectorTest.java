@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.logimethods.connector.nats.spark.test.StandardNatsSubscriber;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
+import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnectorTest;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
 
@@ -91,22 +92,6 @@ public class SparkToStandardNatsConnectorTest {
 	public void tearDown() throws Exception {
 	}
 
-
-	/**
-	 * @return
-	 */
-	protected List<String> getData() {
-		final List<String> data = Arrays.asList(new String[] {
-				"data_1",
-				"data_2",
-				"data_3",
-				"data_4",
-				"data_5",
-				"data_6"
-		});
-		return data;
-	}
-
 	/**
 	 * @param data
 	 * @return
@@ -126,9 +111,7 @@ public class SparkToStandardNatsConnectorTest {
 
 	@Test(timeout=2000)
 	public void testStaticSparkToNatsNoSubjects() throws Exception {   
-		final List<String> data = getData();
-
-		JavaRDD<String> rdd = sc.parallelize(data);
+		JavaRDD<String> rdd = UnitTestUtilities.getJavaRDD(sc);
 		
 		try {
 			rdd.foreach(SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).publishToNats());
@@ -144,21 +127,26 @@ public class SparkToStandardNatsConnectorTest {
 
 	@Test(timeout=2000)
 	public void testStaticKeyValueSparkToNatsNoSubjects() throws Exception {   
-		final List<String> data = getData();
+		String subject1 = "subject1";
 
+		JavaRDD<Tuple2<String, String>> stream = getKeyValueStream(subject1);		
+		stream.foreach(SparkToNatsConnector.newConnection().storedAsKeyValue().withNatsURL(NATS_SERVER_URL).publishAsKeyValueToNats());
+	}
+
+	protected JavaRDD<Tuple2<String, String>> getKeyValueStream(String subject1) {
+		final List<String> data = UnitTestUtilities.getData();
 		JavaRDD<String> rdd = sc.parallelize(data);
 				
-		String subject1 = "subject1";
 		JavaRDD<Tuple2<String, String>> stream = 
 				rdd.map((Function<String, Tuple2<String, String>>) str -> {
 									return new Tuple2<String, String>(subject1, str);
-								});		
-		stream.foreach(SparkToNatsConnector.newConnection().storedAsKeyValue().withNatsURL(NATS_SERVER_URL).publishAsKeyValueToNats());
+								});
+		return stream;
 	}
 
 	@Test(timeout=2000)
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
-		final List<String> data = getData();
+		final List<String> data = UnitTestUtilities.getData();
 
 		String subject1 = "subject1";
 		StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
@@ -183,7 +171,7 @@ public class SparkToStandardNatsConnectorTest {
 
 	@Test(timeout=4000)
 	public void testStaticKeyValueSparkToNatsWithMultipleSubjects() throws Exception {   
-		final List<String> data = getData();
+		final List<String> data = UnitTestUtilities.getData();
 		
 		final String rootSubject = "ROOT";
 
@@ -219,7 +207,7 @@ public class SparkToStandardNatsConnectorTest {
 
 	@Test(timeout=2000)
 	public void testStaticSparkToNatsWithProperties() throws Exception {   
-		final List<String> data = getData();
+		final List<String> data = UnitTestUtilities.getData();
 
 		StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, DEFAULT_SUBJECT, NATS_SERVER_URL);
 

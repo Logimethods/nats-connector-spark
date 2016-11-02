@@ -8,6 +8,7 @@
 package com.logimethods.connector.nats.spark.test;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,6 +20,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.log4j.Level;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.PairFunction;
+import org.apache.spark.streaming.api.java.JavaDStream;
+import org.apache.spark.streaming.api.java.JavaPairDStream;
+import org.apache.spark.streaming.api.java.JavaStreamingContext;
+
+import scala.Tuple2;
 
 public class UnitTestUtilities {
 
@@ -208,6 +218,32 @@ public class UnitTestUtilities {
 				"6"
 		});
 		return data;
+	}
+
+	public static JavaRDD<Tuple2<String, String>> getKeyValueStream(JavaSparkContext sc, String subject1) {
+		final List<String> data = getData();
+		JavaRDD<String> rdd = sc.parallelize(data);
+				
+		JavaRDD<Tuple2<String, String>> stream = 
+				rdd.map((Function<String, Tuple2<String, String>>) str -> {
+									return new Tuple2<String, String>(subject1, str);
+								});
+		return stream;
+	}
+
+	public static JavaRDD<String> getJavaRDD(JavaSparkContext sc) {
+		final List<String> data = getData();
+
+		JavaRDD<String> rdd = sc.parallelize(data);
+		return rdd;
+	}
+
+	public static JavaPairDStream<String, String> getJavaPairDStream(final File tempDir, final JavaStreamingContext ssc, final String subject1) {
+		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+		JavaPairDStream<String, String> keyValues = lines.mapToPair((PairFunction<String, String, String>) str -> {
+							return new Tuple2<String, String>(subject1 + "." + str, str);
+						});
+		return keyValues;
 	}
 
 	/**
