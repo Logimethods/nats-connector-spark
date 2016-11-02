@@ -177,6 +177,23 @@ as well as options related to [NATS Streaming](https://github.com/nats-io/java-n
 * `startWithLastReceived()`
 * `deliverAllAvailable()`
 
+#### From *NATS Streaming* to Spark (Streaming) stored as Key / Values
+
+The Spark Stream is there made of [Key/Value Pairs](https://spark.apache.org/docs/2.0.1/api/java/org/apache/spark/streaming/api/java/JavaPairDStream.html), where the Key is the NATS Subject and the Value is the NATS Message.
+```
+JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
+
+final JavaPairDStream<String, String> messages = 
+		NatsToSparkConnector
+				.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+				.withNatsURL(STAN_URL)
+				.withSubjects(DEFAULT_SUBJECT)
+				.storedAsKeyValue()
+				.asStreamOf(ssc);
+				
+messages.groupByKey().print();
+```
+
 ### From Spark to NATS
 #### From Spark (Streaming) to NATS
 
