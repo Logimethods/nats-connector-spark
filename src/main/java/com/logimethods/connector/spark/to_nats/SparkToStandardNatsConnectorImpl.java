@@ -84,9 +84,10 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @param obj the object from which the toString() will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	public void publishAsKeyValueToNats(JavaRDD<? extends Tuple2<?,?>> rdd) throws Exception {
+	@SuppressWarnings("unchecked")
+	public void publishAsKeyValueToNats(@SuppressWarnings("rawtypes") JavaRDD rdd) throws Exception {
 		setStoredAsKeyValue(true);
-		rdd.foreachAsync((VoidFunction<Tuple2<?, ?>>) publishKeyValueToNats);
+		rdd.foreachAsync(publishKeyValueToNats);
 	}
 
 	/**
