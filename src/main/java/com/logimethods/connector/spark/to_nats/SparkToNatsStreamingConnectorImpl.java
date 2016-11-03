@@ -114,7 +114,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 		final byte[] payload = message.getBytes();
 		final Connection localConnection = getConnection();
 		for (String preSubject : getDefinedSubjects()) {
-			final String subject = preSubject + postSubject;
+			final String subject = combineSubjects(preSubject, postSubject);
 			localConnection.publish(subject, payload);
 	
 			logger.trace("Publish '{}' from Spark to NATS STREAMING ({})", message, subject);

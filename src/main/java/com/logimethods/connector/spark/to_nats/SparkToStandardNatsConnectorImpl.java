@@ -134,7 +134,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	
 		final Connection localConnection = getConnection();
 		for (String preSubject : getDefinedSubjects()) {
-			final String subject = preSubject + postSubject;
+			final String subject = combineSubjects(preSubject, postSubject);
 			natsMessage.setSubject(subject);
 			localConnection.publish(natsMessage);
 	

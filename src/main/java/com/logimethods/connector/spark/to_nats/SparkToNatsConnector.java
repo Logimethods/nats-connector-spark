@@ -9,11 +9,14 @@ package com.logimethods.connector.spark.to_nats;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
@@ -42,6 +45,8 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected long internalId = Utilities.generateUniqueID(this);
 	protected boolean storedAsKeyValue = false;
 	
+	protected static final Map<String, Tuple2<Pattern, String>> subjectPatternMap = new HashMap<String, Tuple2<Pattern, String>>();
+	
 	/**
 	 * 
 	 */
@@ -67,21 +72,6 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		super(natsURL, properties, connectionTimeout, subjects);
 		logger.info("CREATE SparkToNatsConnector {} with Properties '{}' and NATS Subjects '{}'.", this, properties, subjects);
 	}
-
-	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
-	 */
-/*	public void publish(String obj) throws Exception {
-		final String str = obj.toString();
-		publishToStr(str);
-	}
-	
-	public void publish(String subject, String message) throws Exception {
-//		final String str = obj.toString();
-		publishToStr(message);
-	}*/
 
 	/**
 	 */
@@ -153,6 +143,33 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	protected abstract void publishToStr(String subject, String message) throws Exception;
+
+	protected static String combineSubjects(String preSubject, String postSubject) {
+		if (preSubject.contains(":")) {
+			Pattern pattern;
+			String replacement;
+			if (subjectPatternMap.containsKey(preSubject)) {
+				final Tuple2<Pattern, String> tuple = subjectPatternMap.get(preSubject);
+				pattern = tuple._1;
+				replacement = tuple._2;
+			} else {
+				// http://www.vogella.com/tutorials/JavaRegularExpressions/article.html
+				final int pos = preSubject.indexOf(':');
+	
+				final String patternStr = preSubject.substring(0, pos).replace(".", "\\.").replace("*", "[^\\.]*");		
+				logger.trace(patternStr);
+				pattern = Pattern.compile(patternStr);
+				
+				replacement = preSubject.substring(pos+1);
+				logger.trace(replacement);	
+				
+				subjectPatternMap.put(preSubject, new Tuple2<Pattern, String>(pattern, replacement));
+			}
+			return pattern.matcher(postSubject).replaceFirst(replacement);
+		} else {
+			return preSubject + postSubject;
+		}
+	}
 
 	/**
 	 * @param subjects the subjects to set
