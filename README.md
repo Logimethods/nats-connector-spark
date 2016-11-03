@@ -282,6 +282,46 @@ will send to NATS such [subject:payload] messages:
 ...
 ```
 
+##### With Global Subjects defined as Regex Replacements
+
+Here the NATS Subjects will be the Key of the Spark Pairs where the pattern expressed by the left part of the Global Subject (splitted by the `:` character) is replaced by the right part of the Global Subject.
+
+```java
+JavaPairDStream<String, String> stream = 
+	lines.mapToPair((PairFunction<String, String, String>) str -> {return new Tuple2<String, String>("b.c", str);});
+
+SparkToNatsConnectorPool
+	.newPool()
+	.withNatsURL(NATS_SERVER_URL)
+	.withConnectionTimeout(Duration.ofSeconds(2))
+	.withSubjects("b.:A1.", "*.:A2.")
+	.publishToNats(stream);
+```
+will send to NATS such [subject:payload] messages:
+```
+[A1.c:string1]
+[A2.c:string1]
+[A1.c:string2]
+[A2.c:string2]
+...
+```
+
+See 
+```java
+@Test
+public void testCombineSubjectsWithSubstitution() {
+	assertEquals("A.C", combineSubjects("*.:A.", "B.C"));
+	assertEquals("A.C.D", combineSubjects("*.:A.", "B.C.D"));
+	assertEquals("B.C.D", combineSubjects("X.:A.", "B.C.D"));
+	assertEquals("A.D", combineSubjects("*.*.:A.", "B.C.D"));
+	assertEquals("A.B.D", combineSubjects("*.C:A.B", "B.C.D"));
+	assertEquals("B.C.D", combineSubjects("*.X.*:A.B", "B.C.D"));
+	assertEquals("A.b.C.D", combineSubjects("B:b", "A.B.C.D"));
+	assertEquals("A.B.C.D", combineSubjects("^B:b", "A.B.C.D"));
+	assertEquals("A.b.B.D", combineSubjects("B:b", "A.B.B.D"));
+}
+```
+
 #### From Spark (Streaming) to *NATS Streaming*
 
 ```java
