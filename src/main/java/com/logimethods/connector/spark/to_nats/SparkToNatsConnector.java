@@ -34,6 +34,8 @@ import scala.Tuple2;
  */
 public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnector<T> {
 
+	protected static final String SUBJECT_PATTERN_SEPARATOR = "=>";
+
 	protected static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	protected Properties properties;
@@ -145,7 +147,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected abstract void publishToStr(String subject, String message) throws Exception;
 
 	protected static String combineSubjects(String preSubject, String postSubject) {
-		if (preSubject.contains(":")) {
+		if (preSubject.contains(SUBJECT_PATTERN_SEPARATOR)) {
 			Pattern pattern;
 			String replacement;
 			if (subjectPatternMap.containsKey(preSubject)) {
@@ -154,13 +156,13 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 				replacement = tuple._2;
 			} else {
 				// http://www.vogella.com/tutorials/JavaRegularExpressions/article.html
-				final int pos = preSubject.indexOf(':');
+				final int pos = preSubject.indexOf(SUBJECT_PATTERN_SEPARATOR);
 	
-				final String patternStr = preSubject.substring(0, pos).replace(".", "\\.").replace("*", "[^\\.]*");		
+				final String patternStr = preSubject.substring(0, pos).trim().replace(".", "\\.").replace("*", "[^\\.]*");		
 				logger.trace(patternStr);
 				pattern = Pattern.compile(patternStr);
 				
-				replacement = preSubject.substring(pos+1);
+				replacement = preSubject.substring(pos+SUBJECT_PATTERN_SEPARATOR.length()).trim();
 				logger.trace(replacement);	
 				
 				subjectPatternMap.put(preSubject, new Tuple2<Pattern, String>(pattern, replacement));
