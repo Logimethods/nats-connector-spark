@@ -215,42 +215,47 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 		return (R) new Tuple2<String,V>(subject, s);
 	}
 	
-	@SuppressWarnings("unchecked")
-	// @see https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html
 	protected V extractData(byte[] bytes) {
 		if (dataExtractor != null) {
 			return dataExtractor.apply(bytes);
+		} else {
+			return extractData(type, bytes);
 		}
+	}
+	
+	// @see https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html
+	@SuppressWarnings("unchecked")
+	public static <X> X extractData(Class<X> type, byte[] bytes) throws UnsupportedOperationException {
 		if (type == String.class) {
-			return (V) new String(bytes);
+			return (X) new String(bytes);
 		}
 		if (type == Double.class) {
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (V) new Double(buffer.getDouble());
+			return (X) new Double(buffer.getDouble());
 		}
 		if (type == Float.class) {
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (V) new Float(buffer.getFloat());
+			return (X) new Float(buffer.getFloat());
 		}
 		if (type == Integer.class) {
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (V) new Integer(buffer.getInt());
+			return (X) new Integer(buffer.getInt());
 		}
 		if (type == Long.class) {
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (V) new Long(buffer.getLong());
+			return (X) new Long(buffer.getLong());
 		}
 		if (type == Byte.class) {
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (V) new Byte(buffer.get());
+			return (X) new Byte(buffer.get());
 		}
 		if (type == Character.class) {
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (V) new Character(buffer.getChar());
+			return (X) new Character(buffer.getChar());
 		}
 		if (type == Short.class) {
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (V) new Short(buffer.getShort());
+			return (X) new Short(buffer.getShort());
 		}
 		throw new UnsupportedOperationException("It is not possible to extract Data of type " + type);
 	}

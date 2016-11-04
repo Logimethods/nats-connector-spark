@@ -45,6 +45,13 @@ public class NatsToSparkConnectorTest implements Serializable {
 	}
 
 	@Test
+	public void testPublicExtractDataByteArray_Float() {
+		Float f = 1234324234.34f;
+		byte[] bytes = ByteBuffer.allocate(Float.BYTES).putFloat(f).array();
+		assertEquals(f, NatsToSparkConnector.extractData(Float.class, bytes));
+	}
+
+	@Test
 	public void testExtractDataByteArray_Exception() {		
 		thrown.expect(UnsupportedOperationException.class);
 		
