@@ -13,6 +13,7 @@ import static io.nats.client.Constants.PROP_URL;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.function.Function;
 
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.receiver.Receiver;
@@ -49,6 +50,7 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	protected Properties		 properties;
 	protected String 			 queue;
 	protected String 			 natsUrl;
+	protected Function<byte[], V> dataExtractor = null;
 
 	protected final static String CLIENT_ID = "NatsToSparkConnector_";
 
@@ -100,7 +102,16 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	public T withNatsURL(String natsURL) {
 		this.natsUrl = natsURL;
 		return (T)this;
-	}		
+	}	
+	
+	/**
+	 * @param dataExtractor the Data Extractor to set
+	 */
+	@SuppressWarnings("unchecked")
+	public T withDataExtractor(Function<byte[], V> dataExtractor) {
+		this.dataExtractor = dataExtractor;
+		return (T)this;
+	}
 
 	/* **************** STANDARD NATS **************** */
 	
@@ -207,49 +218,38 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	@SuppressWarnings("unchecked")
 	// @see https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html
 	protected V extractData(byte[] bytes) {
+		if (dataExtractor != null) {
+			return dataExtractor.apply(bytes);
+		}
 		if (type == String.class) {
 			return (V) new String(bytes);
 		}
 		if (type == Double.class) {
-			final ByteBuffer buffer = ByteBuffer.allocate(Double.BYTES);
-			buffer.put(bytes);
-			buffer.rewind();
+			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (V) new Double(buffer.getDouble());
 		}
 		if (type == Float.class) {
-			final ByteBuffer buffer = ByteBuffer.allocate(Float.BYTES);
-			buffer.put(bytes);
-			buffer.rewind();
+			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (V) new Float(buffer.getFloat());
 		}
 		if (type == Integer.class) {
-			final ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
-			buffer.put(bytes);
-			buffer.rewind();
+			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (V) new Integer(buffer.getInt());
 		}
 		if (type == Long.class) {
-			final ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-			buffer.put(bytes);
-			buffer.rewind();
+			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (V) new Long(buffer.getLong());
 		}
 		if (type == Byte.class) {
-			final ByteBuffer buffer = ByteBuffer.allocate(Byte.BYTES);
-			buffer.put(bytes);
-			buffer.rewind();
+			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (V) new Byte(buffer.get());
 		}
 		if (type == Character.class) {
-			final ByteBuffer buffer = ByteBuffer.allocate(Character.BYTES);
-			buffer.put(bytes);
-			buffer.rewind();
+			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (V) new Character(buffer.getChar());
 		}
 		if (type == Short.class) {
-			final ByteBuffer buffer = ByteBuffer.allocate(Short.BYTES);
-			buffer.put(bytes);
-			buffer.rewind();
+			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (V) new Short(buffer.getShort());
 		}
 		throw new UnsupportedOperationException("It is not possible to extract Data of type " + type);

@@ -2,14 +2,23 @@ package com.logimethods.connector.nats.to_spark;
 
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.function.Function;
 
 import org.apache.spark.storage.StorageLevel;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class NatsToSparkConnectorTest {
+public class NatsToSparkConnectorTest implements Serializable {
     @Rule
     public ExpectedException thrown= ExpectedException.none();
 
@@ -47,4 +56,49 @@ public class NatsToSparkConnectorTest {
 		connector.extractData(bytes);
 	}
 
+	@Test
+	public void testExtractDataByteArray_DataExtractor() throws IOException {
+		final Function<byte[], Dummy> dataExtractor = bytes -> {
+			ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+			ObjectInput in = null;
+			Object o = null;
+			try {
+				try {
+					in = new ObjectInputStream(bis);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				o = in.readObject();
+			} catch (ClassNotFoundException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				try {
+					if (in != null) {
+						in.close();
+					}
+				} catch (IOException ex) {
+					// ignore close exception
+				}
+			}
+			return (Dummy) o;
+
+		};
+		StandardNatsToSparkConnectorImpl<Dummy> connector = 
+				NatsToSparkConnector
+					.receiveFromNats(Dummy.class, StorageLevel.MEMORY_ONLY())
+					.withDataExtractor(dataExtractor);
+
+		Dummy dummy = new Dummy("Name");
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ObjectOutput out = new ObjectOutputStream(bos);   
+		out.writeObject(dummy);
+		out.flush();
+		byte[] bytes = bos.toByteArray();
+		bos.close();
+		
+		assertEquals(dummy, connector.extractData(bytes));
+	}
 }
+
