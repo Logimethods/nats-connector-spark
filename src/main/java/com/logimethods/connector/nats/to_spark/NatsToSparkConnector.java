@@ -229,31 +229,31 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 		if (type == String.class) {
 			return (X) new String(bytes);
 		}
-		if (type == Double.class) {
+		if ((type == Double.class) || (type == double.class)){
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (X) new Double(buffer.getDouble());
 		}
-		if (type == Float.class) {
+		if ((type == Float.class) || (type == float.class)){
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (X) new Float(buffer.getFloat());
 		}
-		if (type == Integer.class) {
+		if ((type == Integer.class) || (type == int.class)){
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (X) new Integer(buffer.getInt());
 		}
-		if (type == Long.class) {
+		if ((type == Long.class) || (type == long.class)){
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (X) new Long(buffer.getLong());
 		}
-		if (type == Byte.class) {
+		if ((type == Byte.class) || (type == byte.class)){
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (X) new Byte(buffer.get());
 		}
-		if (type == Character.class) {
+		if ((type == Character.class) || (type == char.class)){
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (X) new Character(buffer.getChar());
 		}
-		if (type == Short.class) {
+		if ((type == Short.class) || (type == short.class)){
 			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
 			return (X) new Short(buffer.getShort());
 		}

@@ -18,6 +18,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
+
 public class NatsToSparkConnectorTest implements Serializable {
     @Rule
     public ExpectedException thrown= ExpectedException.none();
@@ -29,7 +31,7 @@ public class NatsToSparkConnectorTest implements Serializable {
 					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY());
 		
 		String str = "A small piece of Text!";
-		byte[] bytes = str.getBytes();
+		byte[] bytes = SparkToNatsConnector.encodeData(str);
 		assertEquals(str, connector.extractData(bytes));
 	}
 
@@ -40,15 +42,15 @@ public class NatsToSparkConnectorTest implements Serializable {
 					.receiveFromNats(Float.class, StorageLevel.MEMORY_ONLY());
 		
 		Float f = 1234324234.34f;
-		byte[] bytes = ByteBuffer.allocate(Float.BYTES).putFloat(f).array();
+		byte[] bytes = SparkToNatsConnector.encodeData(f);
 		assertEquals(f, connector.extractData(bytes));
 	}
 
 	@Test
 	public void testPublicExtractDataByteArray_Float() {
 		Float f = 1234324234.34f;
-		byte[] bytes = ByteBuffer.allocate(Float.BYTES).putFloat(f).array();
-		assertEquals(f, NatsToSparkConnector.extractData(Float.class, bytes));
+		byte[] bytes = SparkToNatsConnector.encodeData(f);
+		assertEquals(f, NatsToSparkConnector.extractData(float.class, bytes));
 	}
 
 	@Test
