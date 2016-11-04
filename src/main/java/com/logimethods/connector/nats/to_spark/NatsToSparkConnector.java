@@ -10,6 +10,7 @@ package com.logimethods.connector.nats.to_spark;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Constants.PROP_URL;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Properties;
 
@@ -177,26 +178,81 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 		return CLIENT_ID + Utilities.generateUniqueID();
 	}    
 		
+	@SuppressWarnings("unchecked")
 	protected R extractData(Message m) {
-		final R s = (R) new String(m.getData());
+		final R s = (R) extractData(m.getData());
 		return s;
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected R extractData(io.nats.stan.Message m) {
-		final R s = (R) new String(m.getData());
+		final R s = (R) extractData(m.getData());
 		return s;
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected R extractTuple(Message m) {
 		final String subject = m.getSubject();		
-		Object s = new String(m.getData());
-		return (R) new Tuple2(subject, s);
+		V s = extractData(m.getData());
+		return (R) new Tuple2<String,V>(subject, s);
 	}
 		
+	@SuppressWarnings("unchecked")
 	protected R extractTuple(io.nats.stan.Message m) {
 		final String subject = m.getSubject();		
-		Object s = new String(m.getData());
-		return (R) new Tuple2(subject, s);
+		V s = extractData(m.getData());
+		return (R) new Tuple2<String,V>(subject, s);
+	}
+	
+	@SuppressWarnings("unchecked")
+	// @see https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html
+	protected V extractData(byte[] bytes) {
+		if (type == String.class) {
+			return (V) new String(bytes);
+		}
+		if (type == Double.class) {
+			final ByteBuffer buffer = ByteBuffer.allocate(Double.BYTES);
+			buffer.put(bytes);
+			buffer.rewind();
+			return (V) new Double(buffer.getDouble());
+		}
+		if (type == Float.class) {
+			final ByteBuffer buffer = ByteBuffer.allocate(Float.BYTES);
+			buffer.put(bytes);
+			buffer.rewind();
+			return (V) new Float(buffer.getFloat());
+		}
+		if (type == Integer.class) {
+			final ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+			buffer.put(bytes);
+			buffer.rewind();
+			return (V) new Integer(buffer.getInt());
+		}
+		if (type == Long.class) {
+			final ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+			buffer.put(bytes);
+			buffer.rewind();
+			return (V) new Long(buffer.getLong());
+		}
+		if (type == Byte.class) {
+			final ByteBuffer buffer = ByteBuffer.allocate(Byte.BYTES);
+			buffer.put(bytes);
+			buffer.rewind();
+			return (V) new Byte(buffer.get());
+		}
+		if (type == Character.class) {
+			final ByteBuffer buffer = ByteBuffer.allocate(Character.BYTES);
+			buffer.put(bytes);
+			buffer.rewind();
+			return (V) new Character(buffer.getChar());
+		}
+		if (type == Short.class) {
+			final ByteBuffer buffer = ByteBuffer.allocate(Short.BYTES);
+			buffer.put(bytes);
+			buffer.rewind();
+			return (V) new Short(buffer.getShort());
+		}
+		throw new UnsupportedOperationException("It is not possible to extract Data of type " + type);
 	}
 }
 
