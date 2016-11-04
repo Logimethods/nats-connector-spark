@@ -38,9 +38,9 @@ public class NatsStreamingToSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStreamingToSparkConnectorImpl_0() throws IncompleteException {
-		NatsStreamingToSparkConnectorImpl connector = 
+		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withProperties(PROPERTIES);
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
 		assertEquals(connector.getNatsUrl().toString(), STAN_URL, connector.getNatsUrl());
@@ -49,9 +49,9 @@ public class NatsStreamingToSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStreamingToSparkConnectorImpl_1() throws IncompleteException {
-		NatsStreamingToSparkConnectorImpl connector = 
+		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(ALT_STAN_URL)
 					.withSubjects("sub1", "sub2");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
@@ -61,9 +61,9 @@ public class NatsStreamingToSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStreamingToSparkConnectorImpl_1_1() throws IncompleteException {
-		NatsStreamingToSparkConnectorImpl connector = 
+		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(ALT_STAN_URL)
 					.withSubjects("sub1", "sub2")
 					.withProperties(PROPERTIES);
@@ -75,9 +75,9 @@ public class NatsStreamingToSparkWithAttributesTest {
 	@Test
 	public void testNatsStreamingToSparkConnectorImpl_2() {
 		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME);
-		NatsStreamingToSparkConnectorImpl connector = 
+		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(STAN_URL)
 					.withSubscriptionOptionsBuilder(optsBuilder)
 					.withSubjects("SUBJECT");
@@ -87,9 +87,9 @@ public class NatsStreamingToSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStreamingToSparkConnectorImpl_3() {
-		NatsStreamingToSparkConnectorImpl connector = 
+		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(STAN_URL)
 					.startWithLastReceived()
 					.setDurableName(DURABLE_NAME)
@@ -103,9 +103,9 @@ public class NatsStreamingToSparkWithAttributesTest {
 		final Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
 		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME).startAtTime(start);
 		final String newName = "NEW NAME";
-		NatsStreamingToSparkConnectorImpl connector = 
+		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(STAN_URL)
 					//.withProperties(PROPERTIES)
 					.withSubscriptionOptionsBuilder(optsBuilder)
@@ -119,9 +119,9 @@ public class NatsStreamingToSparkWithAttributesTest {
 	@Test
 	public void testNatsStreamingToSparkConnectorImpl_5() {
 		final Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
-		NatsStreamingToSparkConnectorImpl connector = 
+		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(STAN_URL)
 					//.withProperties(PROPERTIES)
 					.setDurableName(DURABLE_NAME)

@@ -36,7 +36,7 @@ public class StandardNatsToKeyValueSparkWithAttributesTest {
 	public void testNatsStandardToSparkConnectorImpl_0() throws IncompleteException {
 		StandardNatsToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
-					.receiveFromNats(StorageLevel.MEMORY_ONLY())
+					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY())
 					.withProperties(PROPERTIES)
 					.storedAsKeyValue();
 		assertTrue(connector instanceof StandardNatsToKeyValueSparkConnectorImpl);
@@ -48,7 +48,7 @@ public class StandardNatsToKeyValueSparkWithAttributesTest {
 	public void testNatsStandardToSparkConnectorImpl_1() throws IncompleteException {
 		StandardNatsToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
-					.receiveFromNats(StorageLevel.MEMORY_ONLY())
+					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY())
 					.withProperties(PROPERTIES).withSubjects("SUBJECT")
 					.storedAsKeyValue();
 		assertTrue(connector instanceof StandardNatsToKeyValueSparkConnectorImpl);
@@ -60,7 +60,7 @@ public class StandardNatsToKeyValueSparkWithAttributesTest {
 	public void testNatsStandardToSparkConnectorImpl_2() throws IncompleteException {
 		StandardNatsToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
-					.receiveFromNats(StorageLevel.MEMORY_ONLY())
+					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY())
 					.withSubjects("SUBJECT")
 					.withProperties(PROPERTIES)
 					.storedAsKeyValue();
@@ -75,6 +75,6 @@ public class StandardNatsToKeyValueSparkWithAttributesTest {
 	 */
 	@Test(timeout=6000, expected=IncompleteException.class)
 	public void testNatsToSparkConnectorWITHOUTSubjects() throws Exception {
-		NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withNatsURL(NATS_SERVER_URL).receive();
+		NatsToSparkConnector.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY()).withNatsURL(NATS_SERVER_URL).receive();
 	}
 }

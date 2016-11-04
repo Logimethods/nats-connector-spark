@@ -32,7 +32,7 @@ import io.nats.stan.MessageHandler;
  * </pre>
  * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
-public class NatsStreamingToSparkConnectorImpl extends OmnipotentNatsStreamingToSparkConnector<NatsStreamingToSparkConnectorImpl, String> {
+public class NatsStreamingToSparkConnectorImpl<R> extends OmnipotentNatsStreamingToSparkConnector<NatsStreamingToSparkConnectorImpl<R>, R, R> {
 
 	/**
 	 * 
@@ -43,21 +43,21 @@ public class NatsStreamingToSparkConnectorImpl extends OmnipotentNatsStreamingTo
 
 	/* Constructors with subjects provided by the environment */
 	
-	protected NatsStreamingToSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID) {
-		super(storageLevel, clusterID, clientID);
+	protected NatsStreamingToSparkConnectorImpl(Class<R> type, StorageLevel storageLevel, String clusterID, String clientID) {
+		super(type, storageLevel, clusterID, clientID);
 	}
 	
 	/**
 	@SuppressWarnings("unchecked")
 	*/
-	public JavaReceiverInputDStream<String> asStreamOf(JavaStreamingContext ssc) {
+	public JavaReceiverInputDStream<R> asStreamOf(JavaStreamingContext ssc) {
 		return ssc.receiverStream(this);
 	}
 	
 	/**
 	@SuppressWarnings("unchecked")
 	*/
-	public ReceiverInputDStream<String> asStreamOf(StreamingContext ssc) {
+	public ReceiverInputDStream<R> asStreamOf(StreamingContext ssc) {
 		return ssc.receiverStream(this, scala.reflect.ClassTag$.MODULE$.apply(String.class));
 	}
 
@@ -66,7 +66,7 @@ public class NatsStreamingToSparkConnectorImpl extends OmnipotentNatsStreamingTo
 		return new MessageHandler() {
 			@Override
 			public void onMessage(Message m) {
-				String s = new String(m.getData());
+				R s = extractData(m);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Received by {} on Subject '{}': {}.", NatsStreamingToSparkConnectorImpl.this,
 							m.getSubject(), s);

@@ -13,7 +13,6 @@ import static io.nats.client.Constants.PROP_URL;
 import java.util.Collection;
 import java.util.Properties;
 
-import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.receiver.Receiver;
 import org.slf4j.Logger;
@@ -22,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.nats_spark.Utilities;
 
+import io.nats.client.Message;
 import scala.Tuple2;
 
 /**
@@ -39,10 +39,11 @@ import scala.Tuple2;
  * @see <a href="http://spark.apache.org/docs/1.6.1/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
 @SuppressWarnings("serial")
-public abstract class NatsToSparkConnector<T,R> extends Receiver<R> {
+public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 
 	static final Logger logger = LoggerFactory.getLogger(NatsToSparkConnector.class);
 	
+	protected final 	Class<V> type;
 	protected Collection<String> subjects;
 	protected Properties		 properties;
 	protected String 			 queue;
@@ -50,12 +51,14 @@ public abstract class NatsToSparkConnector<T,R> extends Receiver<R> {
 
 	protected final static String CLIENT_ID = "NatsToSparkConnector_";
 
-	protected NatsToSparkConnector(StorageLevel storageLevel) {
+	protected NatsToSparkConnector(Class<V> type, StorageLevel storageLevel) {
 		super(storageLevel);
+		this.type = type;
 	}
 
-	protected NatsToSparkConnector(StorageLevel storageLevel, String... subjects) {
+	protected NatsToSparkConnector(Class<V> type, StorageLevel storageLevel, String... subjects) {
 		super(storageLevel);
+		this.type = type;
 		this.subjects = Utilities.transformIntoAList(subjects);
 	}
 	
@@ -66,8 +69,9 @@ public abstract class NatsToSparkConnector<T,R> extends Receiver<R> {
 	 * @param queue
 	 * @param natsUrl
 	 */
-	protected NatsToSparkConnector(StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
+	protected NatsToSparkConnector(Class<V> type, StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
 		super(storageLevel);
+		this.type = type;
 		this.subjects = subjects;
 		this.properties = properties;
 		this.queue = queue;
@@ -105,14 +109,14 @@ public abstract class NatsToSparkConnector<T,R> extends Receiver<R> {
 	 * @param storageLevel Defines the StorageLevel used by Spark.
 	 * @return a NATS to Spark Connector.
 	 */
-	public static StandardNatsToSparkConnectorImpl receiveFromNats(StorageLevel storageLevel) {
-		return new StandardNatsToSparkConnectorImpl(storageLevel);
+	public static <V extends Object> StandardNatsToSparkConnectorImpl<V> receiveFromNats(Class<V> type, StorageLevel storageLevel) {
+		return new StandardNatsToSparkConnectorImpl<V>(type, storageLevel);
 	}
 
 	/* **************** NATS STREAMING **************** */
 	
-	public static NatsStreamingToSparkConnectorImpl receiveFromNatsStreaming(StorageLevel storageLevel, String clusterID) {
-		return new NatsStreamingToSparkConnectorImpl(storageLevel, clusterID, getUniqueClientName());
+	public static <V extends Object> NatsStreamingToSparkConnectorImpl<V> receiveFromNatsStreaming(Class<V> type, StorageLevel storageLevel, String clusterID) {
+		return new NatsStreamingToSparkConnectorImpl<V>(type, storageLevel, clusterID, getUniqueClientName());
 	}
 	
 	@Override
@@ -172,16 +176,27 @@ public abstract class NatsToSparkConnector<T,R> extends Receiver<R> {
 	protected static String getUniqueClientName() {
 		return CLIENT_ID + Utilities.generateUniqueID();
 	}    
+		
+	protected R extractData(Message m) {
+		final R s = (R) new String(m.getData());
+		return s;
+	}
 	
-	static final protected PairFunction<Tuple2<String, String>, String, String> keepTuple2Func = 
-		new PairFunction<Tuple2<String, String>, String, String>() {
+	protected R extractData(io.nats.stan.Message m) {
+		final R s = (R) new String(m.getData());
+		return s;
+	}
 	
-			private static final long serialVersionUID = 4057911245686964676L;
-
-			@Override
-			public Tuple2<String, String> call(Tuple2<String,String> tuple) {
-				return tuple;
-			}
-		};
+	protected R extractTuple(Message m) {
+		final String subject = m.getSubject();		
+		Object s = new String(m.getData());
+		return (R) new Tuple2(subject, s);
+	}
+		
+	protected R extractTuple(io.nats.stan.Message m) {
+		final String subject = m.getSubject();		
+		Object s = new String(m.getData());
+		return (R) new Tuple2(subject, s);
+	}
 }
 

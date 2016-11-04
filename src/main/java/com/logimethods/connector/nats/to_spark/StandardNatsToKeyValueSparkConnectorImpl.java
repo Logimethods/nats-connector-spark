@@ -37,8 +37,8 @@ import scala.Tuple2;
  * </pre>
  * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
-public class StandardNatsToKeyValueSparkConnectorImpl 
-				extends OmnipotentStandardNatsToSparkConnector<StandardNatsToKeyValueSparkConnectorImpl, Tuple2<String, String>> {
+public class StandardNatsToKeyValueSparkConnectorImpl<V> 
+				extends OmnipotentStandardNatsToSparkConnector<StandardNatsToKeyValueSparkConnectorImpl<V>, Tuple2<String, V>, V> {
 
 	/**
 	 * 
@@ -49,41 +49,41 @@ public class StandardNatsToKeyValueSparkConnectorImpl
 
 	protected Properties enrichedProperties;
 
-	protected StandardNatsToKeyValueSparkConnectorImpl(Properties properties, StorageLevel storageLevel, String... subjects) {
-		super(storageLevel, subjects);
+	protected StandardNatsToKeyValueSparkConnectorImpl(Class<V> type, Properties properties, StorageLevel storageLevel, String... subjects) {
+		super(type, storageLevel, subjects);
 		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
 
-	protected StandardNatsToKeyValueSparkConnectorImpl(StorageLevel storageLevel, String... subjects) {
-		super(storageLevel, subjects);
+	protected StandardNatsToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel, String... subjects) {
+		super(type, storageLevel, subjects);
 		logger.debug("CREATE NatsToSparkConnector {} with Storage Level {} and NATS Subjects '{}'.", this, properties, subjects);
 	}
 
-	protected StandardNatsToKeyValueSparkConnectorImpl(Properties properties, StorageLevel storageLevel) {
-		super(storageLevel);
+	protected StandardNatsToKeyValueSparkConnectorImpl(Class<V> type, Properties properties, StorageLevel storageLevel) {
+		super(type, storageLevel);
 		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}' and Storage Level {}.", this, properties, storageLevel);
 	}
 
-	protected StandardNatsToKeyValueSparkConnectorImpl(StorageLevel storageLevel) {
-		super(storageLevel);
+	protected StandardNatsToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel) {
+		super(type, storageLevel);
 		logger.debug("CREATE NatsToSparkConnector {}.", this, properties, storageLevel);
 	}
 	
-	protected StandardNatsToKeyValueSparkConnectorImpl(StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
-		super(storageLevel, subjects, properties, queue, natsUrl);
+	protected StandardNatsToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
+		super(type, storageLevel, subjects, properties, queue, natsUrl);
 	}
 	
 	/**
 	@SuppressWarnings("unchecked")
 	*/
-	public JavaPairDStream<String, String> asStreamOf(JavaStreamingContext ssc) {
-		return ssc.receiverStream(this).mapToPair(keepTuple2Func);
+	public JavaPairDStream<String, V> asStreamOf(JavaStreamingContext ssc) {
+		return ssc.receiverStream(this).mapToPair(tuple -> tuple);
 	}
 	
 	/**
 	@SuppressWarnings("unchecked")
 	*/
-	public ReceiverInputDStream<Tuple2<String, String>> asStreamOf(StreamingContext ssc) {
+	public ReceiverInputDStream<Tuple2<String, V>> asStreamOf(StreamingContext ssc) {
 		return ssc.receiverStream(this, scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class));
 	}
 
@@ -91,14 +91,13 @@ public class StandardNatsToKeyValueSparkConnectorImpl
 		return new MessageHandler() {
 			@Override
 			public void onMessage(Message m) {
-				final String subject = m.getSubject();
-				final String s = new String(m.getData());
+				final Tuple2<String, V> s = extractTuple(m);
 				
 				if (logger.isTraceEnabled()) {
 					logger.trace("Received by {} on Subject '{}': {}.", StandardNatsToKeyValueSparkConnectorImpl.this, m.getSubject(), s);
 				}
 										
-				store(new Tuple2<String, String>(subject, s));
+				store(s);
 			}
 		};
 	}

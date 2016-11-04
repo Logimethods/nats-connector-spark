@@ -38,11 +38,12 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 
 		final Properties properties = new Properties();
 		properties.setProperty(PROP_URL, NATS_SERVER_URL);
+
 		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
-					.receiveFromNats(StorageLevel.MEMORY_ONLY())
-					.storedAsKeyValue()
+					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY())
 					.withProperties(properties)
+					.storedAsKeyValue()
 					.withSubjects(DEFAULT_SUBJECT)
 					.asStreamOf(ssc);
 
@@ -56,7 +57,7 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 
 		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
-					.receiveFromNats(StorageLevel.MEMORY_ONLY())
+					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY())
 					.withNatsURL(NATS_SERVER_URL)
 					.withSubjects(DEFAULT_SUBJECT)
 					.storedAsKeyValue()
@@ -73,7 +74,7 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 		final Properties properties = new Properties();
 		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
-					.receiveFromNats(StorageLevel.MEMORY_ONLY())
+					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY())
 					.withNatsURL(NATS_SERVER_URL)
 					.withProperties(properties)
 					.withSubjects(DEFAULT_SUBJECT, "EXTRA_SUBJECT")
@@ -93,7 +94,7 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 		properties.setProperty(PROP_URL, NATS_SERVER_URL);
 		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
-					.receiveFromNats(StorageLevel.MEMORY_ONLY())
+					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY())
 					.storedAsKeyValue()
 					.withProperties(properties)
 					.asStreamOf(ssc);

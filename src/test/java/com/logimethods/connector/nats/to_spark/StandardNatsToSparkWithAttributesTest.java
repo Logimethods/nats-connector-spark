@@ -34,9 +34,9 @@ public class StandardNatsToSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStandardToSparkConnectorImpl_0() throws IncompleteException {
-		StandardNatsToSparkConnectorImpl connector = 
+		StandardNatsToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
-					.receiveFromNats(StorageLevel.MEMORY_ONLY())
+					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY())
 					.withProperties(PROPERTIES);
 		assertTrue(connector instanceof StandardNatsToSparkConnectorImpl);
 		assertEquals(STAN_URL, connector.getEnrichedProperties().getProperty(PROP_URL));
@@ -45,9 +45,9 @@ public class StandardNatsToSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStandardToSparkConnectorImpl_1() throws IncompleteException {
-		StandardNatsToSparkConnectorImpl connector = 
+		StandardNatsToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
-					.receiveFromNats(StorageLevel.MEMORY_ONLY())
+					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY())
 					.withProperties(PROPERTIES)
 					.withSubjects("SUBJECT");
 		assertTrue(connector instanceof StandardNatsToSparkConnectorImpl);
@@ -57,9 +57,9 @@ public class StandardNatsToSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStandardToSparkConnectorImpl_2() throws IncompleteException {
-		StandardNatsToSparkConnectorImpl connector = 
+		StandardNatsToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
-					.receiveFromNats(StorageLevel.MEMORY_ONLY())
+					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY())
 					.withSubjects("SUBJECT")
 					.withProperties(PROPERTIES);
 		assertTrue(connector instanceof StandardNatsToSparkConnectorImpl);
@@ -73,6 +73,6 @@ public class StandardNatsToSparkWithAttributesTest {
 	 */
 	@Test(timeout=6000, expected=IncompleteException.class)
 	public void testNatsToSparkConnectorWITHOUTSubjects() throws Exception {
-		NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY()).withNatsURL(NATS_SERVER_URL).receive();
+		NatsToSparkConnector.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY()).withNatsURL(NATS_SERVER_URL).receive();
 	}
 }

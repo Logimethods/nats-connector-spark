@@ -27,6 +27,7 @@ import com.logimethods.connector.nats.spark.test.NatsStreamingPublisher;
 import com.logimethods.connector.nats.spark.test.STANServer;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
+import com.logimethods.connector.nats.to_spark.NatsStreamingToKeyValueSparkConnectorImpl;
 import com.logimethods.connector.nats.to_spark.NatsStreamingToSparkConnectorImpl;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 import com.logimethods.connector.nats_spark.Utilities;
@@ -39,6 +40,7 @@ import io.nats.stan.Message;
 import io.nats.stan.MessageHandler;
 import io.nats.stan.Subscription;
 import io.nats.stan.SubscriptionOptions;
+import scala.Tuple2;
 
 public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 	protected final static String CLUSTER_ID = "test-cluster";
@@ -77,7 +79,7 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 
 		final JavaReceiverInputDStream<String> messages = 
 				NatsToSparkConnector
-						.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+						.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 						.withNatsURL(STAN_URL)
 						.withSubjects(DEFAULT_SUBJECT)
 						.asStreamOf(ssc);
@@ -89,10 +91,10 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 	public void testNatsToKeyValueSparkConnectorWithAdditionalSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
-
+		
 		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
-						.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+						.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 						.withNatsURL(STAN_URL)
 						.withSubjects(DEFAULT_SUBJECT)
 						.storedAsKeyValue()

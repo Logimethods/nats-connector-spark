@@ -37,8 +37,8 @@ import scala.Tuple2;
  * </pre>
  * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
-public class NatsStreamingToKeyValueSparkConnectorImpl 
-				extends OmnipotentNatsStreamingToSparkConnector<NatsStreamingToKeyValueSparkConnectorImpl, Tuple2<String, String>> {
+public class NatsStreamingToKeyValueSparkConnectorImpl<V> 
+				extends OmnipotentNatsStreamingToSparkConnector<NatsStreamingToKeyValueSparkConnectorImpl<V>, Tuple2<String, V>, V> {
 
 	/**
 	 * 
@@ -49,14 +49,14 @@ public class NatsStreamingToKeyValueSparkConnectorImpl
 
 	/* Constructors with subjects provided by the environment */
 	
-	protected NatsStreamingToKeyValueSparkConnectorImpl(StorageLevel storageLevel, String clusterID, String clientID) {
-		super(storageLevel, clusterID, clientID);
+	protected NatsStreamingToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel, String clusterID, String clientID) {
+		super(type, storageLevel, clusterID, clientID);
 	}
 
-	public NatsStreamingToKeyValueSparkConnectorImpl(StorageLevel storageLevel, Collection<String> subjects,
+	public NatsStreamingToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel, Collection<String> subjects,
 			Properties properties, String queue, String natsUrl, String clusterID, String clientID, 
 			SubscriptionOptions opts, SubscriptionOptions.Builder optsBuilder) {
-		super(storageLevel, clusterID, clientID);
+		super(type, storageLevel, clusterID, clientID);
 		this.subjects = subjects;
 		this.properties = properties;
 		this.queue = queue;
@@ -68,14 +68,14 @@ public class NatsStreamingToKeyValueSparkConnectorImpl
 	/**
 	@SuppressWarnings("unchecked")
 	*/
-	public JavaPairDStream<String, String> asStreamOf(JavaStreamingContext ssc) {
-		return ssc.receiverStream(this).mapToPair(keepTuple2Func);
+	public JavaPairDStream<String, V> asStreamOf(JavaStreamingContext ssc) {
+		return ssc.receiverStream(this).mapToPair(tuple -> tuple);
 	}
 	
 	/**
 	@SuppressWarnings("unchecked")
 	*/
-	public ReceiverInputDStream<Tuple2<String, String>> asStreamOf(StreamingContext ssc) {
+	public ReceiverInputDStream<Tuple2<String, V>> asStreamOf(StreamingContext ssc) {
 		return ssc.receiverStream(this, scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class));
 	}
 
@@ -84,14 +84,14 @@ public class NatsStreamingToKeyValueSparkConnectorImpl
 		return new MessageHandler() {
 			@Override
 			public void onMessage(Message m) {
-				final String subject = m.getSubject();
-				final String s = new String(m.getData());
+				final Tuple2<String, V> s = extractTuple(m);
 
 				if (logger.isTraceEnabled()) {
 					logger.trace("Received by {} on Subject '{}': {}.", NatsStreamingToKeyValueSparkConnectorImpl.this,
 							m.getSubject(), s);
 				}
-				store(new Tuple2<String, String>(subject, s));
+				
+				store(s);
 			}
 		};
 	}

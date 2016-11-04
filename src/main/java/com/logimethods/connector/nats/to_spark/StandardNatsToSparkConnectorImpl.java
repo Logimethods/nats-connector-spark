@@ -34,7 +34,7 @@ import io.nats.client.MessageHandler;
  * </pre>
  * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
-public class StandardNatsToSparkConnectorImpl extends OmnipotentStandardNatsToSparkConnector<StandardNatsToSparkConnectorImpl, String> {
+public class StandardNatsToSparkConnectorImpl<R> extends OmnipotentStandardNatsToSparkConnector<StandardNatsToSparkConnectorImpl<R>, R, R> {
 
 	/**
 	 * 
@@ -43,37 +43,37 @@ public class StandardNatsToSparkConnectorImpl extends OmnipotentStandardNatsToSp
 
 	static final Logger logger = LoggerFactory.getLogger(StandardNatsToSparkConnectorImpl.class);
 
-	protected StandardNatsToSparkConnectorImpl(Properties properties, StorageLevel storageLevel, String... subjects) {
-		super(storageLevel, subjects);
+	protected StandardNatsToSparkConnectorImpl(Class<R> type, Properties properties, StorageLevel storageLevel, String... subjects) {
+		super(type, storageLevel, subjects);
 		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
 
-	protected StandardNatsToSparkConnectorImpl(StorageLevel storageLevel, String... subjects) {
-		super(storageLevel, subjects);
-		logger.debug("CREATE NatsToSparkConnector {} with Storage Level {} and NATS Subjects '{}'.", this, properties, subjects);
+	protected StandardNatsToSparkConnectorImpl(Class<R> type, StorageLevel storageLevel, String... subjects) {
+		super(type, storageLevel, subjects);
+		logger.debug("CREATE NatsToSparkConnector {} with Storage Level {} and NATS Subjects '{}'.", this, properties, type);
 	}
 
-	protected StandardNatsToSparkConnectorImpl(Properties properties, StorageLevel storageLevel) {
-		super(storageLevel);
+	protected StandardNatsToSparkConnectorImpl(Class<R> type, Properties properties, StorageLevel storageLevel) {
+		super(type, storageLevel);
 		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}' and Storage Level {}.", this, properties, storageLevel);
 	}
 
-	protected StandardNatsToSparkConnectorImpl(StorageLevel storageLevel) {
-		super(storageLevel);
+	protected StandardNatsToSparkConnectorImpl(Class<R> type, StorageLevel storageLevel) {
+		super(type, storageLevel);
 		logger.debug("CREATE NatsToSparkConnector {}.", this, properties, storageLevel);
 	}
 	
 	/**
 	@SuppressWarnings("unchecked")
 	*/
-	public JavaReceiverInputDStream<String> asStreamOf(JavaStreamingContext ssc) {
+	public JavaReceiverInputDStream<R> asStreamOf(JavaStreamingContext ssc) {
 		return ssc.receiverStream(this);
 	}
 	
 	/**
 	@SuppressWarnings("unchecked")
 	*/
-	public ReceiverInputDStream<String> asStreamOf(StreamingContext ssc) {
+	public ReceiverInputDStream<R> asStreamOf(StreamingContext ssc) {
 		return ssc.receiverStream(this, scala.reflect.ClassTag$.MODULE$.apply(String.class));
 	}
 
@@ -81,7 +81,7 @@ public class StandardNatsToSparkConnectorImpl extends OmnipotentStandardNatsToSp
 		return new MessageHandler() {
 			@Override
 			public void onMessage(Message m) {
-				String s = new String(m.getData());
+				R s = extractData(m);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Received by {} on Subject '{}' sharing Queue '{}': {}.", StandardNatsToSparkConnectorImpl.this, m.getSubject(), queue, s);
 				}

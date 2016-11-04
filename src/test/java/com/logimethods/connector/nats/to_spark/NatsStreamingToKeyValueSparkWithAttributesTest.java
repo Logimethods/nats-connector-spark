@@ -22,6 +22,7 @@ import org.junit.Test;
 import com.logimethods.connector.nats_spark.IncompleteException;
 
 import io.nats.stan.SubscriptionOptions;
+import scala.Tuple2;
 
 public class NatsStreamingToKeyValueSparkWithAttributesTest {
 	protected final static String CLUSTER_ID = "CLUSTER_ID";
@@ -40,7 +41,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 	public void testNatsStreamingToKeyValueSparkConnectorImpl_0() throws IncompleteException {
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withProperties(PROPERTIES)
 					.storedAsKeyValue();
 		assertTrue(connector instanceof NatsStreamingToKeyValueSparkConnectorImpl);
@@ -52,7 +53,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 	public void testNatsStreamingToKeyValueSparkConnectorImpl_1() throws IncompleteException {
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(ALT_STAN_URL)
 					.withSubjects("sub1", "sub2")
 					.storedAsKeyValue();
@@ -65,7 +66,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 	public void testNatsStreamingToKeyValueSparkConnectorImpl_1_1() throws IncompleteException {
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(ALT_STAN_URL)
 					.withSubjects("sub1", "sub2")
 					.withProperties(PROPERTIES)
@@ -80,7 +81,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME);
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(STAN_URL)
 					.withSubscriptionOptionsBuilder(optsBuilder)
 					.withSubjects("SUBJECT")
@@ -93,7 +94,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 	public void testNatsStreamingToKeyValueSparkConnectorImpl_3() {
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(STAN_URL)
 					.startWithLastReceived()
 					.setDurableName(DURABLE_NAME)
@@ -110,7 +111,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 		final String newName = "NEW NAME";
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(STAN_URL)
 					//.withProperties(PROPERTIES)
 					.withSubscriptionOptionsBuilder(optsBuilder)
@@ -127,7 +128,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 		final Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
-					.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(STAN_URL)
 					//.withProperties(PROPERTIES)
 					.setDurableName(DURABLE_NAME)

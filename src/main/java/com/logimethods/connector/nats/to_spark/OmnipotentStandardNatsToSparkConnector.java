@@ -22,6 +22,7 @@ import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
 import io.nats.client.MessageHandler;
 import io.nats.client.Subscription;
+import scala.Tuple2;
 
 /**
  * A NATS to Spark Connector.
@@ -38,38 +39,38 @@ import io.nats.client.Subscription;
  * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
  */
 @SuppressWarnings("serial")
-public abstract class OmnipotentStandardNatsToSparkConnector<T,R> extends NatsToSparkConnector<T,R> {
+public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends NatsToSparkConnector<T,R,V> {
 
-	protected OmnipotentStandardNatsToSparkConnector(Properties properties, StorageLevel storageLevel, String... subjects) {
-		super(storageLevel, subjects);
+	protected OmnipotentStandardNatsToSparkConnector(Class<V> type, Properties properties, StorageLevel storageLevel, String... subjects) {
+		super(type, storageLevel, subjects);
 		this.properties = properties;
 		setQueue();
 	}
 
-	protected OmnipotentStandardNatsToSparkConnector(StorageLevel storageLevel, String... subjects) {
-		super(storageLevel, subjects);
+	protected OmnipotentStandardNatsToSparkConnector(Class<V> type, StorageLevel storageLevel, String... subjects) {
+		super(type, storageLevel, subjects);
 		setQueue();
 	}
 
-	protected OmnipotentStandardNatsToSparkConnector(Properties properties, StorageLevel storageLevel) {
-		super(storageLevel);
+	protected OmnipotentStandardNatsToSparkConnector(Class<V> type, Properties properties, StorageLevel storageLevel) {
+		super(type, storageLevel);
 		this.properties = properties;
 		setQueue();
 	}
 
-	protected OmnipotentStandardNatsToSparkConnector(StorageLevel storageLevel) {
-		super(storageLevel);
+	protected OmnipotentStandardNatsToSparkConnector(Class<V> type, StorageLevel storageLevel) {
+		super(type, storageLevel);
 		setQueue();
 	}
 	
-	protected OmnipotentStandardNatsToSparkConnector(StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
-		super(storageLevel, subjects, properties, queue, natsUrl);
+	protected OmnipotentStandardNatsToSparkConnector(Class<V> type, StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
+		super(type, storageLevel, subjects, properties, queue, natsUrl);
 	}
 
 	/**
 	 */
-	public StandardNatsToKeyValueSparkConnectorImpl storedAsKeyValue() {
-		return new StandardNatsToKeyValueSparkConnectorImpl(storageLevel(), subjects, properties, queue, natsUrl);
+	public StandardNatsToKeyValueSparkConnectorImpl<V> storedAsKeyValue() {
+		return new StandardNatsToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, queue, natsUrl);
 	}
 
 	protected Properties enrichedProperties;
