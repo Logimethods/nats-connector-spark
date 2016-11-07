@@ -23,7 +23,7 @@ import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.logimethods.connector.nats_spark.NatsSparkUtilities;
+import static com.logimethods.connector.nats_spark.NatsSparkUtilities.*;
 
 import scala.Tuple2;
 
@@ -45,7 +45,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected String natsURL;
 	protected Long connectionTimeout;
 	protected transient ScheduledFuture<?> closingFuture;
-	protected long internalId = NatsSparkUtilities.generateUniqueID(this);
+	protected long internalId = generateUniqueID(this);
 	protected boolean storedAsKeyValue = false;	
 	
 	protected static final Map<String, Tuple2<Pattern, String>> subjectPatternMap = new HashMap<String, Tuple2<Pattern, String>>();
@@ -99,13 +99,9 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		public void call(Object obj) throws Exception {
 			logger.debug("Publish to NATS: " + obj);
 			
-			publishToNats(encodePayload(obj));
+			publishToNats(encodeData(obj));
 		}
 	};
-
-	protected byte[] encodePayload(Object obj) {
-		return NatsSparkUtilities.encodeData(obj);
-	}
 
 	/**
 	 * A VoidFunction&lt;String&gt; method that will publish the provided String into NATS through the defined subjects.
@@ -116,10 +112,9 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		@Override
 		public void call(Tuple2<?,?> tuple) throws Exception {
 			logger.trace("Publish to NATS: " + tuple);
-			publishToNats(tuple._1.toString(), encodePayload(tuple._2));
+			publishToNats(tuple._1.toString(), encodeData(tuple._2));
 		}
 	};
-
 
 	// TODO Check JavaDoc
 	/**
@@ -132,9 +127,9 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 
 		if (storedAsKeyValue) {
 			final Tuple2<?, ?> tuple = (Tuple2<?, ?>) obj;
-			publishToNats(tuple._1.toString(), encodePayload(tuple._2));
+			publishToNats(tuple._1.toString(), encodeData(tuple._2));
 		} else {
-			publishToNats(encodePayload(obj));
+			publishToNats(encodeData(obj));
 		}
 	}
 

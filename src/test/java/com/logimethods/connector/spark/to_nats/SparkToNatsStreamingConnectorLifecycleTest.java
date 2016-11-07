@@ -66,7 +66,8 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		final String subject2 = "subject2";
 
 		final int partitionsNb = 3;
-		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(partitionsNb);		
+		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(partitionsNb);
+		final JavaDStream<Integer> integers = lines.map(str -> Integer.parseInt(str));
 		
 		final Properties properties = new Properties();
 		properties.setProperty(PROP_URL, STAN_URL);
@@ -75,7 +76,7 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 			.withProperties(properties)
 			.withConnectionTimeout(Duration.ofSeconds(2))
 			.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
-			.publishToNats(lines);
+			.publishToNats(integers);
 		
 		ssc.start();
 

@@ -9,9 +9,11 @@ package com.logimethods.connector.spark.to_nats.api;
 
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
+import static com.logimethods.connector.nats_spark.NatsSparkUtilities.encodeData;
 import static io.nats.client.Constants.PROP_URL;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Properties;
 
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.logimethods.connector.nats.spark.test.StandardNatsSubscriber;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
+import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnectorTest;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
@@ -94,7 +97,10 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 
 		JavaPairDStream<String, String> keyValues = UnitTestUtilities.getJavaPairDStream(tempDir, ssc, subject1);		
 
-		SparkToNatsConnectorPool.newPool().storedAsKeyValue().withNatsURL(NATS_SERVER_URL).publishToNats(keyValues);
+		SparkToNatsConnectorPool.newPool()
+								.storedAsKeyValue()
+								.withNatsURL(NATS_SERVER_URL)
+								.publishToNats(keyValues, (java.util.function.Function<String,  byte[]> & Serializable) str -> str.getBytes());
 		
 		ssc.start();
 

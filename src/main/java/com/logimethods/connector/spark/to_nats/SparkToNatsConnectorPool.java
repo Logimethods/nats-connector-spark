@@ -8,14 +8,17 @@
 package com.logimethods.connector.spark.to_nats;
 
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
+import static com.logimethods.connector.nats_spark.NatsSparkUtilities.encodeData;
 import static io.nats.client.Constants.PROP_URL;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Function;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -130,6 +133,13 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @param rdd
 	 */
 	public <V extends Object> void publishToNats(final JavaDStream<V> stream) {
+		publishToNats(stream, (Function<V, byte[]> & Serializable) obj -> encodeData(obj));
+	}
+	
+	/**
+	 * @param rdd
+	 */
+	public <V extends Object> void publishToNats(final JavaDStream<V> stream, final Function<V, byte[]> dataEncoder) {
 		logger.trace("publishToNats(JavaDStream<String> stream)");
 		stream.foreachRDD((VoidFunction<JavaRDD<V>>) rdd -> {
 			logger.trace("stream.foreachRDD");
@@ -137,9 +147,9 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 				logger.trace("rdd.foreachPartition");
 				final SparkToNatsConnector<?> connector = getConnector();
 				while(objects.hasNext()) {
-					final Object obj = objects.next();
+					final V obj = objects.next();
 					logger.trace("Will publish {}", obj);
-					connector.publishToNats(connector.encodePayload(obj));
+					connector.publishToNats(dataEncoder.apply(obj));
 				}
 				returnConnector(connector);  // return to the pool for future reuse
 			});
@@ -150,6 +160,13 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	 * @param rdd
 	 */
 	public <K extends Object, V extends Object> void publishToNats(final JavaPairDStream<K, V> stream) {
+		publishToNats(stream, (Function<V, byte[]> & Serializable) obj -> encodeData(obj));
+	}
+	
+	/**
+	 * @param rdd
+	 */
+	public <K extends Object, V extends Object> void publishToNats(final JavaPairDStream<K, V> stream, final Function<V, byte[]> dataEncoder) {
 		logger.trace("publishToNats(JavaPairDStream<String, String> stream)");
 		setStoredAsKeyValue(true);
 		
@@ -161,7 +178,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 				while(tuples.hasNext()) {
 					final Tuple2<K,V> tuple = tuples.next();
 					logger.trace("Will publish {}", tuple);
-					connector.publishToNats(tuple._1.toString(), connector.encodePayload(tuple._2));
+					connector.publishToNats(tuple._1.toString(), dataEncoder.apply(tuple._2));
 				}
 				returnConnector(connector);  // return to the pool for future reuse
 			});
