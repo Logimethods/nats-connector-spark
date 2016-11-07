@@ -17,7 +17,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 
 import com.logimethods.connector.nats_spark.IncompleteException;
-import com.logimethods.connector.nats_spark.Utilities;
+import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
 import static com.logimethods.connector.nats_spark.Constants.*;
 
@@ -36,7 +36,7 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	public AbstractSparkToNatsConnector(String natsURL, Properties properties, Long connectionTimeout, String... subjects) {
 		super();
 		setProperties(properties);
-		setSubjects(Utilities.transformIntoAList(subjects));
+		setSubjects(NatsSparkUtilities.transformIntoAList(subjects));
 		setNatsURL(natsURL);
 		setConnectionTimeout(connectionTimeout);
 	}
@@ -101,7 +101,7 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	 */
 	@SuppressWarnings("unchecked")
 	public T withSubjects(String... subjects) {
-		setSubjects(Utilities.transformIntoAList(subjects));
+		setSubjects(NatsSparkUtilities.transformIntoAList(subjects));
 		return (T)this;
 	}
 
@@ -142,7 +142,7 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 					throw new IncompleteException("" + this + " needs at least one NATS Subject.");
 				}				
 			} else {
-				setSubjects(Utilities.extractCollection(subjectsStr));
+				setSubjects(NatsSparkUtilities.extractCollection(subjectsStr));
 				getLogger().debug("Subject provided by the Properties: '{}'", getSubjects());				
 			}
 		}

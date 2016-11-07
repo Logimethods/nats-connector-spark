@@ -25,7 +25,7 @@ import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.logimethods.connector.nats_spark.Utilities;
+import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
 import scala.Tuple2;
 
@@ -190,7 +190,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 		this.properties = properties;
 		if (properties != null) {
 			if (properties.containsKey(PROP_SUBJECTS)) {
-				setSubjects(Utilities.extractCollection(properties.getProperty(PROP_SUBJECTS)));
+				setSubjects(NatsSparkUtilities.extractCollection(properties.getProperty(PROP_SUBJECTS)));
 			}
 			if (properties.containsKey(PROP_URL)) {
 				setNatsURL(properties.getProperty(PROP_URL));

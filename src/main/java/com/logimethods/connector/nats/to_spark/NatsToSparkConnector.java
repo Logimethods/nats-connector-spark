@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats_spark.IncompleteException;
-import com.logimethods.connector.nats_spark.Utilities;
+import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
 import io.nats.client.Message;
 import scala.Tuple2;
@@ -62,7 +62,7 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	protected NatsToSparkConnector(Class<V> type, StorageLevel storageLevel, String... subjects) {
 		super(storageLevel);
 		this.type = type;
-		this.subjects = Utilities.transformIntoAList(subjects);
+		this.subjects = NatsSparkUtilities.transformIntoAList(subjects);
 	}
 	
 	/**
@@ -85,7 +85,7 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 
 	@SuppressWarnings("unchecked")
 	public T withSubjects(String... subjects) {
-		this.subjects = Utilities.transformIntoAList(subjects);
+		this.subjects = NatsSparkUtilities.transformIntoAList(subjects);
 		return (T)this;
 	}
 
@@ -156,7 +156,7 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	protected abstract void receive() throws Exception;
 	
 	protected void setQueue() {
-		queue = "NatsToSparkConnector_" + Utilities.generateUniqueID(this) ;
+		queue = "NatsToSparkConnector_" + NatsSparkUtilities.generateUniqueID(this) ;
 	}
 
 	protected Properties getProperties(){
@@ -171,7 +171,7 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 			if (subjectsStr == null) {
 				throw new IncompleteException("NatsToSparkConnector needs at least one NATS Subject.");
 			}
-			subjects = Utilities.extractCollection(subjectsStr);
+			subjects = NatsSparkUtilities.extractCollection(subjectsStr);
 			logger.debug("Subject(s) provided by the Properties: '{}'", subjects);
 		}
 		return subjects;
@@ -186,7 +186,7 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	}    		
 
 	protected static String getUniqueClientName() {
-		return CLIENT_ID + Utilities.generateUniqueID();
+		return CLIENT_ID + NatsSparkUtilities.generateUniqueID();
 	}    
 		
 	@SuppressWarnings("unchecked")
@@ -219,45 +219,8 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 		if (dataExtractor != null) {
 			return dataExtractor.apply(bytes);
 		} else {
-			return extractData(type, bytes);
+			return NatsSparkUtilities.extractData(type, bytes);
 		}
-	}
-	
-	// @see https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html
-	@SuppressWarnings("unchecked")
-	public static <X> X extractData(Class<X> type, byte[] bytes) throws UnsupportedOperationException {
-		if (type == String.class) {
-			return (X) new String(bytes);
-		}
-		if ((type == Double.class) || (type == double.class)){
-			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (X) new Double(buffer.getDouble());
-		}
-		if ((type == Float.class) || (type == float.class)){
-			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (X) new Float(buffer.getFloat());
-		}
-		if ((type == Integer.class) || (type == int.class)){
-			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (X) new Integer(buffer.getInt());
-		}
-		if ((type == Long.class) || (type == long.class)){
-			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (X) new Long(buffer.getLong());
-		}
-		if ((type == Byte.class) || (type == byte.class)){
-			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (X) new Byte(buffer.get());
-		}
-		if ((type == Character.class) || (type == char.class)){
-			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (X) new Character(buffer.getChar());
-		}
-		if ((type == Short.class) || (type == short.class)){
-			final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-			return (X) new Short(buffer.getShort());
-		}
-		throw new UnsupportedOperationException("It is not possible to extract Data of type " + type);
 	}
 }
 

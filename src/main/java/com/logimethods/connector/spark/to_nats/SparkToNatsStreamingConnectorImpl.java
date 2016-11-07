@@ -18,7 +18,7 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.logimethods.connector.nats_spark.Utilities;
+import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
@@ -74,7 +74,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 */
 	protected String getClientID() {
 		if (clientID == null ) {
-			clientID = CLIENT_ID_ROOT + Utilities.generateUniqueID(this);
+			clientID = CLIENT_ID_ROOT + NatsSparkUtilities.generateUniqueID(this);
 		}
 		return clientID;
 	}

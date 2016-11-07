@@ -30,7 +30,7 @@ import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.nats.to_spark.NatsStreamingToKeyValueSparkConnectorImpl;
 import com.logimethods.connector.nats.to_spark.NatsStreamingToSparkConnectorImpl;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
-import com.logimethods.connector.nats_spark.Utilities;
+import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.api.SparkToNatsStreamingConnectorPoolTest;
 
@@ -141,6 +141,6 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
     }
       
     static String getUniqueClientName() {
-    	return CLIENT_ID + Utilities.generateUniqueID();
+    	return CLIENT_ID + NatsSparkUtilities.generateUniqueID();
     }    
 }

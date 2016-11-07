@@ -23,7 +23,7 @@ import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.logimethods.connector.nats_spark.Utilities;
+import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
 import scala.Tuple2;
 
@@ -45,7 +45,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected String natsURL;
 	protected Long connectionTimeout;
 	protected transient ScheduledFuture<?> closingFuture;
-	protected long internalId = Utilities.generateUniqueID(this);
+	protected long internalId = NatsSparkUtilities.generateUniqueID(this);
 	protected boolean storedAsKeyValue = false;
 	
 	protected static final Map<String, Tuple2<Pattern, String>> subjectPatternMap = new HashMap<String, Tuple2<Pattern, String>>();
@@ -281,33 +281,4 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected abstract void closeConnection();
 	
 	protected abstract void removeFromPool();
-	
-	// @see https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html
-	public static byte[] encodeData(Object obj) {
-		if (obj instanceof String) {
-			return ((String) obj).getBytes();
-		}
-		if (obj instanceof Double) {
-			return ByteBuffer.allocate(Double.BYTES).putDouble((Double) obj).array();
-		}
-		if (obj instanceof Float) {
-			return ByteBuffer.allocate(Float.BYTES).putFloat((Float) obj).array();
-		}
-		if (obj instanceof Integer) {
-			return ByteBuffer.allocate(Integer.BYTES).putInt((Integer) obj).array();
-		}
-		if (obj instanceof Long) {
-			return ByteBuffer.allocate(Long.BYTES).putLong((Long) obj).array();
-		}
-		if (obj instanceof Byte) {
-			return ByteBuffer.allocate(Byte.BYTES).put((Byte) obj).array();
-		}
-		if (obj instanceof Character) {
-			return ByteBuffer.allocate(Character.BYTES).putChar((Character) obj).array();
-		}
-		if (obj instanceof Short) {
-			return ByteBuffer.allocate(Short.BYTES).putShort((Short) obj).array();
-		}
-		throw new UnsupportedOperationException("It is not possible to encode Data of type " + obj.getClass());
-	}
 }

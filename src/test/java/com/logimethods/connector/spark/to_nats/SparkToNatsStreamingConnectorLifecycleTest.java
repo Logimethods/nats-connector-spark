@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.logimethods.connector.nats.spark.test.NatsStreamingSubscriber;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
-import com.logimethods.connector.nats_spark.Utilities;
+import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
 //@Ignore
 @SuppressWarnings("serial")
@@ -115,6 +115,6 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 	}
     
     static String getUniqueClientName() {
-    	return "clientName_" + Utilities.generateUniqueID();
+    	return "clientName_" + NatsSparkUtilities.generateUniqueID();
     }
 }
