@@ -94,10 +94,10 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	// TODO Check JavaDoc
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * Is used by the Scala's SparkToNatsConnectorTrait
 	 * @param obj the object from which the toString() will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	@Deprecated
 	protected void publish(Object obj) throws Exception {
 		logger.debug("Publish '{}' to NATS", obj);
 
