@@ -70,7 +70,7 @@ public class NatsSparkUtilities {
 	
 	// @see https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html
 	@SuppressWarnings("unchecked")
-	public static <X> X extractData(Class<X> type, byte[] bytes) throws UnsupportedOperationException {
+	public static <X> X decodeData(Class<X> type, byte[] bytes) throws UnsupportedOperationException {
 		if (type == String.class) {
 			return (X) new String(bytes);
 		}

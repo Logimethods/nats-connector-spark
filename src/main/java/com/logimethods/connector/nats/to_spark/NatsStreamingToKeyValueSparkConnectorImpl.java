@@ -84,7 +84,7 @@ public class NatsStreamingToKeyValueSparkConnectorImpl<V>
 		return new MessageHandler() {
 			@Override
 			public void onMessage(Message m) {
-				final Tuple2<String, V> s = extractTuple(m);
+				final Tuple2<String, V> s = decodeTuple(m);
 
 				if (logger.isTraceEnabled()) {
 					logger.trace("Received by {} on Subject '{}': {}.", NatsStreamingToKeyValueSparkConnectorImpl.this,

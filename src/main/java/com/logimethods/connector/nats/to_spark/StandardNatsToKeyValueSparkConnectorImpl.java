@@ -10,7 +10,6 @@ package com.logimethods.connector.nats.to_spark;
 import java.util.Collection;
 import java.util.Properties;
 
-import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.StreamingContext;
 import org.apache.spark.streaming.api.java.JavaPairDStream;
@@ -91,7 +90,7 @@ public class StandardNatsToKeyValueSparkConnectorImpl<V>
 		return new MessageHandler() {
 			@Override
 			public void onMessage(Message m) {
-				final Tuple2<String, V> s = extractTuple(m);
+				final Tuple2<String, V> s = decodeTuple(m);
 				
 				if (logger.isTraceEnabled()) {
 					logger.trace("Received by {} on Subject '{}': {}.", StandardNatsToKeyValueSparkConnectorImpl.this, m.getSubject(), s);

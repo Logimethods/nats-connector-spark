@@ -50,7 +50,7 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	protected Properties		 properties;
 	protected String 			 queue;
 	protected String 			 natsUrl;
-	protected Function<byte[], V> dataExtractor = null;
+	protected Function<byte[], V> dataDecoder = null;
 
 	protected final static String CLIENT_ID = "NatsToSparkConnector_";
 
@@ -108,8 +108,8 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	 * @param dataExtractor the Data Extractor to set
 	 */
 	@SuppressWarnings("unchecked")
-	public T withDataExtractor(Function<byte[], V> dataExtractor) {
-		this.dataExtractor = dataExtractor;
+	public T withDataDecoder(Function<byte[], V> dataDecoder) {
+		this.dataDecoder = dataDecoder;
 		return (T)this;
 	}
 
@@ -190,36 +190,36 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	}    
 		
 	@SuppressWarnings("unchecked")
-	protected R extractData(Message m) {
-		final R s = (R) extractData(m.getData());
+	protected R decodeData(Message m) {
+		final R s = (R) decodeData(m.getData());
 		return s;
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected R extractData(io.nats.stan.Message m) {
-		final R s = (R) extractData(m.getData());
+	protected R decodeData(io.nats.stan.Message m) {
+		final R s = (R) decodeData(m.getData());
 		return s;
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected R extractTuple(Message m) {
+	protected R decodeTuple(Message m) {
 		final String subject = m.getSubject();		
-		V s = extractData(m.getData());
+		V s = decodeData(m.getData());
 		return (R) new Tuple2<String,V>(subject, s);
 	}
 		
 	@SuppressWarnings("unchecked")
-	protected R extractTuple(io.nats.stan.Message m) {
+	protected R decodeTuple(io.nats.stan.Message m) {
 		final String subject = m.getSubject();		
-		V s = extractData(m.getData());
+		V s = decodeData(m.getData());
 		return (R) new Tuple2<String,V>(subject, s);
 	}
 	
-	protected V extractData(byte[] bytes) {
-		if (dataExtractor != null) {
-			return dataExtractor.apply(bytes);
+	protected V decodeData(byte[] bytes) {
+		if (dataDecoder != null) {
+			return dataDecoder.apply(bytes);
 		} else {
-			return NatsSparkUtilities.extractData(type, bytes);
+			return NatsSparkUtilities.decodeData(type, bytes);
 		}
 	}
 }

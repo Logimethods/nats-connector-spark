@@ -32,7 +32,7 @@ public class NatsToSparkConnectorTest implements Serializable {
 		
 		String str = "A small piece of Text!";
 		byte[] bytes = NatsSparkUtilities.encodeData(str);
-		assertEquals(str, connector.extractData(bytes));
+		assertEquals(str, connector.decodeData(bytes));
 	}
 
 	@Test
@@ -43,14 +43,14 @@ public class NatsToSparkConnectorTest implements Serializable {
 		
 		Float f = 1234324234.34f;
 		byte[] bytes = NatsSparkUtilities.encodeData(f);
-		assertEquals(f, connector.extractData(bytes));
+		assertEquals(f, connector.decodeData(bytes));
 	}
 
 	@Test
 	public void testPublicExtractDataByteArray_Float() {
 		Float f = 1234324234.34f;
 		byte[] bytes = NatsSparkUtilities.encodeData(f);
-		assertEquals(f, NatsSparkUtilities.extractData(float.class, bytes));
+		assertEquals(f, NatsSparkUtilities.decodeData(float.class, bytes));
 	}
 
 	@Test
@@ -62,7 +62,7 @@ public class NatsToSparkConnectorTest implements Serializable {
 					.receiveFromNats(NatsToSparkConnectorTest.class, StorageLevel.MEMORY_ONLY());
 		
 		byte[] bytes = "xxxx".getBytes();
-		connector.extractData(bytes);
+		connector.decodeData(bytes);
 	}
 
 	@Test
@@ -97,7 +97,7 @@ public class NatsToSparkConnectorTest implements Serializable {
 		StandardNatsToSparkConnectorImpl<Dummy> connector = 
 				NatsToSparkConnector
 					.receiveFromNats(Dummy.class, StorageLevel.MEMORY_ONLY())
-					.withDataExtractor(dataExtractor);
+					.withDataDecoder(dataExtractor);
 
 		Dummy dummy = new Dummy("Name");
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -107,7 +107,7 @@ public class NatsToSparkConnectorTest implements Serializable {
 		byte[] bytes = bos.toByteArray();
 		bos.close();
 		
-		assertEquals(dummy, connector.extractData(bytes));
+		assertEquals(dummy, connector.decodeData(bytes));
 	}
 }
 

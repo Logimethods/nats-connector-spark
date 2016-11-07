@@ -66,7 +66,7 @@ public class NatsStreamingToSparkConnectorImpl<R> extends OmnipotentNatsStreamin
 		return new MessageHandler() {
 			@Override
 			public void onMessage(Message m) {
-				R s = extractData(m);
+				R s = decodeData(m);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Received by {} on Subject '{}': {}.", NatsStreamingToSparkConnectorImpl.this,
 							m.getSubject(), s);
