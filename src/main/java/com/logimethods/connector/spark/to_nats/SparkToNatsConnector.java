@@ -7,7 +7,6 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import org.apache.spark.api.java.function.VoidFunction;
@@ -46,7 +46,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	protected Long connectionTimeout;
 	protected transient ScheduledFuture<?> closingFuture;
 	protected long internalId = NatsSparkUtilities.generateUniqueID(this);
-	protected boolean storedAsKeyValue = false;
+	protected boolean storedAsKeyValue = false;	
 	
 	protected static final Map<String, Tuple2<Pattern, String>> subjectPatternMap = new HashMap<String, Tuple2<Pattern, String>>();
 	
@@ -81,6 +81,13 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	public static SparkToStandardNatsConnectorImpl newConnection() {
 		return new SparkToStandardNatsConnectorImpl(null, null, null, null);
 	}
+	
+	/**
+	 * @param properties the properties to set
+	 */
+	protected void setProperties(Properties properties) {
+		this.properties = properties;
+	}
 
 	/**
 	 * A VoidFunction&lt;String&gt; method that will publish the provided String into NATS through the defined subjects.
@@ -89,11 +96,16 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		private static final long serialVersionUID = 3445253313354486580L;
 
 		@Override
-		public void call(Object str) throws Exception {
-			logger.trace("Publish to NATS: " + str);
-			publishToStr(str.toString());
+		public void call(Object obj) throws Exception {
+			logger.debug("Publish to NATS: " + obj);
+			
+			publishToNats(encodePayload(obj));
 		}
 	};
+
+	protected byte[] encodePayload(Object obj) {
+		return NatsSparkUtilities.encodeData(obj);
+	}
 
 	/**
 	 * A VoidFunction&lt;String&gt; method that will publish the provided String into NATS through the defined subjects.
@@ -104,16 +116,9 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		@Override
 		public void call(Tuple2<?,?> tuple) throws Exception {
 			logger.trace("Publish to NATS: " + tuple);
-			publishToStr(tuple._1.toString(), tuple._2.toString());
+			publishToNats(tuple._1.toString(), encodePayload(tuple._2));
 		}
 	};
-	
-	/**
-	 * @param properties the properties to set
-	 */
-	protected void setProperties(Properties properties) {
-		this.properties = properties;
-	}
 
 
 	// TODO Check JavaDoc
@@ -123,11 +128,13 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	protected void publish(Object obj) throws Exception {
+		logger.debug("Publish '{}' to NATS", obj);
+
 		if (storedAsKeyValue) {
 			final Tuple2<?, ?> tuple = (Tuple2<?, ?>) obj;
-			publishToStr(tuple._1.toString(), tuple._2.toString());
+			publishToNats(tuple._1.toString(), encodePayload(tuple._2));
 		} else {
-			publishToStr(obj.toString());
+			publishToNats(encodePayload(obj));
 		}
 	}
 
@@ -137,7 +144,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @param obj the object from which the toString() will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	protected abstract void publishToStr(String str) throws Exception;
+	protected abstract void publishToNats(byte[] str) throws Exception;
 
 	// TODO Check JavaDoc
 	/**
@@ -145,7 +152,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @param obj the object from which the toString() will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	protected abstract void publishToStr(String subject, String message) throws Exception;
+	protected abstract void publishToNats(String subject, byte[] payload) throws Exception;
 
 	protected static String combineSubjects(String preSubject, String postSubject) {
 		if (preSubject.contains(SUBJECT_PATTERN_SEPARATOR)) {

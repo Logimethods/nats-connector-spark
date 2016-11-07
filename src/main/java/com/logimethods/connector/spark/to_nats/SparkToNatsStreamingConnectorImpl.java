@@ -85,17 +85,14 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	@Override
-	protected void publishToStr(String str) throws Exception {
+	protected void publishToNats(byte[] payload) throws Exception {
 		resetClosingTimeout();
-		
-		logger.debug("Received '{}' from Spark", str);
-		
-		final byte[] payload = str.getBytes();
+				
 		final Connection localConnection = getConnection();
 		for (String subject : getDefinedSubjects()) {
 			localConnection.publish(subject, payload);
 	
-			logger.trace("Publish '{}' from Spark to NATS STREAMING ({})", str, subject);
+			logger.trace("Publish '{}' from Spark to NATS STREAMING ({})", payload, subject);
 		}
 	}
 
@@ -106,18 +103,17 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	@Override
-	protected void publishToStr(String postSubject, String message) throws Exception {
+	protected void publishToNats(String postSubject, byte[] payload) throws Exception {
 		resetClosingTimeout();
 		
-		logger.debug("Received '{}' from Spark with '{}' Subject", message, postSubject);
+		logger.debug("Received '{}' from Spark with '{}' Subject", payload, postSubject);
 		
-		final byte[] payload = message.getBytes();
 		final Connection localConnection = getConnection();
 		for (String preSubject : getDefinedSubjects()) {
 			final String subject = combineSubjects(preSubject, postSubject);
 			localConnection.publish(subject, payload);
 	
-			logger.trace("Publish '{}' from Spark to NATS STREAMING ({})", message, subject);
+			logger.trace("Publish '{}' from Spark to NATS STREAMING ({})", payload, subject);
 		}
 	}
 

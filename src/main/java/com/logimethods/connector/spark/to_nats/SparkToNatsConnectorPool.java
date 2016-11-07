@@ -129,17 +129,17 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	/**
 	 * @param rdd
 	 */
-	public void publishToNats(final JavaDStream<String> stream) {
+	public void publishToNats(final JavaDStream stream) {
 		logger.trace("publishToNats(JavaDStream<String> stream)");
-		stream.foreachRDD((VoidFunction<JavaRDD<String>>) rdd -> {
+		stream.foreachRDD((VoidFunction<JavaRDD<? extends Object>>) rdd -> {
 			logger.trace("stream.foreachRDD");
-			rdd.foreachPartitionAsync(strings -> {
+			rdd.foreachPartitionAsync(objects -> {
 				logger.trace("rdd.foreachPartition");
 				final SparkToNatsConnector<?> connector = getConnector();
-				while(strings.hasNext()) {
-					final String str = strings.next();
-					logger.trace("Will publish {}", str);
-					connector.publishToStr(str);
+				while(objects.hasNext()) {
+					final Object obj = objects.next();
+					logger.trace("Will publish {}", obj);
+					connector.publishToNats(connector.encodePayload(obj));
 				}
 				returnConnector(connector);  // return to the pool for future reuse
 			});
@@ -149,19 +149,19 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	/**
 	 * @param rdd
 	 */
-	public void publishToNats(final JavaPairDStream<String, String> stream) {
+	public void publishToNats(final JavaPairDStream stream) {
 		logger.trace("publishToNats(JavaPairDStream<String, String> stream)");
 		setStoredAsKeyValue(true);
 		
-		stream.foreachRDD((VoidFunction<JavaPairRDD<String, String>>) rdd -> {
+		stream.foreachRDD((VoidFunction<JavaPairRDD<Object, Object>>) rdd -> {
 			logger.trace("stream.foreachRDD");
-			rdd.foreachPartitionAsync((VoidFunction<Iterator<Tuple2<String,String>>>) tuples -> {
+			rdd.foreachPartitionAsync((VoidFunction<Iterator<Tuple2<Object,Object>>>) tuples -> {
 				logger.trace("rdd.foreachPartition");
 				final SparkToNatsConnector<?> connector = getConnector();
 				while(tuples.hasNext()) {
-					final Tuple2<String,String> tuple = tuples.next();
+					final Tuple2<Object,Object> tuple = tuples.next();
 					logger.trace("Will publish {}", tuple);
-					connector.publishToStr(tuple._1, tuple._2);
+					connector.publishToNats(tuple._1.toString(), connector.encodePayload(tuple._2));
 				}
 				returnConnector(connector);  // return to the pool for future reuse
 			});

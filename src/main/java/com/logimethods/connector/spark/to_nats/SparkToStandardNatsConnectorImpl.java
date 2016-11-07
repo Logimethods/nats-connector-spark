@@ -96,14 +96,11 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	@Override
-	protected void publishToStr(String str) throws Exception {
+	protected void publishToNats(byte[] payload) throws Exception {
 		resetClosingTimeout();
-		
-		logger.debug("publishToStr '{}' by {} through {}", str, super.toString(), connection);
 		
 		final Message natsMessage = new Message();
 	
-		final byte[] payload = str.getBytes();
 		natsMessage.setData(payload, 0, payload.length);
 	
 		final Connection localConnection = getConnection();
@@ -111,7 +108,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 			natsMessage.setSubject(subject);
 			localConnection.publish(natsMessage);
 	
-			logger.trace("Send '{}' from Spark to NATS ({})", str, subject);
+			logger.trace("Send '{}' from Spark to NATS ({})", payload, subject);
 		}
 	}
 
@@ -122,14 +119,10 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	@Override
-	protected void publishToStr(String postSubject, String message) throws Exception {
+	protected void publishToNats(String postSubject, byte[] payload) throws Exception {
 		resetClosingTimeout();
-		
-		logger.debug("publishKeyValueToStr '{}' with '{}' Subject by {} through {}", message, postSubject, super.toString());
 
-		final Message natsMessage = new Message();
-		
-		final byte[] payload = message.getBytes();
+		final Message natsMessage = new Message();		
 		natsMessage.setData(payload, 0, payload.length);
 	
 		final Connection localConnection = getConnection();
@@ -138,7 +131,7 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 			natsMessage.setSubject(subject);
 			localConnection.publish(natsMessage);
 	
-			logger.trace("Send '{}' from Spark to NATS ({})", message, subject);
+			logger.trace("Send '{}' from Spark to NATS ({})", payload, subject);
 		}
 	}
 
