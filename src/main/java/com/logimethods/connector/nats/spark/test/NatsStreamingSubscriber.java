@@ -7,25 +7,34 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.spark.test;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
+import com.logimethods.connector.nats_spark.NatsSparkUtilities;
+
 import io.nats.stan.ConnectionFactory;
 import io.nats.stan.Message;
 import io.nats.stan.MessageHandler;
 import io.nats.stan.Subscription;
 
-public class NatsStreamingSubscriber extends NatsSubscriber {
+public class NatsStreamingSubscriber<V> extends NatsSubscriber {
 
 	private String clusterName;
 	private String clientName;
+	private Class<V> type;
+	private Collection<V> data;
 
 	/**
 	 * @param id
 	 * @param subject
 	 * @param count
 	 */
-	public NatsStreamingSubscriber(String natsUrl, String id, String subject, String clusterName, String clientName, int count) {
-		super(natsUrl, id, subject, count);
+	public NatsStreamingSubscriber(String natsUrl, String id, String subject, String clusterName, String clientName, Collection<V> data, Class<V> type) {
+		super(natsUrl, id, subject, data.size());
+		this.type = type;
 		this.clusterName = clusterName;
 		this.clientName = clientName;
+		this.data = new LinkedList<V>(data);
 	}
 
 	@Override
@@ -46,8 +55,11 @@ public class NatsStreamingSubscriber extends NatsSubscriber {
 			Subscription sub = c.subscribe(subject, new MessageHandler() {
 			    public void onMessage(Message m) {
 			        //System.out.printf("Received a message: %s\n", m.getData());
-			        logger.info("Received a message ({}) on subject: {}", new String(m.getData()), subject);
-			        
+			    	final V obj = NatsSparkUtilities.decodeData(type, m.getData());
+			    	logger.info("Received a message ({}) on subject: {}", obj, subject);
+			        if (! data.remove(obj)) {
+			        	throw new RuntimeException(data.toString() + " does not contain " + obj);
+			        }
 					if (tallyMessage() == testCount)
 					{
 						logger.info("NATS Subscriber ({}) Received {} messages.  Completed.", clientName, testCount);

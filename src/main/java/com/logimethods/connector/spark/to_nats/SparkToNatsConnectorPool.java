@@ -129,9 +129,9 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	/**
 	 * @param rdd
 	 */
-	public void publishToNats(final JavaDStream stream) {
+	public <V extends Object> void publishToNats(final JavaDStream<V> stream) {
 		logger.trace("publishToNats(JavaDStream<String> stream)");
-		stream.foreachRDD((VoidFunction<JavaRDD<? extends Object>>) rdd -> {
+		stream.foreachRDD((VoidFunction<JavaRDD<V>>) rdd -> {
 			logger.trace("stream.foreachRDD");
 			rdd.foreachPartitionAsync(objects -> {
 				logger.trace("rdd.foreachPartition");
@@ -149,17 +149,17 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	/**
 	 * @param rdd
 	 */
-	public void publishToNats(final JavaPairDStream stream) {
+	public <K extends Object, V extends Object> void publishToNats(final JavaPairDStream<K, V> stream) {
 		logger.trace("publishToNats(JavaPairDStream<String, String> stream)");
 		setStoredAsKeyValue(true);
 		
-		stream.foreachRDD((VoidFunction<JavaPairRDD<Object, Object>>) rdd -> {
+		stream.foreachRDD((VoidFunction<JavaPairRDD<K, V>>) rdd -> {
 			logger.trace("stream.foreachRDD");
-			rdd.foreachPartitionAsync((VoidFunction<Iterator<Tuple2<Object,Object>>>) tuples -> {
+			rdd.foreachPartitionAsync((VoidFunction<Iterator<Tuple2<K,V>>>) tuples -> {
 				logger.trace("rdd.foreachPartition");
 				final SparkToNatsConnector<?> connector = getConnector();
 				while(tuples.hasNext()) {
-					final Tuple2<Object,Object> tuple = tuples.next();
+					final Tuple2<K,V> tuple = tuples.next();
 					logger.trace("Will publish {}", tuple);
 					connector.publishToNats(tuple._1.toString(), connector.encodePayload(tuple._2));
 				}

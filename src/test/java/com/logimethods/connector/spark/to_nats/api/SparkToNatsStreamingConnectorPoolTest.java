@@ -152,15 +152,16 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 //    	logger.debug("ConnectionFactory ready: " + stanc);
     	final List<Integer> data = UnitTestUtilities.getData();
 
-    	NatsStreamingSubscriber ns1 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
+    	NatsStreamingSubscriber<Integer> ns1 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
     	logger.debug("ns1 NatsStreamingSubscriber ready");
 
-    	NatsStreamingSubscriber ns2 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB2", STAN_URL);
+    	NatsStreamingSubscriber<Integer> ns2 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB2", STAN_URL);
     	logger.debug("ns2 NatsStreamingSubscriber ready");
 
     	JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+    	JavaDStream<Integer> integers = lines.map(str -> Integer.parseInt(str));
 
-    	connectorPool.publishToNats(lines);
+    	connectorPool.publishToNats(integers);
 
     	ssc.start();
 

@@ -267,10 +267,10 @@ public class UnitTestUtilities {
 	 * @param data
 	 * @return
 	 */
-	public static NatsStreamingSubscriber getNatsStreamingSubscriber(final List<Integer> data, String subject, String clusterName, String clientName, String url) {
+	public static NatsStreamingSubscriber<Integer> getNatsStreamingSubscriber(final List<Integer> data, String subject, String clusterName, String clientName, String url) {
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 
-		NatsStreamingSubscriber ns = new NatsStreamingSubscriber(url, subject + "_id", subject, clusterName, clientName, data.size());
+		NatsStreamingSubscriber<Integer> ns = new NatsStreamingSubscriber<Integer>(url, subject + "_id", subject, clusterName, clientName, data, Integer.class);
 
 		// start the subscribers apps
 		executor.execute(ns);
