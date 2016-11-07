@@ -7,6 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,39 +91,13 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		this.properties = properties;
 	}
 
-	/**
-	 * A VoidFunction&lt;String&gt; method that will publish the provided String into NATS through the defined subjects.
-	 */
-	protected VoidFunction<?> publishToNats = new VoidFunction<Object>() {
-		private static final long serialVersionUID = 3445253313354486580L;
-
-		@Override
-		public void call(Object obj) throws Exception {
-			logger.debug("Publish to NATS: " + obj);
-			
-			publishToNats(encodeData(obj));
-		}
-	};
-
-	/**
-	 * A VoidFunction&lt;String&gt; method that will publish the provided String into NATS through the defined subjects.
-	 */
-	protected VoidFunction<Tuple2<?,?>> publishKeyValueToNats = new VoidFunction<Tuple2<?,?>>() {
-		private static final long serialVersionUID = -3056486640490904222L;
-
-		@Override
-		public void call(Tuple2<?,?> tuple) throws Exception {
-			logger.trace("Publish to NATS: " + tuple);
-			publishToNats(tuple._1.toString(), encodeData(tuple._2));
-		}
-	};
-
 	// TODO Check JavaDoc
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.
 	 * @param obj the object from which the toString() will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
+	@Deprecated
 	protected void publish(Object obj) throws Exception {
 		logger.debug("Publish '{}' to NATS", obj);
 
@@ -131,6 +107,52 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		} else {
 			publishToNats(encodeData(obj));
 		}
+	}
+
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param <V>
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <V> void publishToNats(JavaRDD<V> rdd) throws Exception {
+		((JavaRDD) rdd).foreach((VoidFunction<V> & Serializable) obj -> publishToNats(encodeData(obj)));
+	}
+
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param <V>
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <V> void publishToNats(JavaRDD<V> rdd, final Function<V, byte[]> dataEncoder) throws Exception {
+		((JavaRDD) rdd).foreach((VoidFunction<V> & Serializable) obj -> publishToNats(dataEncoder.apply(obj)));
+	}
+
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param stream 
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <K,V> void publishAsKeyValueToNats(JavaRDD<Tuple2<K,V>> rdd) throws Exception {
+		setStoredAsKeyValue(true);
+		((JavaRDD) rdd).foreachAsync((VoidFunction<Tuple2<K, V>> & Serializable) tuple -> publishToNats(tuple._1.toString(), encodeData(tuple._2)));
+	}
+
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * @param stream 
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <K,V> void publishAsKeyValueToNats(JavaRDD<Tuple2<K,V>> rdd, final Function<V, byte[]> dataEncoder) throws Exception {
+		setStoredAsKeyValue(true);
+		((JavaRDD) rdd).foreachAsync((VoidFunction<Tuple2<K, V>> & Serializable) tuple -> publishToNats(tuple._1.toString(), dataEncoder.apply(tuple._2)));
 	}
 
 	// TODO Check JavaDoc

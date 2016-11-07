@@ -15,15 +15,12 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
 import io.nats.client.Message;
-import scala.Tuple2;
 
 public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStandardNatsConnectorImpl> {
 
@@ -66,28 +63,6 @@ public class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<Spark
 			ConnectionFactory connectionFactory, String... subjects) {
 		super(natsURL, properties, connectionTimeout, subjects);
 		this.connectionFactory = connectionFactory;
-	}
-
-	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void publishToNats(JavaRDD<? extends Object> rdd) throws Exception {
-		((JavaRDD) rdd).foreach((VoidFunction<?>) publishToNats);
-	}
-
-	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param stream 
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void publishAsKeyValueToNats(JavaRDD<? extends Tuple2<?,?>> rdd) throws Exception {
-		setStoredAsKeyValue(true);
-		((JavaRDD) rdd).foreachAsync((VoidFunction<Tuple2<?, ?>>) publishKeyValueToNats);
 	}
 
 	/**
