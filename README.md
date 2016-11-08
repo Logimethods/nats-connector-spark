@@ -367,7 +367,7 @@ SparkToNatsConnectorPool
 	.newPool()
 	.withNatsURL(NATS_SERVER_URL)
 	.withConnectionTimeout(Duration.ofSeconds(2))
-	.publishToNats(stream);
+	.publishToNatsAsKeyValue(stream);
 ```
 will send to NATS such [subject:payload] messages:
 ```
@@ -389,7 +389,7 @@ SparkToNatsConnectorPool
 	.withNatsURL(NATS_SERVER_URL)
 	.withConnectionTimeout(Duration.ofSeconds(2))
 	.withSubjects("A1.", "A2.")
-	.publishToNats(stream);
+	.publishToNatsAsKeyValue(stream);
 ```
 will send to NATS such [subject:payload] messages:
 ```
@@ -413,7 +413,7 @@ SparkToNatsConnectorPool
 	.withNatsURL(NATS_SERVER_URL)
 	.withConnectionTimeout(Duration.ofSeconds(2))
 	.withSubjects("b.=>A1.", "*.=>A2.")
-	.publishToNats(stream);
+	.publishToNatsAsKeyValue(stream);
 ```
 will send to NATS such [subject:payload] messages:
 ```
@@ -469,7 +469,7 @@ SparkToNatsConnectorPool
 	.withConnectionTimeout(Duration.ofSeconds(6))
 	.withSubjects("subject1", "subject2")
 	.withNatsURL(STAN_URL)
-	.publishToNats(stream);
+	.publishToNatsAsKeyValue(stream);
 ```
 
 #### From Spark (*WITHOUT Streaming NOR Spark Cluster*) to NATS
@@ -511,7 +511,7 @@ final VoidFunction<Tuple2<String, Integer>> publishToNats =
 			.newConnection()
 			.withNatsURL(NATS_SERVER_URL)
 			.withSubjects("main-subject.")
-			.publishAsKeyValueToNats();
+			.publishToNatsAsKeyValue();
 
 tuples.foreach(publishToNats);	
 ```
