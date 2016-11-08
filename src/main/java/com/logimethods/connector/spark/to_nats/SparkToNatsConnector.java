@@ -98,15 +98,23 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @param obj the object from which the toString() will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	protected void publish(final Object obj) throws Exception {
+	protected <V> void publish(final V obj) throws Exception {
 		logger.debug("Publish '{}' to NATS", obj);
 
-		if (storedAsKeyValue) {
-			final Tuple2<?, ?> tuple = (Tuple2<?, ?>) obj;
-			publishToNats(tuple._1.toString(), encodeData(tuple._2));
-		} else {
-			publishToNats(encodeData(obj));
-		}
+		publishToNats(encodeData(obj));
+	}
+
+	// TODO Check JavaDoc
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * Is used by the Scala's SparkToNatsConnectorTrait
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	protected <V> void publishTuple(final Tuple2<?, V> tuple) throws Exception {
+		logger.debug("Publish '{}' to NATS", tuple);
+
+		publishToNats(tuple._1.toString(), encodeData(tuple._2));
 	}
 
 	// TODO Check JavaDoc
