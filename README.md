@@ -116,6 +116,8 @@ JavaReceiverInputDStream<[Class]> messages =
 		.asStreamOf(ssc);
 ```
 
+#### Deserialization of the primitive types
+
 Those objects need first to be serialized as `byte[]` using the right protocol before being push into the NATS messages payload.
 By default, the primitive Java types are decoded through the following method of  `com.logimethods.connector.nats_spark.NatsSparkUtilities`:
 
@@ -185,6 +187,23 @@ public static byte[] encodeData(Object obj) {
 	}
 	throw new UnsupportedOperationException("It is not possible to encode Data of type " + obj.getClass());
 }
+```
+
+#### Custom Deserialization
+
+For more complex types, you should provide your own decoder thourh the `withDataDecoder(Function<byte[], V> dataDecoder)` method:
+
+```java
+final Function<byte[], MyClass> dataExtractor = bytes -> {
+	.../...
+	return (MyClass) obj;
+};
+JavaReceiverInputDStream<MyClass> messages = 
+	NatsToSparkConnector
+		.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY()
+		.../...
+		.withDataDecoder(dataExtractor)
+		.asStreamOf(ssc);
 ```
 
 #### From NATS to Spark (Streaming)
