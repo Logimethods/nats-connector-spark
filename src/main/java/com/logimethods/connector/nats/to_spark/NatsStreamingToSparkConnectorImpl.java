@@ -9,6 +9,7 @@ package com.logimethods.connector.nats.to_spark;
 
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.StreamingContext;
+import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.dstream.ReceiverInputDStream;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import io.nats.stan.Message;
 import io.nats.stan.MessageHandler;
+import scala.Tuple2;
 
 /**
  * A NATS to Spark Connector.
@@ -59,6 +61,20 @@ public class NatsStreamingToSparkConnectorImpl<R> extends OmnipotentNatsStreamin
 	*/
 	public ReceiverInputDStream<R> asStreamOf(StreamingContext ssc) {
 		return ssc.receiverStream(this, scala.reflect.ClassTag$.MODULE$.apply(String.class));
+	}
+	
+	/**
+	@SuppressWarnings("unchecked")
+	*/
+	public JavaPairDStream<String, R> asStreamOfKeyValue(JavaStreamingContext ssc) {
+		return ssc.receiverStream(this.storedAsKeyValue()).mapToPair(tuple -> tuple);
+	}
+	
+	/**
+	@SuppressWarnings("unchecked")
+	*/
+	public ReceiverInputDStream<Tuple2<String, R>> asStreamOfKeyValue(StreamingContext ssc) {
+		return ssc.receiverStream(this.storedAsKeyValue(), scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class));
 	}
 
 	@Override

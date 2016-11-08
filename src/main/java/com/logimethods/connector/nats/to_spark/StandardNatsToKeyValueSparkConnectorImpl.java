@@ -71,20 +71,6 @@ public class StandardNatsToKeyValueSparkConnectorImpl<V>
 	protected StandardNatsToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
 		super(type, storageLevel, subjects, properties, queue, natsUrl);
 	}
-	
-	/**
-	@SuppressWarnings("unchecked")
-	*/
-	public JavaPairDStream<String, V> asStreamOf(JavaStreamingContext ssc) {
-		return ssc.receiverStream(this).mapToPair(tuple -> tuple);
-	}
-	
-	/**
-	@SuppressWarnings("unchecked")
-	*/
-	public ReceiverInputDStream<Tuple2<String, V>> asStreamOf(StreamingContext ssc) {
-		return ssc.receiverStream(this, scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class));
-	}
 
 	protected MessageHandler getMessageHandler() {
 		return new MessageHandler() {
