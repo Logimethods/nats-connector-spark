@@ -88,7 +88,7 @@ If you are embedding the NATS Spark connectors, add the following dependency to 
     </dependency>
   </dependencies>
 ```
-If you don't already have your pom.xml configured for using Maven snapshots from Sonatype / Nexus, you'll also need to add the following repository to your pom.xml.
+If you don't already have your `pom.xml` configured for using Maven snapshots from Sonatype / Nexus, you'll also need to add the following repository to your `pom.xml`.
 
 ```xml
 <repositories>
@@ -105,6 +105,88 @@ If you don't already have your pom.xml configured for using Maven snapshots from
 
 ## Usage (in Java)
 ### From NATS to Spark
+
+The reception of NATS Messages as Spark Steam is done through the `NatsToSparkConnector.receiveFromNats([Class], ...)` method, where `[Class]` is the Java Class of the objects to deserialize:
+
+```java
+JavaReceiverInputDStream<[Class]> messages = 
+	NatsToSparkConnector
+		.receiveFromNats([Class].class, StorageLevel.MEMORY_ONLY()
+		.../...
+		.asStreamOf(ssc);
+```
+
+Those objects need first to be serialized as `byte[]` using the right protocol before being push into the NATS messages payload.
+By default, the primitive Java types are decoded through the following method of  `com.logimethods.connector.nats_spark.NatsSparkUtilities`:
+
+```java
+public static <X> X decodeData(Class<X> type, byte[] bytes) throws UnsupportedOperationException {
+	if (type == String.class) {
+		return (X) new String(bytes);
+	}
+	if ((type == Double.class) || (type == double.class)){
+		final ByteBuffer buffer = ByteBuffer.wrap(bytes);
+		return (X) new Double(buffer.getDouble());
+	}
+	if ((type == Float.class) || (type == float.class)){
+		final ByteBuffer buffer = ByteBuffer.wrap(bytes);
+		return (X) new Float(buffer.getFloat());
+	}
+	if ((type == Integer.class) || (type == int.class)){
+		final ByteBuffer buffer = ByteBuffer.wrap(bytes);
+		return (X) new Integer(buffer.getInt());
+	}
+	if ((type == Long.class) || (type == long.class)){
+		final ByteBuffer buffer = ByteBuffer.wrap(bytes);
+		return (X) new Long(buffer.getLong());
+	}
+	if ((type == Byte.class) || (type == byte.class)){
+		final ByteBuffer buffer = ByteBuffer.wrap(bytes);
+		return (X) new Byte(buffer.get());
+	}
+	if ((type == Character.class) || (type == char.class)){
+		final ByteBuffer buffer = ByteBuffer.wrap(bytes);
+		return (X) new Character(buffer.getChar());
+	}
+	if ((type == Short.class) || (type == short.class)){
+		final ByteBuffer buffer = ByteBuffer.wrap(bytes);
+		return (X) new Short(buffer.getShort());
+	}
+	throw new UnsupportedOperationException("It is not possible to extract Data of type " + type);
+}
+```
+Therefore, you can use the opposite method to encode the Data:
+
+```java
+public static byte[] encodeData(Object obj) {
+	if (obj instanceof String) {
+		return ((String) obj).getBytes();
+	}
+	if (obj instanceof Double) {
+		return ByteBuffer.allocate(Double.BYTES).putDouble((Double) obj).array();
+	}
+	if (obj instanceof Float) {
+		return ByteBuffer.allocate(Float.BYTES).putFloat((Float) obj).array();
+	}
+	if (obj instanceof Integer) {
+		return ByteBuffer.allocate(Integer.BYTES).putInt((Integer) obj).array();
+	}
+	if (obj instanceof Long) {
+		return ByteBuffer.allocate(Long.BYTES).putLong((Long) obj).array();
+	}
+	if (obj instanceof Byte) {
+		return ByteBuffer.allocate(Byte.BYTES).put((Byte) obj).array();
+	}
+	if (obj instanceof Character) {
+		return ByteBuffer.allocate(Character.BYTES).putChar((Character) obj).array();
+	}
+	if (obj instanceof Short) {
+		return ByteBuffer.allocate(Short.BYTES).putShort((Short) obj).array();
+	}
+	throw new UnsupportedOperationException("It is not possible to encode Data of type " + obj.getClass());
+}
+```
+
 #### From NATS to Spark (Streaming)
 ```java
 import com.logimethods.nats.connector.spark.NatsToSparkConnector;
