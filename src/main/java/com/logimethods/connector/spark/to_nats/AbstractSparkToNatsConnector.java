@@ -124,12 +124,6 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 		return (T)this;
 	}
 
-	@SuppressWarnings("unchecked")
-	public T storedAsKeyValue() {
-		setStoredAsKeyValue(true);
-		return (T)this;
-	}
-
 	protected Collection<String> getDefinedSubjects() throws IncompleteException {
 		if ((getSubjects() ==  null) || (getSubjects().size() == 0)) {
 			final String subjectsStr = getProperties() != null ? 
