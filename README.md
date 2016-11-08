@@ -13,6 +13,7 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 - Based on Spark 2.0.1
 - `storedAsKeyValue()` is introduced
 - `.asStreamOf(ssc)` is introduced
+- Message Data can be any Java `Object` (not limited to `String`), serialized as `byte[]` (the native NATS payload format)
 
 ### Version 0.2.0
 - A wrapper of that library [dedicated to Scala](https://github.com/Logimethods/nats-connector-spark-scala) has been introduced.
@@ -119,7 +120,7 @@ JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 ```java
 JavaReceiverInputDStream<String> messages = 
 	NatsToSparkConnector
-		.receiveFromNats(StorageLevel.MEMORY_ONLY()
+		.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY()
 		.withSubjects("SubjectA", "SubjectB")
 		.withNatsURL("nats://localhost:4222")
 		.asStreamOf(ssc);
@@ -130,14 +131,15 @@ JavaReceiverInputDStream<String> messages =
 ```java
 Properties properties = new Properties();
 properties.setProperty(com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS, "SubjectA,SubjectB , SubjectC");
-JavaReceiverInputDStream<String> messages = 
+JavaReceiverInputDStream<Float> messages = 
 	NatsToSparkConnector
-		.receiveFromNats(StorageLevel.MEMORY_ONLY())
+		.receiveFromNats(Float.class, StorageLevel.MEMORY_ONLY())
 		.withProperties(properties)
 		.asStreamOf(ssc);
 ```
 
 The optional settings are:
+
 * `withSubjects(String... subjects)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
@@ -149,9 +151,9 @@ The Spark Stream is there made of [Key/Value Pairs](https://spark.apache.org/doc
 ```
 JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
-JavaPairDStream<String, String> messages = 
+JavaPairDStream<String, Integer> messages = 
 	NatsToSparkConnector
-		.receiveFromNats(StorageLevel.MEMORY_ONLY()
+		.receiveFromNats(Integer.class, StorageLevel.MEMORY_ONLY()
 		.withSubjects("SubjectA.>", "SubjectB.*.result")
 		.withNatsURL("nats://localhost:4222")
 		.storedAsKeyValue()
@@ -167,7 +169,7 @@ String clusterID = "test-cluster";
 Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
 JavaReceiverInputDStream<String> messages = 
 	NatsToSparkConnector
-		.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), clusterID)
+		.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), clusterID)
 		.withNatsURL(STAN_URL)
 		.withSubjects(DEFAULT_SUBJECT)
 		.setDurableName("MY_DURABLE_NAME")
@@ -176,6 +178,7 @@ JavaReceiverInputDStream<String> messages =
 ```
 
 The optional settings are:
+
 * `withSubjects(String... subjects)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
@@ -202,9 +205,9 @@ The Spark Stream is there made of [Key/Value Pairs](https://spark.apache.org/doc
 ```
 JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
-final JavaPairDStream<String, String> messages = 
+final JavaPairDStream<String, Integer> messages = 
 		NatsToSparkConnector
-				.receiveFromNatsStreaming(StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
+				.receiveFromNatsStreaming(Integer.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 				.withNatsURL(STAN_URL)
 				.withSubjects(DEFAULT_SUBJECT)
 				.storedAsKeyValue()
@@ -384,11 +387,11 @@ A Spark `JavaRDD<Tuple2<String, String>>` can publish NATS Messages where the Su
 To do so, you should use `.publishAsKeyValueToNats()` instead of `.publishToNats()`.
 
 ```java
-JavaRDD<Tuple2<String, String>> tuples = 
-	rdd.map((Function<String, Tuple2<String, String>>) 
-			str -> {return new Tuple2<String, String>("sub-subject", str);});	
+JavaRDD<Tuple2<String, Integer>> tuples = 
+	rdd.map((Function<String, Tuple2<String, Integer>>) 
+			str -> {return new Tuple2<String, Integer>("sub-subject", Integer.parseInt(str));});	
 	
-final VoidFunction<Tuple2<String, String>> publishToNats = 
+final VoidFunction<Tuple2<String, Integer>> publishToNats = 
 		SparkToNatsConnector
 			.newConnection()
 			.withNatsURL(NATS_SERVER_URL)
