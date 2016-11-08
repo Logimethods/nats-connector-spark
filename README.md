@@ -499,7 +499,7 @@ The optional settings are:
 
 A Spark `JavaRDD<Tuple2<String, String>>` can publish NATS Messages where the Subject is a composition of the (optional) _Global Subject(s)_ and the _First Element_ of the Pairs ; while the NATS _Payload_ will be the Pair's _Second Element_.
 
-To do so, you should use `.publishAsKeyValueToNats()` instead of `.publishToNats()`.
+To do so, you should use `.publishToNatsAsKeyValue()` instead of `.publishToNats()`.
 
 ```java
 JavaRDD<Tuple2<String, Integer>> tuples = 
