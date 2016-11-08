@@ -22,7 +22,6 @@ import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
 import io.nats.client.MessageHandler;
 import io.nats.client.Subscription;
-import scala.Tuple2;
 
 /**
  * A NATS to Spark Connector.
@@ -69,7 +68,7 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends Nats
 
 	/**
 	 */
-	public StandardNatsToKeyValueSparkConnectorImpl<V> storedAsKeyValue() {
+	protected StandardNatsToKeyValueSparkConnectorImpl<V> storedAsKeyValue() {
 		return new StandardNatsToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, queue, natsUrl);
 	}
 

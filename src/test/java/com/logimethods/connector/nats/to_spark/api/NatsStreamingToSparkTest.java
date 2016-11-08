@@ -97,8 +97,7 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 						.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 						.withNatsURL(STAN_URL)
 						.withSubjects(DEFAULT_SUBJECT)
-						.storedAsKeyValue()
-						.asStreamOf(ssc);
+						.asStreamOfKeyValue(ssc);
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}

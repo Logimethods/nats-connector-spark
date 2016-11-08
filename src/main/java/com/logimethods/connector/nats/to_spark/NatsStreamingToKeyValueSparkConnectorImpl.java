@@ -64,20 +64,6 @@ public class NatsStreamingToKeyValueSparkConnectorImpl<V>
 		this.opts = opts;
 		this.optsBuilder = optsBuilder;
 	}
-	
-	/**
-	@SuppressWarnings("unchecked")
-	*/
-	public JavaPairDStream<String, V> asStreamOf(JavaStreamingContext ssc) {
-		return ssc.receiverStream(this).mapToPair(tuple -> tuple);
-	}
-	
-	/**
-	@SuppressWarnings("unchecked")
-	*/
-	public ReceiverInputDStream<Tuple2<String, V>> asStreamOf(StreamingContext ssc) {
-		return ssc.receiverStream(this, scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class));
-	}
 
 	@Override
 	protected MessageHandler getMessageHandler() {
