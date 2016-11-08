@@ -98,7 +98,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @param obj the object from which the toString() will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	protected void publish(Object obj) throws Exception {
+	protected void publish(final Object obj) throws Exception {
 		logger.debug("Publish '{}' to NATS", obj);
 
 		if (storedAsKeyValue) {
@@ -109,6 +109,32 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		}
 	}
 
+	// TODO Check JavaDoc
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * Is used by the Scala's SparkToNatsConnectorTrait
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	protected <V> void publish(final V obj, final Function<V, byte[]> dataEncoder) throws Exception {
+		logger.debug("Publish '{}' to NATS", obj);
+
+		publishToNats(dataEncoder.apply(obj));
+	}
+
+	// TODO Check JavaDoc
+	/**
+	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * Is used by the Scala's SparkToNatsConnectorTrait
+	 * @param obj the object from which the toString() will be published to NATS
+	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 */
+	protected <V> void publishTuple(final Tuple2<?, V> tuple, final Function<V, byte[]> dataEncoder) throws Exception {
+		logger.debug("Publish '{}' to NATS", tuple);
+
+		publishToNats(tuple._1.toString(), dataEncoder.apply(tuple._2));
+	}
+
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.
 	 * @param <V>
@@ -116,7 +142,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <V> void publishToNats(JavaRDD<V> rdd) throws Exception {
+	public <V> void publishToNats(final JavaRDD<V> rdd) throws Exception {
 		((JavaRDD) rdd).foreach((VoidFunction<V> & Serializable) obj -> publishToNats(encodeData(obj)));
 	}
 
@@ -127,7 +153,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <V> void publishToNats(JavaRDD<V> rdd, final Function<V, byte[]> dataEncoder) throws Exception {
+	public <V> void publishToNats(final JavaRDD<V> rdd, final Function<V, byte[]> dataEncoder) throws Exception {
 		((JavaRDD) rdd).foreach((VoidFunction<V> & Serializable) obj -> publishToNats(dataEncoder.apply(obj)));
 	}
 
@@ -138,7 +164,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <K,V> void publishAsKeyValueToNats(JavaRDD<Tuple2<K,V>> rdd) throws Exception {
+	public <K,V> void publishAsKeyValueToNats(final JavaRDD<Tuple2<K,V>> rdd) throws Exception {
 		setStoredAsKeyValue(true);
 		((JavaRDD) rdd).foreachAsync((VoidFunction<Tuple2<K, V>> & Serializable) tuple -> publishToNats(tuple._1.toString(), encodeData(tuple._2)));
 	}
@@ -150,7 +176,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <K,V> void publishAsKeyValueToNats(JavaRDD<Tuple2<K,V>> rdd, final Function<V, byte[]> dataEncoder) throws Exception {
+	public <K,V> void publishAsKeyValueToNats(final JavaRDD<Tuple2<K,V>> rdd, final Function<V, byte[]> dataEncoder) throws Exception {
 		setStoredAsKeyValue(true);
 		((JavaRDD) rdd).foreachAsync((VoidFunction<Tuple2<K, V>> & Serializable) tuple -> publishToNats(tuple._1.toString(), dataEncoder.apply(tuple._2)));
 	}
