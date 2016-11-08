@@ -98,7 +98,6 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 		JavaPairDStream<String, String> keyValues = UnitTestUtilities.getJavaPairDStream(tempDir, ssc, subject1);		
 
 		SparkToNatsConnectorPool.newPool()
-								.storedAsKeyValue()
 								.withNatsURL(NATS_SERVER_URL)
 								.publishToNats(keyValues, (java.util.function.Function<String,  byte[]> & Serializable) str -> str.getBytes());
 		
