@@ -11,7 +11,7 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 ## Release Notes
 ### Version 0.3.0-SNAPSHOT
 - Based on Spark 2.0.1
-- `storedAsKeyValue()` is introduced
+- Spark records can be handled as Key/Value 
 - `.asStreamOf(ssc)` is introduced
 - Message Data can be any Java `Object` (not limited to `String`), serialized as `byte[]` (the native NATS payload format)
 
@@ -257,8 +257,7 @@ JavaPairDStream<String, Integer> messages =
 		.receiveFromNats(Integer.class, StorageLevel.MEMORY_ONLY()
 		.withSubjects("SubjectA.>", "SubjectB.*.result")
 		.withNatsURL("nats://localhost:4222")
-		.storedAsKeyValue()
-		.asStreamOf(ssc);
+		.asStreamOfKeyValue(ssc);
 				
 messages.groupByKey().print();
 ```
@@ -311,8 +310,7 @@ final JavaPairDStream<String, Integer> messages =
 				.receiveFromNatsStreaming(Integer.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 				.withNatsURL(STAN_URL)
 				.withSubjects(DEFAULT_SUBJECT)
-				.storedAsKeyValue()
-				.asStreamOf(ssc);
+				.asStreamOfKeyValue(ssc);
 				
 messages.groupByKey().print();
 ```
