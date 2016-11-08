@@ -191,10 +191,10 @@ public static byte[] encodeData(Object obj) {
 
 #### Custom Deserialization
 
-For more complex types, you should provide your own decoder thourh the `withDataDecoder(Function<byte[], V> dataDecoder)` method:
+For more complex types, you should provide your own decoder through the `withDataDecoder(Function<byte[], V> dataDecoder)` method:
 
 ```java
-final Function<byte[], MyClass> dataExtractor = bytes -> {
+final Function<byte[], MyClass> dataDecoder = bytes -> {
 	.../...
 	return (MyClass) obj;
 };
@@ -202,7 +202,7 @@ JavaReceiverInputDStream<MyClass> messages =
 	NatsToSparkConnector
 		.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY()
 		.../...
-		.withDataDecoder(dataExtractor)
+		.withDataDecoder(dataDecoder)
 		.asStreamOf(ssc);
 ```
 
@@ -318,6 +318,22 @@ messages.groupByKey().print();
 ```
 
 ### From Spark to NATS
+
+#### Serialization of the primitive types
+
+The Spark elements are first serialized as `byte[]` before being sent to NATS. By default, the primitive Java types are encoded through the `com.logimethods.connector.nats_spark.NatsSparkUtilities.encodeData(Object obj)` method (see above).
+
+#### Custom Serialization
+
+Custom serialization can be performed by a `java.util.function.Function<[Class],  byte[]> & Serializable)` function provided through the `.publishToNats(...)` method, like:
+
+```java
+SparkToNatsConnectorPool.newPool()
+			.withNatsURL(NATS_SERVER_URL)
+			.publishToNats(stream, 
+				       (java.util.function.Function<String, byte[]> & Serializable) str -> str.getBytes());
+```
+
 #### From Spark (Streaming) to NATS
 
 ```java
