@@ -130,7 +130,7 @@ public class SparkToStandardNatsConnectorTest {
 		String subject1 = "subject1";
 
 		JavaRDD<Tuple2<String, Integer>> stream = getKeyValueStream(subject1);		
-		SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).publishAsKeyValueToNats(stream);
+		SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).publishToNatsAsKeyValue(stream);
 	}
 
 	protected JavaRDD<Tuple2<String, Integer>> getKeyValueStream(String subject1) {
@@ -194,7 +194,7 @@ public class SparkToStandardNatsConnectorTest {
 			.newConnection()
 			.withNatsURL(NATS_SERVER_URL)
 			.withSubjects(rootSubject + ".")
-			.publishAsKeyValueToNats(stream);
+			.publishToNatsAsKeyValue(stream);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();

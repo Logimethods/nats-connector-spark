@@ -42,6 +42,6 @@ public class KeyValueSparkToStandardNatsConnectorLifecycleTest extends AbstractS
 			.newPool()
 			.withNatsURL(NATS_SERVER_URL)
 			.withConnectionTimeout(Duration.ofSeconds(2))
-			.publishToNats(stream);
+			.publishToNatsAsKeyValue(stream);
 	}
 }

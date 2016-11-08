@@ -159,14 +159,14 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	/**
 	 * @param rdd
 	 */
-	public <K extends Object, V extends Object> void publishToNats(final JavaPairDStream<K, V> stream) {
-		publishToNats(stream, (Function<V, byte[]> & Serializable) obj -> encodeData(obj));
+	public <K extends Object, V extends Object> void publishToNatsAsKeyValue(final JavaPairDStream<K, V> stream) {
+		publishToNatsAsKeyValue(stream, (Function<V, byte[]> & Serializable) obj -> encodeData(obj));
 	}
 	
 	/**
 	 * @param rdd
 	 */
-	public <K extends Object, V extends Object> void publishToNats(final JavaPairDStream<K, V> stream, final Function<V, byte[]> dataEncoder) {
+	public <K extends Object, V extends Object> void publishToNatsAsKeyValue(final JavaPairDStream<K, V> stream, final Function<V, byte[]> dataEncoder) {
 		logger.trace("publishToNats(JavaPairDStream<String, String> stream)");
 		setStoredAsKeyValue(true);
 		

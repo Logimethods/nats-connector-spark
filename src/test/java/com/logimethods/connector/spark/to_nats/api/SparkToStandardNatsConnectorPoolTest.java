@@ -89,7 +89,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 	}
 
 	@Test(timeout=8000)
-	public void testStaticSparkStoredAsKeyValueToNats() throws Exception {   
+	public void testStaticSparkStoredToNatsAsKeyValue() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
@@ -99,7 +99,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 
 		SparkToNatsConnectorPool.newPool()
 								.withNatsURL(NATS_SERVER_URL)
-								.publishToNats(keyValues, (java.util.function.Function<String,  byte[]> & Serializable) str -> str.getBytes());
+								.publishToNatsAsKeyValue(keyValues, (java.util.function.Function<String,  byte[]> & Serializable) str -> str.getBytes());
 		
 		ssc.start();
 

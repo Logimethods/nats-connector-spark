@@ -172,7 +172,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <K,V> void publishAsKeyValueToNats(final JavaRDD<Tuple2<K,V>> rdd) throws Exception {
+	public <K,V> void publishToNatsAsKeyValue(final JavaRDD<Tuple2<K,V>> rdd) throws Exception {
 		setStoredAsKeyValue(true);
 		((JavaRDD) rdd).foreachAsync((VoidFunction<Tuple2<K, V>> & Serializable) tuple -> publishToNats(tuple._1.toString(), encodeData(tuple._2)));
 	}
@@ -184,7 +184,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <K,V> void publishAsKeyValueToNats(final JavaRDD<Tuple2<K,V>> rdd, final Function<V, byte[]> dataEncoder) throws Exception {
+	public <K,V> void publishToNatsAsKeyValue(final JavaRDD<Tuple2<K,V>> rdd, final Function<V, byte[]> dataEncoder) throws Exception {
 		setStoredAsKeyValue(true);
 		((JavaRDD) rdd).foreachAsync((VoidFunction<Tuple2<K, V>> & Serializable) tuple -> publishToNats(tuple._1.toString(), dataEncoder.apply(tuple._2)));
 	}
