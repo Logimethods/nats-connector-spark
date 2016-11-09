@@ -69,7 +69,7 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends Nats
 	/**
 	 */
 	protected StandardNatsToKeyValueSparkConnectorImpl<V> storedAsKeyValue() {
-		return new StandardNatsToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, queue, natsUrl);
+		return new StandardNatsToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, queue, natsUrl, dataDecoder);
 	}
 
 	protected Properties enrichedProperties;

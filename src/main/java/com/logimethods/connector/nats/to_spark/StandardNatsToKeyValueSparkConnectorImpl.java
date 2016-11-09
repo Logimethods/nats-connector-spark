@@ -9,6 +9,7 @@ package com.logimethods.connector.nats.to_spark;
 
 import java.util.Collection;
 import java.util.Properties;
+import java.util.function.Function;
 
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.StreamingContext;
@@ -48,7 +49,7 @@ public class StandardNatsToKeyValueSparkConnectorImpl<V>
 
 	protected Properties enrichedProperties;
 
-	protected StandardNatsToKeyValueSparkConnectorImpl(Class<V> type, Properties properties, StorageLevel storageLevel, String... subjects) {
+/*	protected StandardNatsToKeyValueSparkConnectorImpl(Class<V> type, Properties properties, StorageLevel storageLevel, String... subjects) {
 		super(type, storageLevel, subjects);
 		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
@@ -66,10 +67,12 @@ public class StandardNatsToKeyValueSparkConnectorImpl<V>
 	protected StandardNatsToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel) {
 		super(type, storageLevel);
 		logger.debug("CREATE NatsToSparkConnector {}.", this, properties, storageLevel);
-	}
+	}*/
 	
-	protected StandardNatsToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
+	protected StandardNatsToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel, Collection<String> subjects, Properties properties, 
+														String queue, String natsUrl, Function<byte[], V> dataDecoder) {
 		super(type, storageLevel, subjects, properties, queue, natsUrl);
+		this.dataDecoder = dataDecoder;
 	}
 
 	protected MessageHandler getMessageHandler() {

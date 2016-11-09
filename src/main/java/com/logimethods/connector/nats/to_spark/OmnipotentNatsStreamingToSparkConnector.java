@@ -215,7 +215,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
 	/**
 	 */
 	public NatsStreamingToKeyValueSparkConnectorImpl<V> storedAsKeyValue() {
-		return new NatsStreamingToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, queue, natsUrl, clusterID, clientID, opts, optsBuilder);
+		return new NatsStreamingToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, queue, natsUrl, clusterID, clientID, opts, optsBuilder, dataDecoder);
 	}
 
 	/** Create a socket connection and receive data until receiver is stopped 

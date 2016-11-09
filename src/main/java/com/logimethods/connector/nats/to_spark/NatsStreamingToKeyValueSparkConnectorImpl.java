@@ -9,6 +9,7 @@ package com.logimethods.connector.nats.to_spark;
 
 import java.util.Collection;
 import java.util.Properties;
+import java.util.function.Function;
 
 import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.streaming.StreamingContext;
@@ -49,13 +50,13 @@ public class NatsStreamingToKeyValueSparkConnectorImpl<V>
 
 	/* Constructors with subjects provided by the environment */
 	
-	protected NatsStreamingToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel, String clusterID, String clientID) {
+/*	protected NatsStreamingToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel, String clusterID, String clientID) {
 		super(type, storageLevel, clusterID, clientID);
-	}
+	}*/
 
 	public NatsStreamingToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel, Collection<String> subjects,
 			Properties properties, String queue, String natsUrl, String clusterID, String clientID, 
-			SubscriptionOptions opts, SubscriptionOptions.Builder optsBuilder) {
+			SubscriptionOptions opts, SubscriptionOptions.Builder optsBuilder, Function<byte[], V> dataDecoder) {
 		super(type, storageLevel, clusterID, clientID);
 		this.subjects = subjects;
 		this.properties = properties;
@@ -63,6 +64,7 @@ public class NatsStreamingToKeyValueSparkConnectorImpl<V>
 		this.natsUrl = natsUrl;
 		this.opts = opts;
 		this.optsBuilder = optsBuilder;
+		this.dataDecoder = dataDecoder;
 	}
 
 	@Override
