@@ -70,9 +70,10 @@ public class StandardNatsToKeyValueSparkConnectorImpl<V>
 	}*/
 	
 	protected StandardNatsToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel, Collection<String> subjects, Properties properties, 
-														String queue, String natsUrl, Function<byte[], V> dataDecoder) {
+														String queue, String natsUrl, Function<byte[], V> dataDecoder, scala.Function1<byte[], V> scalaDataDecoder) {
 		super(type, storageLevel, subjects, properties, queue, natsUrl);
 		this.dataDecoder = dataDecoder;
+		this.scalaDataDecoder = scalaDataDecoder;
 	}
 
 	protected MessageHandler getMessageHandler() {

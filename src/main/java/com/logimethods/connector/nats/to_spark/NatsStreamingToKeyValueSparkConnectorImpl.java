@@ -56,7 +56,7 @@ public class NatsStreamingToKeyValueSparkConnectorImpl<V>
 
 	public NatsStreamingToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel, Collection<String> subjects,
 			Properties properties, String queue, String natsUrl, String clusterID, String clientID, 
-			SubscriptionOptions opts, SubscriptionOptions.Builder optsBuilder, Function<byte[], V> dataDecoder) {
+			SubscriptionOptions opts, SubscriptionOptions.Builder optsBuilder, Function<byte[], V> dataDecoder, scala.Function1<byte[], V> scalaDataDecoder) {
 		super(type, storageLevel, clusterID, clientID);
 		this.subjects = subjects;
 		this.properties = properties;
@@ -65,6 +65,7 @@ public class NatsStreamingToKeyValueSparkConnectorImpl<V>
 		this.opts = opts;
 		this.optsBuilder = optsBuilder;
 		this.dataDecoder = dataDecoder;
+		this.scalaDataDecoder = scalaDataDecoder;
 	}
 
 	@Override

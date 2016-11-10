@@ -10,7 +10,6 @@ package com.logimethods.connector.nats.to_spark;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Constants.PROP_URL;
 
-import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.function.Function;
@@ -51,6 +50,7 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	protected String 			 queue;
 	protected String 			 natsUrl;
 	protected Function<byte[], V> dataDecoder = null;
+	protected scala.Function1<byte[], V> scalaDataDecoder = null;
 
 	protected final static String CLIENT_ID = "NatsToSparkConnector_";
 
@@ -110,6 +110,15 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	@SuppressWarnings("unchecked")
 	public T withDataDecoder(Function<byte[], V> dataDecoder) {
 		this.dataDecoder = dataDecoder;
+		return (T)this;
+	}
+	
+	/**
+	 * @param dataExtractor the Data Extractor to set
+	 */
+	@SuppressWarnings("unchecked")
+	public T withDataDecoder(scala.Function1<byte[], V> scalaDataDecoder) {
+		this.scalaDataDecoder = scalaDataDecoder;
 		return (T)this;
 	}
 
@@ -218,6 +227,8 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	protected V decodeData(byte[] bytes) {
 		if (dataDecoder != null) {
 			return dataDecoder.apply(bytes);
+		} else if (scalaDataDecoder != null) {
+			return scalaDataDecoder.apply(bytes);
 		} else {
 			return NatsSparkUtilities.decodeData(type, bytes);
 		}

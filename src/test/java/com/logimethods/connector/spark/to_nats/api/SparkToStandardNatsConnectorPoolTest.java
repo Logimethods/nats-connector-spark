@@ -101,6 +101,8 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 								.withNatsURL(NATS_SERVER_URL)
 								.publishToNatsAsKeyValue(keyValues, (java.util.function.Function<String,  byte[]> & Serializable) str -> str.getBytes());
 		
+		java.util.function.Function toto = (java.util.function.Function<String,  byte[]> & Serializable) str -> str.getBytes();
+		
 		ssc.start();
 
 		Thread.sleep(1000);
