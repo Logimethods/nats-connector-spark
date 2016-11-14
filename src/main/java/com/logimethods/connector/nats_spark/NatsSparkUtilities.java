@@ -65,7 +65,9 @@ public class NatsSparkUtilities {
 		if (obj instanceof Short) {
 			return ByteBuffer.allocate(Short.BYTES).putShort((Short) obj).array();
 		}
-		throw new UnsupportedOperationException("It is not possible to encode Data of type " + obj.getClass());
+		return obj.toString().getBytes();
+		
+		//throw new UnsupportedOperationException("It is not possible to encode Data of type " + obj.getClass());
 	}
 	
 	// @see https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html
