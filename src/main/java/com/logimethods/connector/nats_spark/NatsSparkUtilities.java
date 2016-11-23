@@ -12,10 +12,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * A collection of Static Methods used by the NATS / Spark Connectors.
+ * @author Laurent Magnin
+ */
 public class NatsSparkUtilities {
+	
 	/**
-	 * @param elements
-	 * @return
+	 * @param elements, a undefined number of String(s)
+	 * @return a list of all of those Strings 
 	 */
 	public static List<String> transformIntoAList(String... elements) {
 		ArrayList<String> list = new ArrayList<String>(elements.length);
@@ -25,21 +30,36 @@ public class NatsSparkUtilities {
 		return list;
 	}
 	
+	/**
+	 * @param obj, any type of Java Object
+	 * @return a unique ID associated with that object
+	 */
 	public static long generateUniqueID(Object obj) {
 		return System.identityHashCode(obj) + Thread.currentThread().getId() + java.lang.System.currentTimeMillis();
 	}
 	
+	/**
+	 * @return a unique ID
+	 */
 	public static long generateUniqueID() {
 		return Thread.currentThread().getId() + java.lang.System.currentTimeMillis();
 	}
 
+	/**
+	 * @param str, a String representing substrings separated by ','
+	 * @return a collection of all of those substrings
+	 */
 	public static Collection<String> extractCollection(String str) {
 		final String[] subjectsArray = str.split(",");
 		return transformIntoAList(subjectsArray);
 	}
 	
-	// @see https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html
-	// TODO (?) http://stackoverflow.com/questions/14619653/converting-a-float-to-a-byte-array-and-vice-versa-in-java : .order(ByteOrder.BIG_ENDIAN)
+	/**
+	 * @param obj, any kind of Object
+	 * @return an array of bytes encoding that object (only for the number types) 
+	 * or the String representation of it (through the toString() method)
+	 * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html">Class ByteBuffer</a>
+	 */
 	public static byte[] encodeData(Object obj) {
 		if (obj instanceof String) {
 			return ((String) obj).getBytes();
@@ -66,11 +86,15 @@ public class NatsSparkUtilities {
 			return ByteBuffer.allocate(Short.BYTES).putShort((Short) obj).array();
 		}
 		return obj.toString().getBytes();
-		
-		//throw new UnsupportedOperationException("It is not possible to encode Data of type " + obj.getClass());
 	}
 	
-	// @see https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html
+	/**
+	 * @param type, the class of the object to decode
+	 * @param bytes, the content that represent the object to decode
+	 * @return the extracted object
+	 * @throws UnsupportedOperationException, raised when the expected type of the object is not a Number or a String
+	 * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html">Class ByteBuffer</a>
+	 */
 	@SuppressWarnings("unchecked")
 	public static <X> X decodeData(Class<X> type, byte[] bytes) throws UnsupportedOperationException {
 		if (type == String.class) {

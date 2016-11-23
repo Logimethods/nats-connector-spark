@@ -27,14 +27,7 @@ import scala.Tuple2;
  * <p>
  * It will transfer messages received from NATS into Spark data.
  * <p>
- * That class extends {@link org.apache.spark.streaming.receiver.Receiver}&lt;String&gt;.
- * <p>
- * An usage of this class would look like this.
- * <pre>
- * JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(2000));
- * final JavaReceiverInputDStream&lt;String&gt; messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY(), DEFAULT_SUBJECT));
- * </pre>
- * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
+ * That class extends {@link com.logimethods.connector.nats.to_spark.NatsToSparkConnector}&lt;T,R,V&gt;.
  */
 public class StandardNatsToSparkConnectorImpl<R> extends OmnipotentStandardNatsToSparkConnector<StandardNatsToSparkConnectorImpl<R>, R, R> {
 
@@ -66,29 +59,35 @@ public class StandardNatsToSparkConnectorImpl<R> extends OmnipotentStandardNatsT
 	}
 	
 	/**
-	@SuppressWarnings("unchecked")
-	*/
+	 * @param ssc, the (Java based) Spark Streaming Context
+	 * @return a Spark Stream, belonging to the provided Context, that will collect NATS Messages
+	 */
 	public JavaReceiverInputDStream<R> asStreamOf(JavaStreamingContext ssc) {
 		return ssc.receiverStream(this);
 	}
 	
 	/**
-	@SuppressWarnings("unchecked")
-	*/
+	 * @param ssc, the (Scala based) Spark Streaming Context
+	 * @return a Spark Stream, belonging to the provided Context, that will collect NATS Messages
+	 */
 	public ReceiverInputDStream<R> asStreamOf(StreamingContext ssc) {
 		return ssc.receiverStream(this, scala.reflect.ClassTag$.MODULE$.apply(String.class));
 	}
 	
 	/**
-	@SuppressWarnings("unchecked")
-	*/
+	 * @param ssc, the (Java based) Spark Streaming Context
+	 * @return a Spark Stream, belonging to the provided Context, 
+	 * that will collect NATS Messages as Key (the NATS Subject) / Value (the NATS Payload)
+	 */
 	public JavaPairDStream<String, R> asStreamOfKeyValue(JavaStreamingContext ssc) {
 		return ssc.receiverStream(this.storedAsKeyValue()).mapToPair(tuple -> tuple);
 	}
 	
 	/**
-	@SuppressWarnings("unchecked")
-	*/
+	 * @param ssc, the (Scala based) Spark Streaming Context
+	 * @return a Spark Stream, belonging to the provided Context, 
+	 * that will collect NATS Messages as Tuples of (the NATS Subject) / (the NATS Payload)
+	 */
 	public ReceiverInputDStream<Tuple2<String, R>> asStreamOfKeyValue(StreamingContext ssc) {
 		return ssc.receiverStream(this.storedAsKeyValue(), scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class));
 	}

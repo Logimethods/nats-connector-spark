@@ -7,6 +7,9 @@
  *******************************************************************************/
 package com.logimethods.connector.nats_spark;
 
+/**
+ * An Exception that refers to missing data (to define a connection to NATS, like the Subjects).
+ */
 public class IncompleteException extends Exception {
 
 	/**

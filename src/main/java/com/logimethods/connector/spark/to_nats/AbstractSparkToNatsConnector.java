@@ -22,7 +22,7 @@ import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 import static com.logimethods.connector.nats_spark.Constants.*;
 
 @SuppressWarnings("serial")
-public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
+abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 
 	protected transient Integer connectionSignature;
 
@@ -33,7 +33,7 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 		super();
 	}
 
-	public AbstractSparkToNatsConnector(String natsURL, Properties properties, Long connectionTimeout, String... subjects) {
+	protected AbstractSparkToNatsConnector(String natsURL, Properties properties, Long connectionTimeout, String... subjects) {
 		super();
 		setProperties(properties);
 		setSubjects(NatsSparkUtilities.transformIntoAList(subjects));
@@ -41,7 +41,7 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 		setConnectionTimeout(connectionTimeout);
 	}
 
-	public AbstractSparkToNatsConnector(String natsURL, Properties properties, Long connectionTimeout, Collection<String> subjects) {
+	protected AbstractSparkToNatsConnector(String natsURL, Properties properties, Long connectionTimeout, Collection<String> subjects) {
 		super();
 		setProperties(properties);
 		setSubjects(subjects);
@@ -88,7 +88,8 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	protected abstract void setStoredAsKeyValue(boolean storedAsKeyValue);
 
 	/**
-	 * @param properties the properties to set
+	 * @param properties, the properties to set
+	 * @return the connector itself
 	 */
 	@SuppressWarnings("unchecked")
 	public T withProperties(Properties properties) {
@@ -97,7 +98,8 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	}
 
 	/**
-	 * @param subjects the subjects to set
+	 * @param subjects, the subjects to set
+	 * @return the connector itself
 	 */
 	@SuppressWarnings("unchecked")
 	public T withSubjects(String... subjects) {
@@ -106,7 +108,8 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	}
 
 	/**
-	 * @param natsURL the NATS URL to set
+	 * @param natsURL, the NATS URL to set
+	 * @return the connector itself
 	 */
 	@SuppressWarnings("unchecked")
 	public T withNatsURL(String natsURL) {
@@ -115,8 +118,8 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	}
 
 	/**
-	 * @param connectionTimeout the connectionTimeout to set
-	 * @return
+	 * @param connectionTimeout, the connectionTimeout to set
+	 * @return the connector itself
 	 */
 	@SuppressWarnings("unchecked")
 	public T withConnectionTimeout(Duration duration) {
@@ -143,7 +146,7 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 		return getSubjects();
 	}
 	
-	public int sparkToStandardNatsConnectionSignature(String natsURL, Properties properties, Collection<String> subjects, Long connectionTimeout) {
+	protected int sparkToStandardNatsConnectionSignature(String natsURL, Properties properties, Collection<String> subjects, Long connectionTimeout) {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((natsURL == null) ? 0 : natsURL.hashCode());
@@ -153,7 +156,7 @@ public abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 		return result;
 	}
 	
-	public int sparkToNatsStreamingConnectionSignature(String natsURL, Properties properties, Collection<String> subjects, Long connectionTimeout, String clusterID) {
+	protected int sparkToNatsStreamingConnectionSignature(String natsURL, Properties properties, Collection<String> subjects, Long connectionTimeout, String clusterID) {
 		final int prime = 31;
 		int result = 1 + sparkToStandardNatsConnectionSignature(natsURL, properties, subjects, connectionTimeout);
 		result = prime * result + ((clusterID == null) ? 0 : clusterID.hashCode());

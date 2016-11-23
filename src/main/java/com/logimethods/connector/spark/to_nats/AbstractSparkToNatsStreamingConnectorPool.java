@@ -57,7 +57,7 @@ public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends Spark
 	}
 
 	@Override
-	public int computeConnectionSignature() {
+	protected int computeConnectionSignature() {
 		return sparkToNatsStreamingConnectionSignature(natsURL, properties, subjects, connectionTimeout, clusterID);
 	}
 

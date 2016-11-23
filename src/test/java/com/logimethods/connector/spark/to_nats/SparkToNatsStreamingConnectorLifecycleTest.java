@@ -28,6 +28,10 @@ import com.logimethods.connector.nats.spark.test.NatsStreamingSubscriber;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
+import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
+import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
+import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorImpl;
+import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorPool;
 
 //@Ignore
 @SuppressWarnings("serial")

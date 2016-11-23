@@ -32,12 +32,16 @@ import scala.Tuple2;
  * <p>
  * That class extends {@link org.apache.spark.streaming.receiver.Receiver}&lt;String&gt;.
  * <p>
- * An usage of this class would look like this.
+ * An usage of this class would look like
  * <pre>
  * JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(2000));
- * final JavaReceiverInputDStream&lt;String&gt; messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY(), DEFAULT_SUBJECT));
+ * final JavaReceiverInputDStream&lt;String&gt; messages = 
+ * 		NatsToSparkConnector.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY(), DEFAULT_SUBJECT)).asStreamOf(ssc);
  * </pre>
- * @see <a href="http://spark.apache.org/docs/1.6.1/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
+ * @see <a href="https://github.com/Logimethods/nats-connector-spark">(Java based) NATS / Spark Connectors</a>
+ * @see <a href="http://spark.apache.org/docs/2.0.1/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
+ * 
+ * @author Laurent Magnin
  */
 @SuppressWarnings("serial")
 public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
@@ -83,12 +87,20 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 
 	/* with... */
 
+	/**
+	 * @param subjects, the NATS Subject(s) to subscribe to
+	 * @return the connector itself
+	 */
 	@SuppressWarnings("unchecked")
 	public T withSubjects(String... subjects) {
 		this.subjects = NatsSparkUtilities.transformIntoAList(subjects);
 		return (T)this;
 	}
 
+	/**
+	 * @param properties, the properties to set the connection to the NATS Server
+	 * @return the connector itself
+	 */
 	@SuppressWarnings("unchecked")
 	public T withProperties(Properties properties) {
 		this.properties = properties;
@@ -96,7 +108,8 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	}
 
 	/**
-	 * @param natsURL the NATS URL to set
+	 * @param natsURL, the NATS URL to set
+	 * @return the connector itself
 	 */
 	@SuppressWarnings("unchecked")
 	public T withNatsURL(String natsURL) {
@@ -105,7 +118,8 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	}	
 	
 	/**
-	 * @param dataExtractor the Data Extractor to set
+	 * @param dataExtractor, the Data Extractor to set
+	 * @return the connector itself
 	 */
 	@SuppressWarnings("unchecked")
 	public T withDataDecoder(Function<byte[], V> dataDecoder) {
@@ -114,7 +128,8 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	}
 	
 	/**
-	 * @param dataExtractor the Data Extractor to set
+	 * @param scalaDataDecoder, the Data Extractor to set
+	 * @return the connector itself
 	 */
 	@SuppressWarnings("unchecked")
 	public T withDataDecoder(scala.Function1<byte[], V> scalaDataDecoder) {
@@ -125,9 +140,10 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	/* **************** STANDARD NATS **************** */
 	
 	/**
-	 * Will push into Spark Strings (messages) provided by NATS.
+	 * Will push messages provided by NATS into a Spark Streaming.
 	 *
-	 * @param storageLevel Defines the StorageLevel used by Spark.
+	 * @param type, the Class of Object to expect to receive from NATS
+	 * @param storageLevel, defines the StorageLevel used by Spark
 	 * @return a NATS to Spark Connector.
 	 */
 	public static <V extends Object> StandardNatsToSparkConnectorImpl<V> receiveFromNats(Class<V> type, StorageLevel storageLevel) {
@@ -136,6 +152,13 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 
 	/* **************** NATS STREAMING **************** */
 	
+	/**
+	 * Will push messages provided by NATS into a Spark Streaming.
+	 *
+	 * @param type, the Class of Object to expect to receive from NATS
+	 * @param storageLevel, defines the StorageLevel used by Spark
+	 * @return a NATS Streaming to Spark Connector
+	 */
 	public static <V extends Object> NatsStreamingToSparkConnectorImpl<V> receiveFromNatsStreaming(Class<V> type, StorageLevel storageLevel, String clusterID) {
 		return new NatsStreamingToSparkConnectorImpl<V>(type, storageLevel, clusterID, getUniqueClientName());
 	}

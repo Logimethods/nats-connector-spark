@@ -27,12 +27,11 @@ import com.logimethods.connector.nats.spark.test.NatsStreamingPublisher;
 import com.logimethods.connector.nats.spark.test.STANServer;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
-import com.logimethods.connector.nats.to_spark.NatsStreamingToKeyValueSparkConnectorImpl;
 import com.logimethods.connector.nats.to_spark.NatsStreamingToSparkConnectorImpl;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
-import com.logimethods.connector.spark.to_nats.api.SparkToNatsStreamingConnectorPoolTest;
+import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorPoolTest;
 
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
@@ -40,7 +39,6 @@ import io.nats.stan.Message;
 import io.nats.stan.MessageHandler;
 import io.nats.stan.Subscription;
 import io.nats.stan.SubscriptionOptions;
-import scala.Tuple2;
 
 public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 	protected final static String CLUSTER_ID = "test-cluster";

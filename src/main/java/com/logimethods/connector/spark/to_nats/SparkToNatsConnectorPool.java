@@ -34,8 +34,19 @@ import scala.Tuple2;
 
 /**
  * A pool of SparkToNatsConnector(s).
+ * <p>
+ * That class provides a pool of Spark to NATS Connectors, which will constantly send to NATS the records belonging to a Spark Stream, such as follow:
+ * <pre>SparkToNatsConnectorPool
+    .newStreamingPool(clusterID)
+    .withConnectionTimeout(Duration.ofSeconds(6))
+    .withSubjects("subject1", "subject2")
+    .withNatsURL(STAN_URL)
+    .publishToNatsAsKeyValue(stream);</pre>
+ * 
+ * @see <a href="https://github.com/Logimethods/nats-connector-spark">(Java based) NATS / Spark Connectors</a>
  * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
- * @see <a href="https://github.com/Logimethods/nats-connector-spark/blob/master/README.md">NATS / Spark Connectors README (on Github)</a>
+ * 
+ * @author Laurent Magnin
  */
 public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsConnector<T> {
 	
@@ -52,6 +63,24 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	protected static final HashMap<Integer, LinkedList<SparkToNatsConnector<?>>> connectorsPoolMap = new HashMap<Integer, LinkedList<SparkToNatsConnector<?>>>();
 
 	static final Logger logger = LoggerFactory.getLogger(SparkToNatsConnectorPool.class);
+	
+	/**
+	 * Create a pool of SparkToNatsConnector(s).
+	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
+	 */
+	public static SparkToStandardNatsConnectorPool newPool() {
+		return new SparkToStandardNatsConnectorPool();
+	}
+	
+	
+	/**
+	 * Create a pool of SparkToNatsStreamingConnector(s).
+	 * @param clusterID, the ID of the NATS Cluster
+	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
+	 */
+	public static SparkToNatsStreamingConnectorPool newStreamingPool(String clusterID) {
+		return new SparkToNatsStreamingConnectorPool(clusterID);
+	}
 
 	/**
 	 * Create a pool of SparkToNatsConnector(s).
@@ -63,20 +92,12 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 		super(null, null, null, subjects);
 		logger.debug("CREATE SparkToNatsConnectorPool {} with NATS Subjects '{}'.", this, subjects);
 	}
-	
-	public static SparkToStandardNatsConnectorPool newPool() {
-		return new SparkToStandardNatsConnectorPool();
-	}
-	
-	public static SparkToNatsStreamingConnectorPool newStreamingPool(String clusterID) {
-		return new SparkToNatsStreamingConnectorPool(clusterID);
-	}
 
 	/**
 	 * @return a SparkToNatsConnector from the Pool of Connectors (if not empty), otherwise create and return a new one.
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
-	public SparkToNatsConnector<?> getConnector() throws Exception {
+	protected SparkToNatsConnector<?> getConnector() throws Exception {
 		final int localConnectionSignature = getConnectionSignature();
 		logger.debug("getConnector() for '{}' ConnectionSignature", localConnectionSignature);
 		synchronized(connectorsPoolMap) {
@@ -102,7 +123,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	/**
 	 * @param connector the SparkToNatsConnector to add to the Pool of Connectors.
 	 */
-	public void returnConnector(SparkToNatsConnector<?> connector) {
+	protected void returnConnector(SparkToNatsConnector<?> connector) {
 		logger.debug("Returning {} to pool", connector);
 		synchronized(connectorsPoolMap) {
 			final int connectionSignature = connector.getConnectionSignature();
@@ -130,14 +151,15 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	}
 	
 	/**
-	 * @param rdd
+	 * @param stream, the Spark Stream to publish to NATS
 	 */
 	public <V extends Object> void publishToNats(final JavaDStream<V> stream) {
 		publishToNats(stream, (Function<V, byte[]> & Serializable) obj -> encodeData(obj));
 	}
 	
 	/**
-	 * @param rdd
+	 * @param stream, the Spark Stream to publish to NATS
+	 * @param dataEncoder, the function used to encode the Spark Stream Records into the NATS Message Payloads
 	 */
 	public <V extends Object> void publishToNats(final JavaDStream<V> stream, final Function<V, byte[]> dataEncoder) {
 		logger.trace("publishToNats(JavaDStream<String> stream)");
@@ -157,14 +179,15 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	}
 	
 	/**
-	 * @param rdd
+	 * @param stream, the Spark Stream (composed of Key/Value Records) to publish to NATS
 	 */
 	public <K extends Object, V extends Object> void publishToNatsAsKeyValue(final JavaPairDStream<K, V> stream) {
 		publishToNatsAsKeyValue(stream, (Function<V, byte[]> & Serializable) obj -> encodeData(obj));
 	}
 	
 	/**
-	 * @param rdd
+	 * @param stream, the Spark Stream (composed of Key/Value Records) to publish to NATS
+	 * @param dataEncoder, the function used to encode the Spark Stream Records into the NATS Message Payloads
 	 */
 	public <K extends Object, V extends Object> void publishToNatsAsKeyValue(final JavaPairDStream<K, V> stream, final Function<V, byte[]> dataEncoder) {
 		logger.trace("publishToNats(JavaPairDStream<String, String> stream)");
@@ -185,7 +208,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 		});
 	}
 
-	public static long poolSize() {
+	protected static long poolSize() {
 		int size = 0;
 		for (List<SparkToNatsConnector<?>> poolList: connectorsPoolMap.values()){
 			size += poolList.size();

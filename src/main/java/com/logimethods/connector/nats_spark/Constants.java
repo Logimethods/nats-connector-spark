@@ -7,17 +7,21 @@
  *******************************************************************************/
 package com.logimethods.connector.nats_spark;
 
+/**
+ * A collection of Constant Values used by the NATS / Spark Connectors
+ * 
+ * @author Laurent Magnin
+ */
 public final class Constants {
+    protected final static String PFX = "com.logimethods.connector.nats_spark.";
+    
     /**
-     * 
-     */
-    final static String PFX = "com.logimethods.connector.nats_spark.";
-    /**
-     * This property is defined as String {@value #PROP_SUBJECTS}
+     * This property key used to specify the NATS Subjects is defined as a String {@value #PROP_SUBJECTS}
      */
     public final static String PROP_SUBJECTS = PFX + "subjects";
+    
     /**
-     * This property is defined as String {@value #PROP_CLIENT_ID}
+     * This property key used to specify the NATS Client ID is defined as a String {@value #PROP_CLIENT_ID}
      */
     public final static String PROP_CLIENT_ID = PFX + "client_id";
 }

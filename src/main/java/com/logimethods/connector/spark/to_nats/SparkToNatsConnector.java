@@ -32,8 +32,18 @@ import scala.Tuple2;
 /**
  * A Spark to NATS connector.
  * <p>
- * It provides a VoidFunction&lt;String&gt; method that can be called as follow:
- * <pre>rdd.foreach(SparkToNatsConnector.publishToNats( ... ));</pre>
+ * That connector provides way to send to NATS all the records belonging to a Spark RDD, such as follow:
+ * <pre>rdd.foreach(
+    SparkToNatsConnector
+        .newConnection()
+        .withNatsURL(NATS_SERVER_URL)
+        .withSubjects("subject1", "subject2")
+        .withConnectionTimeout(Duration.ofSeconds(1))
+        .publishToNats());</pre>
+ * 
+ * @see <a href="https://github.com/Logimethods/nats-connector-spark">(Java based) NATS / Spark Connectors</a>
+ * 
+ * @author Laurent Magnin
  */
 public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnector<T> {
 
@@ -79,6 +89,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	}
 
 	/**
+	 * @return a Spark RDD to NATS Connection
 	 */
 	public static SparkToStandardNatsConnectorImpl newConnection() {
 		return new SparkToStandardNatsConnectorImpl(null, null, null, null);
@@ -91,11 +102,10 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		this.properties = properties;
 	}
 
-	// TODO Check JavaDoc
 	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * A method that will publish the provided Object into NATS through the defined subjects.
 	 * Is used by the Scala's SparkToNatsConnectorTrait
-	 * @param obj the object from which the toString() will be published to NATS
+	 * @param obj, the object that will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	protected <V> void publish(final V obj) throws Exception {
@@ -104,11 +114,10 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		publishToNats(encodeData(obj));
 	}
 
-	// TODO Check JavaDoc
 	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * A method that will publish the provided Tuple into NATS through the defined subjects.
 	 * Is used by the Scala's SparkToNatsConnectorTrait
-	 * @param obj the object from which the toString() will be published to NATS
+	 * @param tuple, the tuple that will be published to NATS
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	protected <V> void publishTuple(final Tuple2<?, V> tuple) throws Exception {
@@ -117,11 +126,11 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		publishToNats(tuple._1.toString(), encodeData(tuple._2));
 	}
 
-	// TODO Check JavaDoc
 	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * A method that will publish the provided Object into NATS through the defined subjects.
 	 * Is used by the Scala's SparkToNatsConnectorTrait
-	 * @param obj the object from which the toString() will be published to NATS
+	 * @param obj, the object that will be published to NATS
+	 * @param dataEncoder, the function used to encode the object into an array of bytes
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	protected <V> void publish(final V obj, final Function<V, byte[]> dataEncoder) throws Exception {
@@ -130,11 +139,11 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		publishToNats(dataEncoder.apply(obj));
 	}
 
-	// TODO Check JavaDoc
 	/**
 	 * A method that will publish the provided String into NATS through the defined subjects.
 	 * Is used by the Scala's SparkToNatsConnectorTrait
-	 * @param obj the object from which the toString() will be published to NATS
+	 * @param obj, the object that will be published to NATS
+	 * @param dataEncoder, the function used to encode the object into an array of bytes
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	protected <V> void publish(final V obj, final scala.Function1<V, byte[]> dataEncoder) throws Exception {
@@ -143,11 +152,11 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		publishToNats(dataEncoder.apply(obj));
 	}
 
-	// TODO Check JavaDoc
 	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * A method that will publish the provided Tuple into NATS through the defined subjects.
 	 * Is used by the Scala's SparkToNatsConnectorTrait
-	 * @param obj the object from which the toString() will be published to NATS
+	 * @param tuple, the tuple that will be published to NATS
+	 * @param dataEncoder, the function used to encode the tuple into an array of bytes
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	protected <V> void publishTuple(final Tuple2<?, V> tuple, final Function<V, byte[]> dataEncoder) throws Exception {
@@ -156,11 +165,11 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 		publishToNats(tuple._1.toString(), dataEncoder.apply(tuple._2));
 	}
 
-	// TODO Check JavaDoc
 	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
+	 * A method that will publish the provided Tuple into NATS through the defined subjects.
 	 * Is used by the Scala's SparkToNatsConnectorTrait
-	 * @param obj the object from which the toString() will be published to NATS
+	 * @param tuple, the tuple that will be published to NATS
+	 * @param dataEncoder, the function used to encode the tuple into an array of bytes
 	 * @throws Exception is thrown when there is no Connection nor Subject defined.
 	 */
 	protected <V> void publishTuple(final Tuple2<?, V> tuple, final scala.Function1<V, byte[]> dataEncoder) throws Exception {
@@ -170,88 +179,74 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	}
 
 	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param <V>
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 * A method that will publish all the records of the provided Spark RDD into NATS
+	 * @param rdd, the RDD to publish to NATS
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <V> void publishToNats(final JavaRDD<V> rdd) throws Exception {
+	public <V> void publishToNats(final JavaRDD<V> rdd) {
 		((JavaRDD) rdd).foreach((VoidFunction<V> & Serializable) obj -> publishToNats(encodeData(obj)));
 	}
 
 	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param <V>
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 * A method that will publish all the records of the provided Spark RDD into NATS
+	 * @param rdd, the RDD to publish to NATS
+	 * @param dataEncoder, the function used to encode the records of the RDD to populate the payload of the NATS Messages
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <V> void publishToNats(final JavaRDD<V> rdd, final Function<V, byte[]> dataEncoder) throws Exception {
+	public <V> void publishToNats(final JavaRDD<V> rdd, final Function<V, byte[]> dataEncoder) {
 		((JavaRDD) rdd).foreach((VoidFunction<V> & Serializable) obj -> publishToNats(dataEncoder.apply(obj)));
 	}
 
 	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param <V>
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 * A method that will publish all the records of the provided Spark RDD into NATS
+	 * @param rdd, the RDD to publish to NATS
+	 * @param dataEncoder, the function used to encode the records of the RDD to populate the payload of the NATS Messages
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <V> void publishToNats(final JavaRDD<V> rdd, final scala.Function1<V, byte[]> dataEncoder) throws Exception {
+	public <V> void publishToNats(final JavaRDD<V> rdd, final scala.Function1<V, byte[]> dataEncoder) {
 		((JavaRDD) rdd).foreach((VoidFunction<V> & Serializable) obj -> publishToNats(dataEncoder.apply(obj)));
 	}
 
 	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param stream 
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 * A method that will publish all the records of the provided Spark RDD, made of Key/Value Tuples, into NATS.
+	 * The subjects of the NATS messages will be a combination of the global NATS Subjects with the individual Keys,
+	 * while the NATS message payloads will the the individual Tuples' values.
+	 * @param rdd, the RDD to publish to NATS
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <K,V> void publishToNatsAsKeyValue(final JavaRDD<Tuple2<K,V>> rdd) throws Exception {
+	public <K,V> void publishToNatsAsKeyValue(final JavaRDD<Tuple2<K,V>> rdd) {
 		setStoredAsKeyValue(true);
 		((JavaRDD) rdd).foreachAsync((VoidFunction<Tuple2<K, V>> & Serializable) tuple -> publishToNats(tuple._1.toString(), encodeData(tuple._2)));
 	}
 
 	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param stream 
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 * A method that will publish all the records of the provided Spark RDD, made of Key/Value Tuples, into NATS.
+	 * The subjects of the NATS messages will be a combination of the global NATS Subjects with the individual Keys,
+	 * while the NATS message payloads will the the individual Tuples' values.
+	 * @param rdd, the RDD to publish to NATS
+	 * @param dataEncoder, the function used to encode the records of the RDD to populate the payload of the NATS Messages
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <K,V> void publishToNatsAsKeyValue(final JavaRDD<Tuple2<K,V>> rdd, final Function<V, byte[]> dataEncoder) throws Exception {
+	public <K,V> void publishToNatsAsKeyValue(final JavaRDD<Tuple2<K,V>> rdd, final Function<V, byte[]> dataEncoder) {
 		setStoredAsKeyValue(true);
 		((JavaRDD) rdd).foreachAsync((VoidFunction<Tuple2<K, V>> & Serializable) tuple -> publishToNats(tuple._1.toString(), dataEncoder.apply(tuple._2)));
 	}
 
 	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param stream 
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
+	 * A method that will publish all the records of the provided Spark RDD, made of Key/Value Tuples, into NATS.
+	 * The subjects of the NATS messages will be a combination of the global NATS Subjects with the individual Keys,
+	 * while the NATS message payloads will the the individual Tuples' values.
+	 * @param rdd, the RDD to publish to NATS
+	 * @param dataEncoder, the function used to encode the records of the RDD to populate the payload of the NATS Messages
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <K,V> void publishToNatsAsKeyValue(final JavaRDD<Tuple2<K,V>> rdd, final scala.Function1<V, byte[]> dataEncoder) throws Exception {
+	public <K,V> void publishToNatsAsKeyValue(final JavaRDD<Tuple2<K,V>> rdd, final scala.Function1<V, byte[]> dataEncoder) {
 		setStoredAsKeyValue(true);
 		((JavaRDD) rdd).foreachAsync((VoidFunction<Tuple2<K, V>> & Serializable) tuple -> publishToNats(tuple._1.toString(), dataEncoder.apply(tuple._2)));
 	}
 
-	// TODO Check JavaDoc
-	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
-	 */
 	protected abstract void publishToNats(byte[] str) throws Exception;
 
-	// TODO Check JavaDoc
-	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param obj the object from which the toString() will be published to NATS
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
-	 */
 	protected abstract void publishToNats(String subject, byte[] payload) throws Exception;
 
 	protected static String combineSubjects(String preSubject, String postSubject) {

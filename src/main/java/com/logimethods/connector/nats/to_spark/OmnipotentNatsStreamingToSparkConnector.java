@@ -23,23 +23,15 @@ import io.nats.stan.Message;
 import io.nats.stan.MessageHandler;
 import io.nats.stan.Subscription;
 import io.nats.stan.SubscriptionOptions;
-import scala.Tuple2;
 
 /**
  * A NATS to Spark Connector.
  * <p>
  * It will transfer messages received from NATS into Spark data.
  * <p>
- * That class extends {@link org.apache.spark.streaming.receiver.Receiver}&lt;String&gt;.
- * <p>
- * An usage of this class would look like this.
- * <pre>
- * JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(2000));
- * final JavaReceiverInputDStream&lt;String&gt; messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY(), DEFAULT_SUBJECT));
- * </pre>
- * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
+ * That class extends {@link com.logimethods.connector.nats.to_spark.NatsToSparkConnector}&lt;T,R,V&gt;.
  */
-public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends NatsToSparkConnector<T,R, V> {
+public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends NatsToSparkConnector<T,R,V> {
 
 	/**
 	 * 
@@ -62,6 +54,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
 //		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
 
+	/**
+	 * @param optsBuilder, the NATS Streaming options used to set the connection to NATS
+	 * @return a NATS Streaming to Spark Connector
+	 */
 	public OmnipotentNatsStreamingToSparkConnector<T,R,V> withSubscriptionOptionsBuilder(SubscriptionOptions.Builder optsBuilder) {
 		this.optsBuilder = optsBuilder;
 		return this;
@@ -71,7 +67,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
      * Sets the durable subscriber name for the subscription.
      * 
      * @param durableName the name of the durable subscriber
-     * @return this
+     * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> setDurableName(String durableName) {
     	getOptsBuilder().setDurableName(durableName);
@@ -82,7 +78,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
      * Sets the maximum number of in-flight (unacknowledged) messages for the subscription.
      * 
      * @param maxInFlight the maximum number of in-flight messages
-     * @return this
+     * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> setMaxInFlight(int maxInFlight) {
     	getOptsBuilder().setMaxInFlight(maxInFlight);
@@ -93,7 +89,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
      * Sets the amount of time the subscription will wait for ACKs from the cluster.
      * 
      * @param ackWait the amount of time the subscription will wait for an ACK from the cluster
-     * @return this
+     * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> setAckWait(Duration ackWait) {
     	getOptsBuilder().setAckWait(ackWait);
@@ -105,7 +101,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
      * 
      * @param ackWait the amount of time the subscription will wait for an ACK from the cluster
      * @param unit the time unit
-     * @return this
+     * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> setAckWait(long ackWait, TimeUnit unit) {
     	getOptsBuilder().setAckWait(ackWait, unit);
@@ -117,7 +113,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
      * {@link Message#ack()}.
      * 
      * @param manualAcks whether or not messages must be manually acknowledged
-     * @return this
+     * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> setManualAcks(boolean manualAcks) {
     	getOptsBuilder().setManualAcks(manualAcks);
@@ -128,7 +124,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
      * Specifies the sequence number from which to start receiving messages.
      * 
      * @param seq the sequence number from which to start receiving messages
-     * @return this
+     * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> startAtSequence(long seq) {
     	getOptsBuilder().startAtSequence(seq);
@@ -139,7 +135,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
      * Specifies the desired start time position using {@code java.time.Instant}.
      * 
      * @param start the desired start time position expressed as a {@code java.time.Instant}
-     * @return this
+     * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> startAtTime(Instant start) {
     	getOptsBuilder().startAtTime(start);
@@ -151,7 +147,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
      * 
      * @param ago the historical time delta (from now) from which to start receiving messages
      * @param unit the time unit
-     * @return this
+     * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> startAtTimeDelta(long ago, TimeUnit unit) {
     	getOptsBuilder().startAtTimeDelta(ago, unit);
@@ -162,7 +158,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
      * Specifies the desired delta start time as a {@link java.time.Duration}.
      * 
      * @param ago the historical time delta (from now) from which to start receiving messages
-     * @return this
+     * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> startAtTimeDelta(Duration ago) {
     	getOptsBuilder().startAtTimeDelta(ago);
@@ -173,7 +169,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
      * Specifies that message delivery should start with the last (most recent) message stored
      * for this subject.
      * 
-     * @return this
+     * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> startWithLastReceived() {
     	getOptsBuilder().startWithLastReceived();
@@ -184,7 +180,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
      * Specifies that message delivery should begin at the oldest available message for this
      * subject.
      * 
-     * @return this
+     * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> deliverAllAvailable() {
     	getOptsBuilder().deliverAllAvailable();
@@ -213,6 +209,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R, V> extends Na
 	}
 
 	/**
+	 * @return a NATS Streaming to Spark Connector where the NATS Messages are stored in Spark as Key (the NATS Subject) / Value (the NATS Payload)
 	 */
 	public NatsStreamingToKeyValueSparkConnectorImpl<V> storedAsKeyValue() {
 		return new NatsStreamingToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, queue, natsUrl, clusterID, clientID, 

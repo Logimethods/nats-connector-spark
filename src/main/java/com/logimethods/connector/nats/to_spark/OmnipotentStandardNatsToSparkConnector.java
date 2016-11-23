@@ -28,14 +28,7 @@ import io.nats.client.Subscription;
  * <p>
  * It will transfer messages received from NATS into Spark data.
  * <p>
- * That class extends {@link org.apache.spark.streaming.receiver.Receiver}&lt;String&gt;.
- * <p>
- * An usage of this class would look like this.
- * <pre>
- * JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(2000));
- * final JavaReceiverInputDStream&lt;String&gt; messages = ssc.receiverStream(NatsToSparkConnector.receiveFromNats(StorageLevel.MEMORY_ONLY(), DEFAULT_SUBJECT));
- * </pre>
- * @see <a href="http://spark.apache.org/docs/1.6.2/streaming-custom-receivers.html">Spark Streaming Custom Receivers</a>
+ * That class extends {@link com.logimethods.connector.nats.to_spark.NatsToSparkConnector}&lt;T,R,V&gt;.
  */
 @SuppressWarnings("serial")
 public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends NatsToSparkConnector<T,R,V> {

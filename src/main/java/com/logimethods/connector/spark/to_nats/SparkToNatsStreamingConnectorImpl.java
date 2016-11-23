@@ -23,7 +23,7 @@ import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 import io.nats.stan.Connection;
 import io.nats.stan.ConnectionFactory;
 
-public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNatsStreamingConnectorImpl> {
+class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNatsStreamingConnectorImpl> {
 
 	/**
 	 * 
@@ -79,11 +79,6 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 		return clientID;
 	}
 
-	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param obj the String that will be published to NATS.
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
-	 */
 	@Override
 	protected void publishToNats(byte[] payload) throws Exception {
 		resetClosingTimeout();
@@ -96,12 +91,6 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 		}
 	}
 
-	// TODO Check Javadoc
-	/**
-	 * A method that will publish the provided String into NATS through the defined subjects.
-	 * @param obj the String that will be published to NATS.
-	 * @throws Exception is thrown when there is no Connection nor Subject defined.
-	 */
 	@Override
 	protected void publishToNats(String postSubject, byte[] payload) throws Exception {
 		resetClosingTimeout();
@@ -180,7 +169,7 @@ public class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<Spar
 	}
 
 	@Override
-	public int computeConnectionSignature() {
+	protected int computeConnectionSignature() {
 		return sparkToNatsStreamingConnectionSignature(natsURL, properties, subjects, connectionTimeout, clusterID);
 	}
 

@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
-package com.logimethods.connector.spark.to_nats;
+package com.logimethods.connector.spark.to_nats.api;
 
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
 
@@ -13,7 +13,9 @@ import java.time.Duration;
 
 import org.apache.spark.streaming.api.java.JavaDStream;
 
-//@Ignore
+import com.logimethods.connector.spark.to_nats.AbstractSparkToStandardNatsConnectorLifecycleTest;
+import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
+
 @SuppressWarnings("serial")
 public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToStandardNatsConnectorLifecycleTest {
 
