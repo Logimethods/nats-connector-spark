@@ -200,7 +200,7 @@ final Function<byte[], MyClass> dataDecoder = bytes -> {
 };
 JavaReceiverInputDStream<MyClass> messages = 
 	NatsToSparkConnector
-		.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY()
+		.receiveFromNats(MyClass.class, StorageLevel.MEMORY_ONLY()
 		.../...
 		.withDataDecoder(dataDecoder)
 		.asStreamOf(ssc);
