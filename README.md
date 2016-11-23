@@ -539,8 +539,9 @@ Those connectors have been tested against a Spark Cluster, thanks to the [Docker
 - The NATS/Spark Connector library is coded in Java & packaged thanks to Maven as a Jar File.
 - *The Spark Core & Streaming libraries need to be provided*.
 
-## Samples
+## Code Samples
 * The ['docker-nats-connector-spark'](https://github.com/Logimethods/docker-nats-connector-spark) Docker Based Project that makes use of Gatling, Spark & NATS.
+* The ['smart-meter'](https://github.com/Logimethods/smart-meter) Docker *Swarm* Based Project that makes use of Gatling, Spark & NATS.
 
 ## License
 
