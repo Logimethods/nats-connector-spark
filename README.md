@@ -541,7 +541,7 @@ Those connectors have been tested against a Spark Cluster, thanks to the [Docker
 
 ## Code Samples
 * The ['docker-nats-connector-spark'](https://github.com/Logimethods/docker-nats-connector-spark) Docker Based Project that makes use of Gatling, Spark & NATS.
-* The ['smart-meter'](https://github.com/Logimethods/smart-meter) Docker *Swarm* Based Project that makes use of Gatling, Spark & NATS.
+* The ['smart-meter'](https://github.com/Logimethods/smart-meter) Docker *Swarm* Based Project that makes use of Gatling, Cassandra, Golang, Spark & NATS.
 
 ## License
 
