@@ -9,6 +9,8 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.logimethods/nats-connector-spark/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.logimethods/nats-connector-spark)
 
 ## Release Notes
+### Version 0.4.0-SNAPSHOT
+
 ### Version 0.3.0
 - Based on Spark 2.0.1
 - Spark records can be handled as Key/Value 
@@ -43,8 +45,6 @@ networks:
 ### Maven Central
 
 #### Releases
-
-The two first versions (0.1.0 & 0.2.0) of the NATS Spark connectors have been released, but without being already fully tested in large applications.
 
 If you are embedding the NATS Spark connectors, add the following dependency to your project's `pom.xml`.
 
@@ -84,7 +84,7 @@ If you are embedding the NATS Spark connectors, add the following dependency to 
     <dependency>
       <groupId>com.logimethods</groupId>
       <artifactId>nats-connector-spark</artifactId>
-      <version>0.3.0-SNAPSHOT</version>
+      <version>0.4.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 ```
