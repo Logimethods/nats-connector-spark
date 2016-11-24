@@ -11,7 +11,7 @@
 
 	<groupId>com.logimethods</groupId>
 	<artifactId>nats-connector-spark</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<version>0.3.0</version>
 
 	<name>nats-connector-spark</name>
 	<description>Spark Plugin for NATS Connector</description>
