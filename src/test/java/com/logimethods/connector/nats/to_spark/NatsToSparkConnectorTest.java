@@ -18,8 +18,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
-import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 
+@SuppressWarnings("serial")
 public class NatsToSparkConnectorTest implements Serializable {
     @Rule
     public ExpectedException thrown= ExpectedException.none();
@@ -108,6 +108,20 @@ public class NatsToSparkConnectorTest implements Serializable {
 		bos.close();
 		
 		assertEquals(dummy, connector.decodeData(bytes));
+	}
+	
+	@Test
+	// @See https://github.com/Logimethods/nats-connector-spark/pull/3
+	// @See https://github.com/nats-io/java-nats-streaming/issues/51
+	public void testSubscriptionOptions_BuilderSerialization() throws IOException {
+		final NatsStreamingToSparkConnectorImpl<String> connector = 
+				NatsToSparkConnector
+					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), "clusterID") 
+					.deliverAllAvailable() 
+					.withNatsURL("NATS_URL") 
+					.withSubjects("DEFAULT_SUBJECT");
+		
+		new ObjectOutputStream(new ByteArrayOutputStream()).writeObject(connector);
 	}
 }
 
