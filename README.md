@@ -10,6 +10,7 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 
 ## Release Notes
 ### Version 0.4.0-SNAPSHOT
+- Shaded [org.slf4j](https://github.com/Logimethods/nats-connector-spark/issues/2)
 
 ### Version 0.3.0
 - Based on Spark 2.0.1
