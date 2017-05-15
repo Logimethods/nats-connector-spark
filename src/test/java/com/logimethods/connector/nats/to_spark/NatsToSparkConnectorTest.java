@@ -114,10 +114,22 @@ public class NatsToSparkConnectorTest implements Serializable {
 		assertEquals(dummy, connector.decodeData(bytes));
 	}
 	
-	@Test
+//	@Test
 	// @See https://github.com/Logimethods/nats-connector-spark/pull/3
 	// @See https://github.com/nats-io/java-nats-streaming/issues/51
 	public void testSubscriptionOptions_BuilderSerialization() throws IOException, ClassNotFoundException {
+		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME);
+
+		@SuppressWarnings("unchecked")
+		final SubscriptionOptions.Builder newOptsBuilder = (SubscriptionOptions.Builder) serializeDeserialize(optsBuilder);
+		
+		assertEquals(DURABLE_NAME, newOptsBuilder.build().getDurableName());
+	}
+
+//	@Test
+	// @See https://github.com/Logimethods/nats-connector-spark/pull/3
+	// @See https://github.com/nats-io/java-nats-streaming/issues/51
+	public void testNatsStreamingToSparkConnectorImpl_Serialization() throws IOException, ClassNotFoundException {
 		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME);
 		final NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
@@ -126,13 +138,21 @@ public class NatsToSparkConnectorTest implements Serializable {
 				.deliverAllAvailable() 
 				.withNatsURL("NATS_URL") 
 				.withSubjects("DEFAULT_SUBJECT");
+	
+		@SuppressWarnings("unchecked")
+		final NatsStreamingToSparkConnectorImpl<String> newConnector = (NatsStreamingToSparkConnectorImpl<String>) serializeDeserialize(connector);
+		
+		assertEquals(DURABLE_NAME, newConnector.getSubscriptionOptions().getDurableName());
+	}
 
+	protected Object serializeDeserialize(Object object)
+			throws IOException, ClassNotFoundException {
 		byte[] bytes = null;
 		ByteArrayOutputStream bos = null;
 		ObjectOutputStream oos = null;
 		bos = new ByteArrayOutputStream();
 		oos = new ObjectOutputStream(bos);
-		oos.writeObject(connector);
+		oos.writeObject(object);
 		oos.flush();
 		bytes = bos.toByteArray();
 		oos.close();
@@ -146,11 +166,7 @@ public class NatsToSparkConnectorTest implements Serializable {
 		obj = ois.readObject();
 		bis.close();
 		ois.close();
-
-		@SuppressWarnings("unchecked")
-		final NatsStreamingToSparkConnectorImpl<String> newConnector = (NatsStreamingToSparkConnectorImpl<String>) obj;
-		
-		assertEquals(DURABLE_NAME, newConnector.getSubscriptionOptions().getDurableName());
+		return obj;
 	}
 }
 
