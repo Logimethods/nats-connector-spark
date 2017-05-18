@@ -42,7 +42,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	static final Logger logger = LoggerFactory.getLogger(OmnipotentNatsStreamingToSparkConnector.class);
 
 	protected String clusterID, clientID;
-	protected SubscriptionOptions opts;
+	protected transient SubscriptionOptions opts;
 	protected SubscriptionOptions.Builder optsBuilder;
 
 	/* Constructors with subjects provided by the environment */

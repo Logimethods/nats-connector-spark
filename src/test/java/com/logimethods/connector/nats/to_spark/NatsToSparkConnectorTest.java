@@ -114,19 +114,18 @@ public class NatsToSparkConnectorTest implements Serializable {
 		assertEquals(dummy, connector.decodeData(bytes));
 	}
 	
-//	@Test
+	@Test
 	// @See https://github.com/Logimethods/nats-connector-spark/pull/3
 	// @See https://github.com/nats-io/java-nats-streaming/issues/51
 	public void testSubscriptionOptions_BuilderSerialization() throws IOException, ClassNotFoundException {
 		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME);
 
-		@SuppressWarnings("unchecked")
 		final SubscriptionOptions.Builder newOptsBuilder = (SubscriptionOptions.Builder) serializeDeserialize(optsBuilder);
 		
 		assertEquals(DURABLE_NAME, newOptsBuilder.build().getDurableName());
 	}
 
-//	@Test
+	@Test
 	// @See https://github.com/Logimethods/nats-connector-spark/pull/3
 	// @See https://github.com/nats-io/java-nats-streaming/issues/51
 	public void testNatsStreamingToSparkConnectorImpl_Serialization() throws IOException, ClassNotFoundException {
