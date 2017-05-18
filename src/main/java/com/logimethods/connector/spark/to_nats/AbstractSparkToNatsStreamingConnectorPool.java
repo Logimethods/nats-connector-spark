@@ -7,7 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import io.nats.streaming.ConnectionFactory;
+import io.nats.streaming.Options;
 
 public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends SparkToNatsConnectorPool<T> {
 
@@ -17,7 +17,7 @@ public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends Spark
 	private static final long serialVersionUID = 1L;
 	protected String clusterID;
 	// TODO No more static, needs to be checked on a cluster
-	protected ConnectionFactory 	connectionFactory;
+	protected Options.Builder optionsBuilder;
 	
 	/**
 	 * 
@@ -37,23 +37,23 @@ public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends Spark
 														getNatsURL(), 
 														getProperties(), 
 														getConnectionTimeout(), 
-														getConnectionFactory(), 
+														getOptionsBuilder(), 
 														getDefinedSubjects(),
 														isStoredAsKeyValue());
 	}
 
 	/**
-	 * @return the connectionFactory
+	 * @return the optionsBuilder
 	 */
-	protected ConnectionFactory getConnectionFactory() {
-		return connectionFactory;
+	protected Options.Builder getOptionsBuilder() {
+		return optionsBuilder;
 	}
 
 	/**
-	 * @param connectionFactory the connectionFactory to set
+	 * @param optionsBuilder the optionsBuilder to set
 	 */
-	protected void setConnectionFactory(ConnectionFactory factory) {
-		connectionFactory = factory;
+	protected void setOptionsBuilder(Options.Builder optionsBuilder) {
+		this.optionsBuilder = optionsBuilder;
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends Spark
 	@Override
 	public String toString() {
 		return "SparkToNatsStreamingConnectorPool ["
-				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
+				+ (optionsBuilder != null ? "optionsBuilder=" + optionsBuilder + ", " : "")
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")
 				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "")

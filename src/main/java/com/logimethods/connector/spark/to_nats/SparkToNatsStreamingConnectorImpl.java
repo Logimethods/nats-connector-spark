@@ -20,8 +20,9 @@ import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
-import io.nats.streaming.Connection;
-import io.nats.streaming.ConnectionFactory;
+import io.nats.streaming.NatsStreaming;
+import io.nats.streaming.Options;
+import io.nats.streaming.StreamingConnection;
 
 class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNatsStreamingConnectorImpl> {
 
@@ -33,8 +34,9 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 	protected final String clusterID;
 	protected final static String CLIENT_ID_ROOT = "SparkToNatsStreamingConnector_";
 	protected transient String clientID;
-	protected transient ConnectionFactory connectionFactory;
-	protected transient Connection connection;
+	// TODO Remove transient for optionsBuilder (?)
+	protected transient Options.Builder optionsBuilder;
+	protected transient StreamingConnection connection;
 
 	/**
 	 * 
@@ -51,9 +53,9 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 	 * @param b 
 	 */
 	protected SparkToNatsStreamingConnectorImpl(String clusterID, String natsURL, Properties properties, 
-			Long connectionTimeout, ConnectionFactory connectionFactory, Collection<String> subjects, boolean isStoredAsKeyValue) {
+			Long connectionTimeout, Options.Builder optionsBuilder, Collection<String> subjects, boolean isStoredAsKeyValue) {
 		super(natsURL, properties, connectionTimeout, subjects);
-		this.connectionFactory = connectionFactory;
+		this.optionsBuilder = optionsBuilder;
 		this.clusterID = clusterID;
 		setStoredAsKeyValue(isStoredAsKeyValue);
 	}
@@ -63,9 +65,9 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 	 * @param connectionFactory
 	 * @param subjects
 	 */
-	protected SparkToNatsStreamingConnectorImpl(String clusterID, String natsURL, Properties properties, Long connectionTimeout, ConnectionFactory connectionFactory, String... subjects) {
+	protected SparkToNatsStreamingConnectorImpl(String clusterID, String natsURL, Properties properties, Long connectionTimeout, Options.Builder optionsBuilder, String... subjects) {
 		super(natsURL, properties, connectionTimeout, subjects);
-		this.connectionFactory = connectionFactory;
+		this.optionsBuilder = optionsBuilder;
 		this.clusterID = clusterID;
 	}
 
@@ -83,7 +85,7 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 	protected void publishToNats(byte[] payload) throws Exception {
 		resetClosingTimeout();
 				
-		final Connection localConnection = getConnection();
+		final StreamingConnection localConnection = getConnection();
 		for (String subject : getDefinedSubjects()) {
 			localConnection.publish(subject, payload);
 	
@@ -97,7 +99,7 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 		
 		logger.debug("Received '{}' from Spark with '{}' Subject", payload, postSubject);
 		
-		final Connection localConnection = getConnection();
+		final StreamingConnection localConnection = getConnection();
 		for (String preSubject : getDefinedSubjects()) {
 			final String subject = combineSubjects(preSubject, postSubject);
 			localConnection.publish(subject, payload);
@@ -106,23 +108,22 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 		}
 	}
 
-	protected synchronized Connection getConnection() throws Exception {
+	protected synchronized StreamingConnection getConnection() throws Exception {
 		if (connection == null) {
 			connection = createConnection();
 		}
 		return connection;
 	}
 
-	protected ConnectionFactory getConnectionFactory() throws Exception {
-		if (connectionFactory == null) {
-			connectionFactory = new ConnectionFactory(clusterID, getClientID());
-			connectionFactory.setNatsUrl(getNatsURL());
+	protected Options.Builder getOptionsBuilder() throws Exception {
+		if (optionsBuilder == null) {
+			optionsBuilder = new Options.Builder().natsUrl(getNatsURL());
 		}		
-		return connectionFactory;
+		return optionsBuilder;
 	}
 	
-	protected Connection createConnection() throws IOException, TimeoutException, Exception {
-		final Connection newConnection = getConnectionFactory().createConnection();
+	protected StreamingConnection createConnection() throws IOException, TimeoutException, Exception {
+		final StreamingConnection newConnection = NatsStreaming.connect(clusterID, getClientID(), getOptionsBuilder().build());
 		logger.debug("A NATS Connection {} has been created for {}", newConnection, this);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
@@ -131,7 +132,7 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 				logger.debug("Caught CTRL-C, shutting down gracefully..." + this);
 				try {
 					newConnection.close();
-				} catch (IOException | TimeoutException e) {
+				} catch (IOException | TimeoutException | InterruptedException e) {
 					if (logger.isDebugEnabled()) {
 						logger.error("Exception while unsubscribing " + e.toString());
 					}
@@ -150,7 +151,7 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 			try {
 				connection.close();
 				logger.debug("{} has been CLOSED by {}", connection, super.toString());
-			} catch (IOException | TimeoutException e) {
+			} catch (IOException | TimeoutException | InterruptedException e) {
 				if (logger.isDebugEnabled()) {
 					logger.error("Exception while closing the connection: {} by {}", e, this);
 				}
@@ -181,7 +182,7 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 		return "SparkToNatsStreamingConnectorImpl [" + Integer.toHexString(hashCode()) + " : "
 				+ (clusterID != null ? " : clusterID=" + clusterID + ", " : "")
 				+ (clientID != null ? "clientID=" + clientID + ", " : "")
-				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
+				+ (optionsBuilder != null ? "optionsBuilder=" + optionsBuilder + ", " : "")
 				+ (connection != null ? "connection=" + connection + ", " : "")
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")
