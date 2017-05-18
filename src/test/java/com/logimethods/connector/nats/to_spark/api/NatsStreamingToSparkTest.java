@@ -33,10 +33,11 @@ import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorPoolTest;
 
-import io.nats.streaming.Connection;
-import io.nats.streaming.ConnectionFactory;
+import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
+import io.nats.streaming.NatsStreaming;
+import io.nats.streaming.Options;
 import io.nats.streaming.Subscription;
 import io.nats.streaming.SubscriptionOptions;
 
@@ -105,9 +106,8 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
         // Run a STAN server
     	
         try (STANServer s = runServer(CLUSTER_ID, false)) {
-            ConnectionFactory cf = new ConnectionFactory(CLUSTER_ID, getUniqueClientName());
-            cf.setNatsUrl(STAN_URL);
-            try (Connection sc = cf.createConnection()) {
+            Options options = new Options.Builder().natsUrl(STAN_URL).build();
+            try (StreamingConnection sc = NatsStreaming.connect(CLUSTER_ID, getUniqueClientName(), options)) {
                 SubscriptionOptions sopts = new SubscriptionOptions.Builder().build();
                 try (Subscription sub = sc.subscribe("foo", new MessageHandler() {
                     public void onMessage(Message msg) {}
@@ -116,7 +116,7 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
                 } catch (Exception e) {
                     fail("Expected no error on Subscribe, got: " + e.getMessage());
                 }
-            } catch (IOException | TimeoutException e) {
+            } catch (IOException | TimeoutException | InterruptedException e) {
                 e.printStackTrace();
                 fail(e.getMessage());
             }

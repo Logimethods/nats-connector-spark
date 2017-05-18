@@ -17,10 +17,11 @@ import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nats.streaming.Connection;
-import io.nats.streaming.ConnectionFactory;
 import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
+import io.nats.streaming.NatsStreaming;
+import io.nats.streaming.Options;
+import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.Subscription;
 import io.nats.streaming.SubscriptionOptions;
 
@@ -221,11 +222,12 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	protected void receive() throws Exception {
 
 		// Make connection and initialize streams			  
-		final ConnectionFactory connectionFactory = new ConnectionFactory(clusterID, clientID);
-		if (getNatsUrl() != null) {
-			connectionFactory.setNatsUrl(getNatsUrl());
+		final Options.Builder optionsBuilder = new Options.Builder();
+		if (natsUrl != null) {
+			optionsBuilder.natsUrl(natsUrl);
 		}
-		final Connection connection = connectionFactory.createConnection();
+		final StreamingConnection connection = NatsStreaming.connect(clusterID, clientID, optionsBuilder.build());
+
 //		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);
 		
 		for (String subject: getSubjects()) {
@@ -238,14 +240,14 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 					logger.debug("Caught CTRL-C, shutting down gracefully..." + this);
 					try {
 						sub.unsubscribe();
-					} catch (IOException | TimeoutException e) {
+					} catch (IOException e) {
 						if (logger.isDebugEnabled()) {
 							logger.error("Exception while unsubscribing " + e.toString());
 						}
 					}
 					try {
 						connection.close();
-					} catch (IOException | TimeoutException e) {
+					} catch (IOException | TimeoutException | InterruptedException e) {
 						if (logger.isDebugEnabled()) {
 							logger.error("Exception while unsubscribing " + e.toString());
 						}

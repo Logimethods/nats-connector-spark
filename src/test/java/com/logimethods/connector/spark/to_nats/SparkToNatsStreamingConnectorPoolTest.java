@@ -39,8 +39,9 @@ import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
 import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorImpl;
 
-import io.nats.streaming.Connection;
-import io.nats.streaming.ConnectionFactory;
+import io.nats.streaming.NatsStreaming;
+import io.nats.streaming.Options;
+import io.nats.streaming.StreamingConnection;
 
 // Call first $ nats-streaming-server -m 8222 -p 4223
 public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsConnectorTest {
@@ -74,12 +75,11 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
     public void testBasicPublish() {
         // Run a STAN server
         try (STANServer s = UnitTestUtilities.startStreamingServer(clusterID, false)) {
-        	ConnectionFactory connectionFactory = new ConnectionFactory(clusterID, getUniqueClientName());
-        	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
-            try ( Connection sc =
-            		connectionFactory.createConnection()) {
+        	Options options = new Options.Builder().natsUrl("nats://localhost:" + STANServerPORT).build();
+            try ( StreamingConnection sc =
+            		NatsStreaming.connect(clusterID, getUniqueClientName(), options)) {
                 sc.publish("foo", "Hello World!".getBytes());
-            } catch (IOException | TimeoutException e) {
+            } catch (IOException | TimeoutException | InterruptedException e) {
                 fail(e.getMessage());
             }
         }

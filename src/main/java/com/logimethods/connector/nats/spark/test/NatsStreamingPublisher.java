@@ -7,8 +7,9 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.spark.test;
 
-import io.nats.streaming.Connection;
-import io.nats.streaming.ConnectionFactory;
+import io.nats.streaming.NatsStreaming;
+import io.nats.streaming.Options;
+import io.nats.streaming.StreamingConnection;
 
 public class NatsStreamingPublisher extends NatsPublisher {
 
@@ -35,11 +36,11 @@ public class NatsStreamingPublisher extends NatsPublisher {
 
 			logger.debug("NATS Publisher ({}):  Starting", id);
 
-			final ConnectionFactory cf = new ConnectionFactory(clusterID, clientID);
+			final Options.Builder optionsBuilder = new Options.Builder();
 			if (natsUrl != null) {
-				cf.setNatsUrl(natsUrl);
+				optionsBuilder.natsUrl(natsUrl);
 			}
-			Connection c = cf.createConnection();
+			final StreamingConnection c = NatsStreaming.connect(clusterID, clientID, optionsBuilder.build());
 			
 			logger.debug("A NATS Connection to '{}' has been created.", c);
 			

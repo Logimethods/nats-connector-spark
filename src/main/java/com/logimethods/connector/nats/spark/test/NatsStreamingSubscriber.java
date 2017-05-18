@@ -12,9 +12,11 @@ import java.util.LinkedList;
 
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
-import io.nats.streaming.ConnectionFactory;
 import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
+import io.nats.streaming.NatsStreaming;
+import io.nats.streaming.Options;
+import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.Subscription;
 
 public class NatsStreamingSubscriber<V> extends NatsSubscriber {
@@ -43,13 +45,12 @@ public class NatsStreamingSubscriber<V> extends NatsSubscriber {
 		try {
 			logger.info("NATS Subscriber ({}):  Subscribing to subject: {}", id, subject); //trace
 
-        	final ConnectionFactory connectionFactory = new ConnectionFactory(clusterName, clientName);
-        	if (natsUrl != null) {
-        		connectionFactory.setNatsUrl(natsUrl);
-        	}
-
-			io.nats.streaming.Connection c = connectionFactory.createConnection();
-
+			final Options.Builder optionsBuilder = new Options.Builder();
+			if (natsUrl != null) {
+				optionsBuilder.natsUrl(natsUrl);
+			}
+			final StreamingConnection c = NatsStreaming.connect(clusterName, clientName, optionsBuilder.build());
+			
 //			AsyncSubscription s = c.subscribeAsync(subject, this);
 //			s.start();
 			Subscription sub = c.subscribe(subject, new MessageHandler() {
