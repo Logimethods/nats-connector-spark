@@ -34,8 +34,7 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 	protected final String clusterID;
 	protected final static String CLIENT_ID_ROOT = "SparkToNatsStreamingConnector_";
 	protected transient String clientID;
-	// TODO Remove transient for optionsBuilder (?)
-	protected transient Options.Builder optionsBuilder;
+	protected Options.Builder optionsBuilder;
 	protected transient StreamingConnection connection;
 
 	/**

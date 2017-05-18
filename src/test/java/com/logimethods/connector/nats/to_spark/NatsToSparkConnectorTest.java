@@ -10,8 +10,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Properties;
 import java.util.function.Function;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.spark.storage.StorageLevel;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,11 +21,9 @@ import org.junit.rules.ExpectedException;
 
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
-import io.nats.streaming.SubscriptionOptions;
-
 @SuppressWarnings("serial")
 public class NatsToSparkConnectorTest implements Serializable {
-    private static final String DURABLE_NAME = "DURABLE_NAME";
+    private static final String NATS_URL = "NATS_URL";
     
 	@Rule
     public ExpectedException thrown= ExpectedException.none();
@@ -117,55 +117,20 @@ public class NatsToSparkConnectorTest implements Serializable {
 	@Test
 	// @See https://github.com/Logimethods/nats-connector-spark/pull/3
 	// @See https://github.com/nats-io/java-nats-streaming/issues/51
-	public void testSubscriptionOptions_BuilderSerialization() throws IOException, ClassNotFoundException {
-		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME);
-
-		final SubscriptionOptions.Builder newOptsBuilder = (SubscriptionOptions.Builder) serializeDeserialize(optsBuilder);
-		
-		assertEquals(DURABLE_NAME, newOptsBuilder.build().getDurableName());
-	}
-
-	@Test
-	// @See https://github.com/Logimethods/nats-connector-spark/pull/3
-	// @See https://github.com/nats-io/java-nats-streaming/issues/51
-	public void testNatsStreamingToSparkConnectorImpl_Serialization() throws IOException, ClassNotFoundException {
-		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME);
-		final NatsStreamingToSparkConnectorImpl<String> connector = 
+	public void testNatsToSparkConnectorImpl_Serialization() throws IOException, ClassNotFoundException {
+		final Properties properties = new Properties();
+		properties.setProperty(com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS, "SubjectA,SubjectB , SubjectC");
+		StandardNatsToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
-				.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), "clusterID") 
-				.withSubscriptionOptionsBuilder(optsBuilder)
-				.deliverAllAvailable() 
-				.withNatsURL("NATS_URL") 
-				.withSubjects("DEFAULT_SUBJECT");
+					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY()) 
+					.withProperties(properties)
+					.withNatsURL(NATS_URL) 
+					.withSubjects("DEFAULT_SUBJECT");
 	
 		@SuppressWarnings("unchecked")
-		final NatsStreamingToSparkConnectorImpl<String> newConnector = (NatsStreamingToSparkConnectorImpl<String>) serializeDeserialize(connector);
+		final StandardNatsToSparkConnectorImpl<String> newConnector = (StandardNatsToSparkConnectorImpl<String>) SerializationUtils.clone(connector);
 		
-		assertEquals(DURABLE_NAME, newConnector.getSubscriptionOptions().getDurableName());
-	}
-
-	protected Object serializeDeserialize(Object object)
-			throws IOException, ClassNotFoundException {
-		byte[] bytes = null;
-		ByteArrayOutputStream bos = null;
-		ObjectOutputStream oos = null;
-		bos = new ByteArrayOutputStream();
-		oos = new ObjectOutputStream(bos);
-		oos.writeObject(object);
-		oos.flush();
-		bytes = bos.toByteArray();
-		oos.close();
-		bos.close();
-
-		Object obj = null;
-		ByteArrayInputStream bis = null;
-		ObjectInputStream ois = null;
-		bis = new ByteArrayInputStream(bytes);
-		ois = new ObjectInputStream(bis);
-		obj = ois.readObject();
-		bis.close();
-		ois.close();
-		return obj;
+		assertEquals(NATS_URL, newConnector.getNatsUrl());
 	}
 }
 
