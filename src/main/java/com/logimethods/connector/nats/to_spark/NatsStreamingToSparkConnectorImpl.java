@@ -16,8 +16,8 @@ import org.apache.spark.streaming.dstream.ReceiverInputDStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nats.stan.Message;
-import io.nats.stan.MessageHandler;
+import io.nats.streaming.Message;
+import io.nats.streaming.MessageHandler;
 import scala.Tuple2;
 
 /**

@@ -9,7 +9,7 @@ package com.logimethods.connector.nats.to_spark;
 
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
-import static io.nats.client.Constants.PROP_URL;
+import static io.nats.client.Nats.PROP_URL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

@@ -15,9 +15,9 @@ import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nats.stan.Message;
-import io.nats.stan.MessageHandler;
-import io.nats.stan.SubscriptionOptions;
+import io.nats.streaming.Message;
+import io.nats.streaming.MessageHandler;
+import io.nats.streaming.SubscriptionOptions;
 import scala.Tuple2;
 
 /**

@@ -17,12 +17,12 @@ import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nats.stan.Connection;
-import io.nats.stan.ConnectionFactory;
-import io.nats.stan.Message;
-import io.nats.stan.MessageHandler;
-import io.nats.stan.Subscription;
-import io.nats.stan.SubscriptionOptions;
+import io.nats.streaming.Connection;
+import io.nats.streaming.ConnectionFactory;
+import io.nats.streaming.Message;
+import io.nats.streaming.MessageHandler;
+import io.nats.streaming.Subscription;
+import io.nats.streaming.SubscriptionOptions;
 
 /**
  * A NATS to Spark Connector.

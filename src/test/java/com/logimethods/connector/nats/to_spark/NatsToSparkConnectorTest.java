@@ -19,7 +19,7 @@ import org.junit.rules.ExpectedException;
 
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
-import io.nats.stan.SubscriptionOptions;
+import io.nats.streaming.SubscriptionOptions;
 
 @SuppressWarnings("serial")
 public class NatsToSparkConnectorTest implements Serializable {

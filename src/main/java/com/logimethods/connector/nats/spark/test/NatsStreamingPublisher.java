@@ -7,8 +7,8 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.spark.test;
 
-import io.nats.stan.Connection;
-import io.nats.stan.ConnectionFactory;
+import io.nats.streaming.Connection;
+import io.nats.streaming.ConnectionFactory;
 
 public class NatsStreamingPublisher extends NatsPublisher {
 

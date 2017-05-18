@@ -7,7 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import static io.nats.client.Constants.PROP_URL;
+import static io.nats.client.Nats.PROP_URL;
 
 import java.io.IOException;
 import java.util.Collection;

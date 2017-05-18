@@ -8,7 +8,7 @@
 package com.logimethods.connector.nats.to_spark;
 
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
-import static io.nats.client.Constants.PROP_URL;
+import static io.nats.client.Nats.PROP_URL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import com.logimethods.connector.nats_spark.IncompleteException;
 
-import io.nats.stan.SubscriptionOptions;
+import io.nats.streaming.SubscriptionOptions;
 
 public class NatsStreamingToSparkWithAttributesTest {
 	protected final static String CLUSTER_ID = "CLUSTER_ID";

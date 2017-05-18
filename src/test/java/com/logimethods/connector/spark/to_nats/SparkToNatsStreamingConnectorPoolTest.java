@@ -11,7 +11,7 @@ import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.STANSe
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.STAN_URL;
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.startStreamingServer;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
-import static io.nats.client.Constants.PROP_URL;
+import static io.nats.client.Nats.PROP_URL;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -39,8 +39,8 @@ import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
 import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorImpl;
 
-import io.nats.stan.Connection;
-import io.nats.stan.ConnectionFactory;
+import io.nats.streaming.Connection;
+import io.nats.streaming.ConnectionFactory;
 
 // Call first $ nats-streaming-server -m 8222 -p 4223
 public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsConnectorTest {

@@ -8,7 +8,7 @@
 package com.logimethods.connector.nats.to_spark;
 
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
-import static io.nats.client.Constants.PROP_URL;
+import static io.nats.client.Nats.PROP_URL;
 
 import java.util.Collection;
 import java.util.Properties;
@@ -228,7 +228,7 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected R decodeData(io.nats.stan.Message m) {
+	protected R decodeData(io.nats.streaming.Message m) {
 		final R s = (R) decodeData(m.getData());
 		return s;
 	}
@@ -241,7 +241,7 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	}
 		
 	@SuppressWarnings("unchecked")
-	protected R decodeTuple(io.nats.stan.Message m) {
+	protected R decodeTuple(io.nats.streaming.Message m) {
 		final String subject = m.getSubject();		
 		V s = decodeData(m.getData());
 		return (R) new Tuple2<String,V>(subject, s);

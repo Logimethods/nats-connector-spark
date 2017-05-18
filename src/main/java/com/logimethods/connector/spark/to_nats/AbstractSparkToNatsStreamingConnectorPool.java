@@ -7,7 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import io.nats.stan.ConnectionFactory;
+import io.nats.streaming.ConnectionFactory;
 
 public abstract class AbstractSparkToNatsStreamingConnectorPool<T> extends SparkToNatsConnectorPool<T> {
 

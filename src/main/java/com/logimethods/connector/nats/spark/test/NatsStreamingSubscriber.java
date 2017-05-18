@@ -12,10 +12,10 @@ import java.util.LinkedList;
 
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
-import io.nats.stan.ConnectionFactory;
-import io.nats.stan.Message;
-import io.nats.stan.MessageHandler;
-import io.nats.stan.Subscription;
+import io.nats.streaming.ConnectionFactory;
+import io.nats.streaming.Message;
+import io.nats.streaming.MessageHandler;
+import io.nats.streaming.Subscription;
 
 public class NatsStreamingSubscriber<V> extends NatsSubscriber {
 
@@ -48,7 +48,7 @@ public class NatsStreamingSubscriber<V> extends NatsSubscriber {
         		connectionFactory.setNatsUrl(natsUrl);
         	}
 
-			io.nats.stan.Connection c = connectionFactory.createConnection();
+			io.nats.streaming.Connection c = connectionFactory.createConnection();
 
 //			AsyncSubscription s = c.subscribeAsync(subject, this);
 //			s.start();
