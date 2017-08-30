@@ -44,6 +44,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	protected String clusterID, clientID;
 	protected transient SubscriptionOptions opts;
 	protected SubscriptionOptions.Builder optsBuilder;
+	protected SubOptionBuilder subOptsBuilder;
 
 	/* Constructors with subjects provided by the environment */
 	
@@ -193,20 +194,21 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	 * @return the opts
 	 */
 	protected SubscriptionOptions getSubscriptionOptions() {
-		if ((opts == null) && (optsBuilder != null)){
-			opts = optsBuilder.build();
-		}
-		return opts;
+//		if ((opts == null) && (optsBuilder != null)){
+//			opts = optsBuilder.build();
+//		}
+//		return opts;
+		return subOptsBuilder.build();
 	}
 
 	/**
 	 * @return the optsBuilder
 	 */
-	protected SubscriptionOptions.Builder getOptsBuilder() {
-		if (optsBuilder == null) {
-			optsBuilder = new SubscriptionOptions.Builder();
+	protected SubOptionBuilder getOptsBuilder() {
+		if (subOptsBuilder == null) {
+			subOptsBuilder = new SubOptionBuilder();
 		}
-		return optsBuilder;
+		return subOptsBuilder;
 	}
 
 	/**
