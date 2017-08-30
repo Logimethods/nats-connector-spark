@@ -11,9 +11,10 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 ## Release Notes
 ### Version 0.4.0-SNAPSHOT
 - Based on Java Nats Streaming 0.5.1-SNAPSHOT
+	- SubscriptionOptions are now [serializable](https://github.com/nats-io/java-nats-streaming/issues/51)
+	- `io.nats.client.Constants` needs to be replaced by `io.nats.client.Nats`
 - Based on Spark 2.1.0
 - Shaded [org.slf4j](https://github.com/Logimethods/nats-connector-spark/issues/2)
-- SubscriptionOptions are now [serializable](https://github.com/nats-io/java-nats-streaming/issues/51)
 
 ### Version 0.3.0
 - Based on Spark 2.0.1
