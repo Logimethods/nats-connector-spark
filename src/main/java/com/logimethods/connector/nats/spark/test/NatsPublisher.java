@@ -16,6 +16,7 @@ public abstract class NatsPublisher extends TestClient implements Runnable
 {
 	public static final String NATS_PAYLOAD = "Hello from NATS! ";
 	protected static final AtomicInteger INCR = new AtomicInteger();
+	public static final Integer NATS_PAYLOAD_INT = 100000;
 
 	String subject;
 	String natsUrl;

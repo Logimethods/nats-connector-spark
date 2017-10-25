@@ -84,7 +84,7 @@ public abstract class AbstractNatsToSparkTest {
 		rightNumber = true;
 		atLeastSomeData = false;
 		
-		SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]");
+		SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]").set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
 		sc = new JavaSparkContext(sparkConf);
 	}
 
@@ -137,6 +137,47 @@ public abstract class AbstractNatsToSparkTest {
 		closeTheValidation(ssc, executor, nbOfMessages, np);		
 	}
 	
+
+	protected void validateTheReceptionOfIntegerMessages(JavaStreamingContext ssc, 
+			JavaReceiverInputDStream<Integer> stream) throws InterruptedException {
+		JavaDStream<Integer> messages = stream.repartition(3);
+
+		ExecutorService executor = Executors.newFixedThreadPool(6);
+
+		final int nbOfMessages = 5;
+		NatsPublisher np = getNatsPublisher(nbOfMessages);
+		
+		if (logger.isDebugEnabled()) {
+			messages.print();
+		}
+		
+		messages.foreachRDD(new VoidFunction<JavaRDD<Integer>>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void call(JavaRDD<Integer> rdd) throws Exception {
+				logger.debug("RDD received: {}", rdd.collect());
+				
+				final long count = rdd.count();
+				if ((count != 0) && (count != nbOfMessages)) {
+					rightNumber = false;
+					logger.error("The number of messages received should have been {} instead of {}.", nbOfMessages, count);
+				}
+				
+				TOTAL_COUNT.getAndAdd((int) count);
+				
+				atLeastSomeData = atLeastSomeData || (count > 0);
+				
+				for (Integer str :rdd.collect()) {
+					if (str < NatsPublisher.NATS_PAYLOAD_INT) {
+							payload = str.toString();
+						}
+				}
+			}			
+		});
+		
+		closeTheValidation(ssc, executor, nbOfMessages, np);
+	}
 
 	protected void validateTheReceptionOfMessages(final JavaStreamingContext ssc,
 			final JavaPairDStream<String, String> messages) throws InterruptedException {
