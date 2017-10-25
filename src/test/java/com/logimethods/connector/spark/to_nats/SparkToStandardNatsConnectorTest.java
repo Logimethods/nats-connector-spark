@@ -62,7 +62,7 @@ public class SparkToStandardNatsConnectorTest {
 		
 		logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorTest.class);       
 
-		SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]");
+		SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]").set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
 		sc = new JavaSparkContext(sparkConf);
 
 		UnitTestUtilities.startDefaultServer();

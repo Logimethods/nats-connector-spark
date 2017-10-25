@@ -59,6 +59,7 @@ import java.util.regex.Pattern;
  *    `$ bin/run-example org.apache.spark.examples.streaming.JavaCustomReceiver localhost 9999`
  */
 
+@Deprecated
 public class JavaCustomReceiver extends Receiver<Tuple2<String, Long>> {
   private static final Pattern SPACE = Pattern.compile(" ");
 
@@ -80,7 +81,7 @@ public class JavaCustomReceiver extends Receiver<Tuple2<String, Long>> {
     }
 
     // Create the context with a 1 second batch size
-    SparkConf sparkConf = new SparkConf().setAppName("JavaCustomReceiver").setMaster("local[*]");
+    SparkConf sparkConf = new SparkConf().setAppName("JavaCustomReceiver").setMaster("local[*]").set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
     JavaStreamingContext ssc = new JavaStreamingContext(sparkConf, new Duration(5000));
 
     // Create an input stream with the custom receiver on target ip:port and count the
