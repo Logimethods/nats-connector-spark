@@ -168,9 +168,9 @@ public abstract class AbstractNatsToSparkTest {
 				
 				atLeastSomeData = atLeastSomeData || (count > 0);
 				
-				for (Integer str :rdd.collect()) {
-					if (str < NatsPublisher.NATS_PAYLOAD_INT) {
-							payload = str.toString();
+				for (Integer value :rdd.collect()) {
+					if (value < NatsPublisher.NATS_PAYLOAD_INT) {
+							payload = value.toString();
 						}
 				}
 			}			

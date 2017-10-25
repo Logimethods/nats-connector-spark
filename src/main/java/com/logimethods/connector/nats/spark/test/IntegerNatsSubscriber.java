@@ -9,6 +9,9 @@ package com.logimethods.connector.nats.spark.test;
 
 import io.nats.client.AsyncSubscription;
 import io.nats.client.ConnectionFactory;
+import io.nats.client.Message;
+
+import java.nio.ByteBuffer;
 
 public class IntegerNatsSubscriber extends NatsSubscriber {
 
@@ -48,4 +51,17 @@ public class IntegerNatsSubscriber extends NatsSubscriber {
 		}
 	}
 
+	@Override
+	public void onMessage(Message message) {
+
+		Integer value = ByteBuffer.wrap(message.getData()).getInt();
+
+		logger.debug("NATS Subscriber ({}):  Received message: {}", id, value);
+
+		if (tallyMessage() == testCount)
+		{
+			logger.info("NATS Subscriber ({}) Received {} messages.  Completed.", id, testCount);
+			setComplete();
+		}
+	}
 }
