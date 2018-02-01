@@ -13,6 +13,7 @@ import io.nats.client.ConnectionFactory;
 public class StandardNatsSubscriber extends NatsSubscriber {
 
 	/**
+	 * @param natsUrl
 	 * @param id
 	 * @param subject
 	 * @param count

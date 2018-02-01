@@ -139,7 +139,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.4</version>
+				<version>3.0.0</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -148,14 +148,16 @@
 							<goal>aggregate</goal>
 						</goals>
 						<configuration>
-							<failOnError>true</failOnError>
+							<failOnError>false</failOnError>
 							<show>public</show>
 							<nohelp>true</nohelp>
 							<header>nats-connector-spark ${project.version}</header>
 							<footer>nats-connector-spark ${project.version}</footer>
 							<doctitle>nats-connector-spark ${project.version}</doctitle>
 							<!-- <reportOutputDirectory>./target</reportOutputDirectory> -->
-							<destDir>target/apidocs/docs/${project.version}/api</destDir>
+							<outputDirectory>target/apidocs/docs/${project.version}/api</outputDirectory>
+							<!-- See https://github.com/lettuce-io/lettuce-core/issues/39 -->
+							<additionalparam>-Xdoclint:none</additionalparam>
 						</configuration>
 					</execution>
 				</executions>

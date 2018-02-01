@@ -118,7 +118,7 @@ abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 	}
 
 	/**
-	 * @param connectionTimeout, the connectionTimeout to set
+	 * @param duration, the duration to set
 	 * @return the connector itself
 	 */
 	@SuppressWarnings("unchecked")

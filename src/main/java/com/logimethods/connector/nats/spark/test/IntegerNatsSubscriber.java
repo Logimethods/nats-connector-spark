@@ -16,6 +16,7 @@ import java.nio.ByteBuffer;
 public class IntegerNatsSubscriber extends NatsSubscriber {
 
 	/**
+	 * @param natsUrl
 	 * @param id
 	 * @param subject
 	 * @param count

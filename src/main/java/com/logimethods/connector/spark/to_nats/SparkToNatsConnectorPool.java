@@ -66,6 +66,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	
 	/**
 	 * Create a pool of SparkToNatsConnector(s).
+	 * @return a new SparkToStandardNatsConnectorPool
 	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
 	 */
 	public static SparkToStandardNatsConnectorPool newPool() {
@@ -76,6 +77,7 @@ public abstract class SparkToNatsConnectorPool<T> extends AbstractSparkToNatsCon
 	/**
 	 * Create a pool of SparkToNatsStreamingConnector(s).
 	 * @param clusterID, the ID of the NATS Cluster
+	 * @return a new SparkToNatsStreamingConnectorPool
 	 * @see <a href="http://spark.apache.org/docs/latest/streaming-programming-guide.html#design-patterns-for-using-foreachrdd">Design Patterns for using foreachRDD</a>
 	 */
 	public static SparkToNatsStreamingConnectorPool newStreamingPool(String clusterID) {

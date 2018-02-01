@@ -248,6 +248,8 @@ public class UnitTestUtilities {
 
 	/**
 	 * @param data
+	 * @param subject
+	 * @param url
 	 * @return
 	 */
 	public static StandardNatsSubscriber getStandardNatsSubscriber(final List<Integer> data, String subject, String url) {
@@ -265,6 +267,10 @@ public class UnitTestUtilities {
 
 	/**
 	 * @param data
+	 * @param subject
+	 * @param clusterName
+	 * @param clientName
+	 * @param url
 	 * @return
 	 */
 	public static NatsStreamingSubscriber<Integer> getNatsStreamingSubscriber(final List<Integer> data, String subject, String clusterName, String clientName, String url) {

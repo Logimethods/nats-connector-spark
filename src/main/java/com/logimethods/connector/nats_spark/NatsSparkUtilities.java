@@ -92,7 +92,7 @@ public class NatsSparkUtilities {
 	 * @param type, the class of the object to decode
 	 * @param bytes, the content that represent the object to decode
 	 * @return the extracted object
-	 * @throws UnsupportedOperationException, raised when the expected type of the object is not a Number or a String
+	 * @throws UnsupportedOperationException , raised when the expected type of the object is not a Number or a String
 	 * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html">Class ByteBuffer</a>
 	 */
 	@SuppressWarnings("unchecked")

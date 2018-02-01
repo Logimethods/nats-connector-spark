@@ -27,9 +27,13 @@ public class NatsStreamingSubscriber<V> extends NatsSubscriber {
 	private Collection<V> data;
 
 	/**
+	 * @param natsUrl
 	 * @param id
 	 * @param subject
-	 * @param count
+	 * @param clusterName
+	 * @param clientName
+	 * @param data
+	 * @param type
 	 */
 	public NatsStreamingSubscriber(String natsUrl, String id, String subject, String clusterName, String clientName, Collection<V> data, Class<V> type) {
 		super(natsUrl, id, subject, data.size());

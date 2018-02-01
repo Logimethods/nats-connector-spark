@@ -69,13 +69,6 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 		this.subjects = NatsSparkUtilities.transformIntoAList(subjects);
 	}
 	
-	/**
-	 * @param storageLevel
-	 * @param subjects
-	 * @param properties
-	 * @param queue
-	 * @param natsUrl
-	 */
 	protected NatsToSparkConnector(Class<V> type, StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
 		super(storageLevel);
 		this.type = type;
@@ -118,7 +111,7 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	}	
 	
 	/**
-	 * @param dataExtractor, the Data Extractor to set
+	 * @param dataDecoder, the Data Decoder to set
 	 * @return the connector itself
 	 */
 	@SuppressWarnings("unchecked")
@@ -157,6 +150,7 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	 *
 	 * @param type, the Class of Object to expect to receive from NATS
 	 * @param storageLevel, defines the StorageLevel used by Spark
+	 * @param clusterID, used by NATS Streaming
 	 * @return a NATS Streaming to Spark Connector
 	 */
 	public static <V extends Object> NatsStreamingToSparkConnectorImpl<V> receiveFromNatsStreaming(Class<V> type, StorageLevel storageLevel, String clusterID) {
@@ -184,7 +178,8 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	}
 
 	/** Create a socket connection and receive data until receiver is stopped 
-	 * @throws Exception **/
+	 * @throws Exception
+	 **/
 	protected abstract void receive() throws Exception;
 	
 	protected void setQueue() {

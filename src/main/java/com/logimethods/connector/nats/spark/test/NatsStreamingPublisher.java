@@ -16,10 +16,10 @@ public class NatsStreamingPublisher extends NatsPublisher {
 	protected final String clusterID, clientID;
 	
 	/**
+	 * @param id
 	 * @param clusterID
 	 * @param clientID
 	 * @param natsUrl
-	 * @param id
 	 * @param subject
 	 * @param count
 	 */

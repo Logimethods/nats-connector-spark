@@ -70,8 +70,7 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends Nats
 	/** Create a socket connection and receive data until receiver is stopped 
 	 * @throws IncompleteException 
 	 * @throws TimeoutException 
-	 * @throws IOException 
-	 * @throws Exception **/
+	 * @throws IOException **/
 	protected void receive() throws IncompleteException, IOException, TimeoutException {
 
 		// Make connection and initialize streams			  
