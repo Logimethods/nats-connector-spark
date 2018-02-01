@@ -16,7 +16,7 @@
 	<name>nats-connector-spark</name>
 	<description>Spark Plugin for NATS Connector</description>
 	<url>https://github.com/Logimethods/nats-connector-spark</url>
-	<inceptionYear>2016</inceptionYear>
+	<inceptionYear>2018</inceptionYear>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,13 +24,13 @@
 		<java.version>1.8</java.version>
 		<!-- 1.6.1 is not compatible with a docker-compose made cluster -->
 		<!-- https://forums.docker.com/t/underscore-in-domain-names/12584/2 -->
-		<spark.version>2.1.0</spark.version>
+		<spark.version>2.2.1</spark.version>
 		<junit-version>4.11</junit-version>
 		<github.global.server>github</github.global.server>
 		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
 		<dependency.locations.enabled>false</dependency.locations.enabled>
 		<!-- NATS -->
-		<java-nats-streaming.version>0.5.1-SNAPSHOT</java-nats-streaming.version>
+		<java-nats-streaming.version>0.5.0</java-nats-streaming.version>
 	</properties>
 
 	<dependencies>
@@ -44,12 +44,12 @@
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.5</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-core_2.11</artifactId>
 			<version>${spark.version}</version>
 			<scope>provided</scope>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-streaming_2.11</artifactId>
