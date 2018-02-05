@@ -9,7 +9,7 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.logimethods/nats-connector-spark/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.logimethods/nats-connector-spark)
 
 ## Release Notes
-### Version 0.4.0-SNAPSHOT
+### Version 0.4.0
 - Based on Java Nats Streaming 0.5.0
 	- SubscriptionOptions are now [serializable](https://github.com/nats-io/java-nats-streaming/issues/51)
 	- `io.nats.client.Constants` needs to be replaced by `io.nats.client.Nats`
