@@ -11,7 +11,7 @@
 
 	<groupId>com.logimethods</groupId>
 	<artifactId>nats-connector-spark</artifactId>
-	<version>0.4.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 
 	<name>nats-connector-spark</name>
 	<description>Spark Plugin for NATS Connector</description>
@@ -30,7 +30,7 @@
 		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
 		<dependency.locations.enabled>false</dependency.locations.enabled>
 		<!-- NATS -->
-		<java-nats-streaming.version>0.5.0</java-nats-streaming.version>
+		<java-nats-streaming.version>2.1.2</java-nats-streaming.version>
 	</properties>
 
 	<dependencies>
@@ -90,7 +90,7 @@
 						</goals>
 						<configuration>
 							<passphrase>${SONATYPE_PASSPHRASE}</passphrase>
-							<!-- <ascDirectory>${ASC_DIRECTORY}</ascDirectory> <publicKeyring>${ASC_DIRECTORY}/pubring.asc</publicKeyring> 
+							<!-- <ascDirectory>${ASC_DIRECTORY}</ascDirectory> <publicKeyring>${ASC_DIRECTORY}/pubring.asc</publicKeyring>
 								<secretKeyring>${ASC_DIRECTORY}/secring.asc</secretKeyring> -->
 						</configuration>
 					</execution>
@@ -100,7 +100,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.19</version>
-				<!-- <configuration> <reuseForks>false</reuseForks> <forkCount>1</forkCount> 
+				<!-- <configuration> <reuseForks>false</reuseForks> <forkCount>1</forkCount>
 					</configuration> -->
 			</plugin>
 			<plugin>
@@ -111,17 +111,17 @@
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
-			<!-- <plugin> <groupId>org.jacoco</groupId> <artifactId>jacoco-maven-plugin</artifactId> 
-				<version>0.7.5.201505241946</version> <executions> <execution> <id>default-prepare-agent</id> 
-				<goals> <goal>prepare-agent</goal> </goals> </execution> <execution> <id>default-report</id> 
-				<phase>prepare-package</phase> <goals> <goal>report</goal> </goals> </execution> 
-				<execution> <id>default-check</id> <goals> <goal>check</goal> </goals> <configuration> 
-				<rules> <rule implementation="org.jacoco.maven.RuleConfiguration"> <element>BUNDLE</element> 
-				<limits> <limit implementation="org.jacoco.report.check.Limit"> <counter>COMPLEXITY</counter> 
-				<value>COVEREDRATIO</value> <minimum>0.20</minimum> </limit> </limits> </rule> 
+			<!-- <plugin> <groupId>org.jacoco</groupId> <artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.7.5.201505241946</version> <executions> <execution> <id>default-prepare-agent</id>
+				<goals> <goal>prepare-agent</goal> </goals> </execution> <execution> <id>default-report</id>
+				<phase>prepare-package</phase> <goals> <goal>report</goal> </goals> </execution>
+				<execution> <id>default-check</id> <goals> <goal>check</goal> </goals> <configuration>
+				<rules> <rule implementation="org.jacoco.maven.RuleConfiguration"> <element>BUNDLE</element>
+				<limits> <limit implementation="org.jacoco.report.check.Limit"> <counter>COMPLEXITY</counter>
+				<value>COVEREDRATIO</value> <minimum>0.20</minimum> </limit> </limits> </rule>
 				</rules> </configuration> </execution> </executions> </plugin> -->
-			<!-- <plugin> <groupId>org.eluder.coveralls</groupId> <artifactId>coveralls-maven-plugin</artifactId> 
-				<version>2.2.0</version> <configuration> <sourceEncoding>UTF8</sourceEncoding> 
+			<!-- <plugin> <groupId>org.eluder.coveralls</groupId> <artifactId>coveralls-maven-plugin</artifactId>
+				<version>2.2.0</version> <configuration> <sourceEncoding>UTF8</sourceEncoding>
 				</configuration> </plugin> -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -182,10 +182,10 @@
 				</configuration>
 			</plugin>
 			<!-- https://github.com/github/maven-plugins -->
-			<!-- <plugin> <groupId>com.github.github</groupId> <artifactId>site-maven-plugin</artifactId> 
-				<version>0.12</version> <configuration> <message>Javadoc for ${project.version}</message> 
-				<path>target/apidocs</path> <branch>refs/heads/gh-pages</branch> </configuration> 
-				<executions> <execution> <goals> <goal>site</goal> </goals> <phase>site</phase> 
+			<!-- <plugin> <groupId>com.github.github</groupId> <artifactId>site-maven-plugin</artifactId>
+				<version>0.12</version> <configuration> <message>Javadoc for ${project.version}</message>
+				<path>target/apidocs</path> <branch>refs/heads/gh-pages</branch> </configuration>
+				<executions> <execution> <goals> <goal>site</goal> </goals> <phase>site</phase>
 				</execution> </executions> </plugin> -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -292,8 +292,8 @@
 		</developer>
 	</developers>
 
-	<!-- <ciManagement> <system>Travis</system> <url>https://travis-ci.org/nats-io/nats-connector-spark/</url> 
-		</ciManagement> <mailingLists> <mailingList> <name>nats</name> <archive>https://groups.google.com/group/natsio/</archive> 
-		<subscribe>natsio+subscribe@googlegroups.com</subscribe> <unsubscribe>natsio+unsubscribe@googlegroups.com</unsubscribe> 
+	<!-- <ciManagement> <system>Travis</system> <url>https://travis-ci.org/nats-io/nats-connector-spark/</url>
+		</ciManagement> <mailingLists> <mailingList> <name>nats</name> <archive>https://groups.google.com/group/natsio/</archive>
+		<subscribe>natsio+subscribe@googlegroups.com</subscribe> <unsubscribe>natsio+unsubscribe@googlegroups.com</unsubscribe>
 		<post>natsio@googlegroups.com</post> </mailingList> </mailingLists> -->
 </project>

@@ -9,8 +9,13 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.logimethods/nats-connector-spark/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.logimethods/nats-connector-spark)
 
 ## Release Notes
+### Version 1.0.0
+- Based on [Java Nats Streaming](https://github.com/nats-io/java-nats-streaming) `2.1.2`, which includes [NATS - Java Client](https://github.com/nats-io/java-nats) version `2.3.0`
+- Tested with:
+  - `nats-server version 1.3.0`
+  - `nats-streaming-server[test-cluster] version 0.11.2`
+
 ### Version 0.4.0
-- Based on Java Nats Streaming 0.5.0
 	- SubscriptionOptions are now [serializable](https://github.com/nats-io/java-nats-streaming/issues/51)
 	- `io.nats.client.Constants` needs to be replaced by `io.nats.client.Nats`
 - Based on Spark 2.2.1
@@ -18,7 +23,7 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 
 ### Version 0.3.0
 - Based on Spark 2.0.1
-- Spark records can be handled as Key/Value 
+- Spark records can be handled as Key/Value
 - `.asStreamOf(ssc)` is introduced
 - Message Data can be any Java `Object` (not limited to `String`), serialized as `byte[]` (the native NATS payload format)
 
@@ -114,7 +119,7 @@ If you don't already have your `pom.xml` configured for using Maven snapshots fr
 The reception of NATS Messages as Spark Steam is done through the `NatsToSparkConnector.receiveFromNats([Class], ...)` method, where `[Class]` is the Java Class of the objects to deserialize:
 
 ```java
-JavaReceiverInputDStream<[Class]> messages = 
+JavaReceiverInputDStream<[Class]> messages =
 	NatsToSparkConnector
 		.receiveFromNats([Class].class, StorageLevel.MEMORY_ONLY()
 		.../...
@@ -203,7 +208,7 @@ final Function<byte[], MyClass> dataDecoder = bytes -> {
 	.../...
 	return (MyClass) obj;
 };
-JavaReceiverInputDStream<MyClass> messages = 
+JavaReceiverInputDStream<MyClass> messages =
 	NatsToSparkConnector
 		.receiveFromNats(MyClass.class, StorageLevel.MEMORY_ONLY()
 		.../...
@@ -224,7 +229,7 @@ JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 ##### While listening to NATS on a list of subjects:
 
 ```java
-JavaReceiverInputDStream<String> messages = 
+JavaReceiverInputDStream<String> messages =
 	NatsToSparkConnector
 		.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY()
 		.withSubjects("SubjectA", "SubjectB")
@@ -237,7 +242,7 @@ JavaReceiverInputDStream<String> messages =
 ```java
 Properties properties = new Properties();
 properties.setProperty(com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS, "SubjectA,SubjectB , SubjectC");
-JavaReceiverInputDStream<Float> messages = 
+JavaReceiverInputDStream<Float> messages =
 	NatsToSparkConnector
 		.receiveFromNats(Float.class, StorageLevel.MEMORY_ONLY())
 		.withProperties(properties)
@@ -257,13 +262,13 @@ The Spark Stream is there made of [Key/Value Pairs](https://spark.apache.org/doc
 ```
 JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
-JavaPairDStream<String, Integer> messages = 
+JavaPairDStream<String, Integer> messages =
 	NatsToSparkConnector
 		.receiveFromNats(Integer.class, StorageLevel.MEMORY_ONLY()
 		.withSubjects("SubjectA.>", "SubjectB.*.result")
 		.withNatsURL("nats://localhost:4222")
 		.asStreamOfKeyValue(ssc);
-				
+
 messages.groupByKey().print();
 ```
 
@@ -272,7 +277,7 @@ messages.groupByKey().print();
 ```java
 String clusterID = "test-cluster";
 Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
-JavaReceiverInputDStream<String> messages = 
+JavaReceiverInputDStream<String> messages =
 	NatsToSparkConnector
 		.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), clusterID)
 		.withNatsURL(STAN_URL)
@@ -310,13 +315,13 @@ The Spark Stream is there made of [Key/Value Pairs](https://spark.apache.org/doc
 ```
 JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
-final JavaPairDStream<String, Integer> messages = 
+final JavaPairDStream<String, Integer> messages =
 		NatsToSparkConnector
 				.receiveFromNatsStreaming(Integer.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 				.withNatsURL(STAN_URL)
 				.withSubjects(DEFAULT_SUBJECT)
 				.asStreamOfKeyValue(ssc);
-				
+
 messages.groupByKey().print();
 ```
 
@@ -333,7 +338,7 @@ Custom serialization can be performed by a `java.util.function.Function<[Class],
 ```java
 SparkToNatsConnectorPool.newPool()
 			.withNatsURL(NATS_SERVER_URL)
-			.publishToNats(stream, 
+			.publishToNats(stream,
 				       (java.util.function.Function<String, byte[]> & Serializable) str -> str.getBytes());
 ```
 
@@ -365,7 +370,7 @@ Any Spark Stream of type [JavaPairDStream\<String, String\>](https://spark.apach
 ##### Without Global Subjects
 
 ```java
-JavaPairDStream<String, String> stream = 
+JavaPairDStream<String, String> stream =
 	lines.mapToPair((PairFunction<String, String, String>) str -> {return new Tuple2<String, String>("B", str);});
 
 SparkToNatsConnectorPool
@@ -386,7 +391,7 @@ will send to NATS such [subject:payload] messages:
 ##### With Global Subjects
 
 ```java
-JavaPairDStream<String, String> stream = 
+JavaPairDStream<String, String> stream =
 	lines.mapToPair((PairFunction<String, String, String>) str -> {return new Tuple2<String, String>("B", str);});
 
 SparkToNatsConnectorPool
@@ -410,7 +415,7 @@ will send to NATS such [subject:payload] messages:
 Here the NATS Subjects will be the Key of the Spark Pairs where the pattern expressed by the left part of the Global Subject (split by `=>`) is replaced by the right part of the Global Subject.
 
 ```java
-JavaPairDStream<String, String> stream = 
+JavaPairDStream<String, String> stream =
 	lines.mapToPair((PairFunction<String, String, String>) str -> {return new Tuple2<String, String>("b.c", str);});
 
 SparkToNatsConnectorPool
@@ -429,7 +434,7 @@ will send to NATS such [subject:payload] messages:
 ...
 ```
 
-See 
+See
 ```java
 @Test
 public void testCombineSubjectsWithSubstitution() {
@@ -466,7 +471,7 @@ The optional settings are:
 #### From Spark (Streaming) made of *Key/Value* Pairs to *NATS Streaming*
 
 ```java
-JavaPairDStream<String, String> stream = 
+JavaPairDStream<String, String> stream =
 	lines.mapToPair((PairFunction<String, String, String>) str -> {return new Tuple2<String, String>("B", str);});
 String clusterID = "test-cluster";
 SparkToNatsConnectorPool
@@ -491,7 +496,7 @@ rdd.foreach(
 		.withNatsURL(NATS_SERVER_URL)
 		.withSubjects("subject1", "subject2")
 		.withConnectionTimeout(Duration.ofSeconds(1))
-		.publishToNats()); 
+		.publishToNats());
 ```
 
 The optional settings are:
@@ -507,18 +512,18 @@ A Spark `JavaRDD<Tuple2<String, String>>` can publish NATS Messages where the Su
 To do so, you should use `.publishToNatsAsKeyValue()` instead of `.publishToNats()`.
 
 ```java
-JavaRDD<Tuple2<String, Integer>> tuples = 
-	rdd.map((Function<String, Tuple2<String, Integer>>) 
-			str -> {return new Tuple2<String, Integer>("sub-subject", Integer.parseInt(str));});	
-	
-final VoidFunction<Tuple2<String, Integer>> publishToNats = 
+JavaRDD<Tuple2<String, Integer>> tuples =
+	rdd.map((Function<String, Tuple2<String, Integer>>)
+			str -> {return new Tuple2<String, Integer>("sub-subject", Integer.parseInt(str));});
+
+final VoidFunction<Tuple2<String, Integer>> publishToNats =
 		SparkToNatsConnector
 			.newConnection()
 			.withNatsURL(NATS_SERVER_URL)
 			.withSubjects("main-subject.")
 			.publishToNatsAsKeyValue();
 
-tuples.foreach(publishToNats);	
+tuples.foreach(publishToNats);
 ```
 
 ## Usage (in Scala)
@@ -527,7 +532,7 @@ You should instead use the dedicated [nats-connector-spark-scala](https://github
 ## Testing
 
 JUnit tests are included. To perform those tests, [gnatsd](http://nats.io/download/nats-io/gnatsd/) and [nats-streaming-server](http://nats.io/documentation/streaming/nats-streaming-intro/) are required.
-You might have first to start those servers:
+You have then first to start those servers:
 ```Shell
 gnatsd -p 4221&
 nats-streaming-server -p 4223&
