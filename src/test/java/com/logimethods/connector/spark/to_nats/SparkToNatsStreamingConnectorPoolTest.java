@@ -11,7 +11,7 @@ import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.STANSe
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.STAN_URL;
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.startStreamingServer;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
-import static io.nats.client.Nats.PROP_URL;
+import static io.nats.client.Options.PROP_URL;
 import static org.junit.Assert.fail;
 
 import java.io.File;

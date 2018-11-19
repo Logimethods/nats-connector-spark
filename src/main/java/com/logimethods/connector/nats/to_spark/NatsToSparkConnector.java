@@ -8,7 +8,7 @@
 package com.logimethods.connector.nats.to_spark;
 
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
-import static io.nats.client.Nats.PROP_URL;
+import static io.nats.client.Options.PROP_URL;
 
 import java.util.Collection;
 import java.util.Properties;
