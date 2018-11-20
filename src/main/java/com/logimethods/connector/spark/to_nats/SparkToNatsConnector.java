@@ -92,7 +92,7 @@ public abstract class SparkToNatsConnector<T> extends AbstractSparkToNatsConnect
 	 * @return a Spark RDD to NATS Connection
 	 */
 	public static SparkToStandardNatsConnectorImpl newConnection() {
-		return new SparkToStandardNatsConnectorImpl(null, null, null, null);
+		return new SparkToStandardNatsConnectorImpl(null, null, null);
 	}
 	
 	/**
