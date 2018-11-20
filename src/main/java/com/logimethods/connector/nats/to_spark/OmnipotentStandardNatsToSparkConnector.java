@@ -21,6 +21,7 @@ import com.logimethods.connector.nats_spark.IncompleteException;
 import io.nats.client.Connection;
 import io.nats.client.MessageHandler;
 import io.nats.client.Nats;
+import io.nats.client.Options;
 import io.nats.client.Subscription;
 
 /**
@@ -74,7 +75,7 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends Nats
 	protected void receive() throws IncompleteException, IOException, TimeoutException {
 
 		// Make connection and initialize streams			  
-		final Connection connection = Nats.connect(getEnrichedProperties());
+		final Connection connection = Nats.connect(new Options.Builder(getEnrichedProperties()).build());
 		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);
 		
 		for (String subject: getSubjects()) {

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.Nats;
+import io.nats.client.Options;
 
 class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStandardNatsConnectorImpl> {
 
@@ -113,7 +114,7 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 	
 	protected Connection createConnection() throws IOException, TimeoutException, Exception {
 		final Connection newConnection = 
-				(getProperties() != null) ? Nats.connect(getProperties()) :
+				(getProperties() != null) ? Nats.connect(new Options.Builder(getProperties()).build()) :
 					(getNatsURL() != null ) ? Nats.connect(getNatsURL()) :
 						Nats.connect();
 
