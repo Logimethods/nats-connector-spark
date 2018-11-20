@@ -7,11 +7,11 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.spark.test;
 
-import io.nats.client.AsyncSubscription;
+import java.nio.ByteBuffer;
+
+import io.nats.client.Dispatcher;
 import io.nats.client.Message;
 import io.nats.client.Nats;
-
-import java.nio.ByteBuffer;
 
 public class IntegerNatsSubscriber extends NatsSubscriber {
 
@@ -31,10 +31,8 @@ public class IntegerNatsSubscriber extends NatsSubscriber {
 		try {
 			logger.info("NATS Subscriber ({}):  Subscribing to subject: {}", id, subject); //trace
 
-			io.nats.client.Connection c = Nats.connect(natsUrl);
-
-			AsyncSubscription s = c.subscribeAsync(subject, this);
-			s.start();
+			final io.nats.client.Connection c = Nats.connect(natsUrl);
+			final Dispatcher dispatcher = c.createDispatcher(this).subscribe(subject);
 
 			setReady();
 
@@ -42,7 +40,7 @@ public class IntegerNatsSubscriber extends NatsSubscriber {
 
 			waitForCompletion();
 
-			s.unsubscribe();
+			dispatcher.unsubscribe(subject);
 
 			logger.info("NATS Subscriber ({}):  Exiting.", id); // debug
 		}
