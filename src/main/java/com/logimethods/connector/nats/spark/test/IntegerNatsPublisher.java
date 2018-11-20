@@ -8,6 +8,7 @@
 package com.logimethods.connector.nats.spark.test;
 
 import java.nio.ByteBuffer;
+import java.time.Duration;
 
 import io.nats.client.Nats;
 
@@ -38,7 +39,7 @@ public class IntegerNatsPublisher extends NatsPublisher {
 				logger.trace("Publish '{}' to '{}'.", payload, subject);
 				tallyMessage();
 			}
-			c.flush();
+			c.flush(Duration.ofSeconds(3));
 
 			logger.debug("NATS Publisher ({}):  Published {} messages.", id, testCount);
 
