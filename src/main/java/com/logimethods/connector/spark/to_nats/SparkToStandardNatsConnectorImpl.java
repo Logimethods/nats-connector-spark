@@ -7,7 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import static io.nats.client.Nats.PROP_URL;
+import static io.nats.client.Options.PROP_URL;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -19,8 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.nats.client.Connection;
-import io.nats.client.ConnectionFactory;
 import io.nats.client.Message;
+import io.nats.client.Nats;
+import io.nats.client.Options;
 
 class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStandardNatsConnectorImpl> {
 
@@ -29,12 +30,10 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 	 */
 	private static final long serialVersionUID = 1L;
 	protected static final Logger logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorImpl.class);
-	protected transient ConnectionFactory connectionFactory;
 	protected transient Connection connection;
 
 	/**
 	 * @param properties
-	 * @param connectionFactory
 	 * @param subjects
 	 */
 	protected SparkToStandardNatsConnectorImpl() {
@@ -43,26 +42,22 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 	
 	/**
 	 * @param properties
-	 * @param connectionFactory
 	 * @param subjects
 	 * @param b 
 	 */
 	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, Long connectionTimeout, 
-			ConnectionFactory connectionFactory, Collection<String> subjects, boolean isStoredAsKeyValue) {
+			Collection<String> subjects, boolean isStoredAsKeyValue) {
 		super(natsURL, properties, connectionTimeout, subjects);
-		this.connectionFactory = connectionFactory;
 		setStoredAsKeyValue(isStoredAsKeyValue);
 	}
 
 	/**
 	 * @param properties
-	 * @param connectionFactory
 	 * @param subjects
 	 */
 	protected SparkToStandardNatsConnectorImpl(String natsURL, Properties properties, Long connectionTimeout, 
-			ConnectionFactory connectionFactory, String... subjects) {
+			String... subjects) {
 		super(natsURL, properties, connectionTimeout, subjects);
-		this.connectionFactory = connectionFactory;
 	}
 
 	/**
@@ -73,15 +68,10 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 	@Override
 	protected void publishToNats(byte[] payload) throws Exception {
 		resetClosingTimeout();
-		
-		final Message natsMessage = new Message();
-	
-		natsMessage.setData(payload, 0, payload.length);
 	
 		final Connection localConnection = getConnection();
 		for (String subject : getDefinedSubjects()) {
-			natsMessage.setSubject(subject);
-			localConnection.publish(natsMessage);
+			localConnection.publish(subject, payload);
 	
 			logger.trace("Send '{}' from Spark to NATS ({})", payload, subject);
 		}
@@ -96,15 +86,11 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 	@Override
 	protected void publishToNats(String postSubject, byte[] payload) throws Exception {
 		resetClosingTimeout();
-
-		final Message natsMessage = new Message();		
-		natsMessage.setData(payload, 0, payload.length);
 	
 		final Connection localConnection = getConnection();
 		for (String preSubject : getDefinedSubjects()) {
 			final String subject = combineSubjects(preSubject, postSubject);
-			natsMessage.setSubject(subject);
-			localConnection.publish(natsMessage);
+			localConnection.publish(subject, payload);
 	
 			logger.trace("Send '{}' from Spark to NATS ({})", payload, subject);
 		}
@@ -116,29 +102,24 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 		}
 		return connection;
 	}
-
-	protected ConnectionFactory getConnectionFactory() throws Exception {
-		if (connectionFactory == null) {
-			if (getProperties() != null) {
-				connectionFactory = new ConnectionFactory(getProperties());
-			} else if (getNatsURL() != null ) {
-				connectionFactory = new ConnectionFactory(getNatsURL());
-			} else {
-				connectionFactory = new ConnectionFactory();
-			}
-		}		
-		return connectionFactory;
-	}
 	
 	protected Connection createConnection() throws IOException, TimeoutException, Exception {
-		final Connection newConnection = getConnectionFactory().createConnection();
+		final Connection newConnection = 
+				(getProperties() != null) ? Nats.connect(new Options.Builder(getProperties()).build()) :
+					(getNatsURL() != null ) ? Nats.connect(getNatsURL()) :
+						Nats.connect();
+
 		logger.debug("A NATS Connection {} has been created for {}", newConnection, this);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
 			@Override
 			public void run() {
 				logger.debug("Caught CTRL-C, shutting down gracefully... " + this);
-				newConnection.close();
+				try {
+					newConnection.close();
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage());
+				}
 			}
 		}));
 		return newConnection;
@@ -150,7 +131,11 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 		removeFromPool();
 
 		if (connection != null) {
-			connection.close();
+			try {
+				connection.close();
+			} catch (InterruptedException e) {
+				logger.warn(e.getMessage());
+			}
 			logger.debug("{} has been CLOSED by {}", connection, super.toString());
 			connection = null;
 		}
@@ -178,7 +163,6 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 		return "SparkToStandardNatsConnectorImpl ["
 				+ internalId + " / "
 				+ super.toString() + " : "
-				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
 				+ "connection=" + connection + ", "
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")

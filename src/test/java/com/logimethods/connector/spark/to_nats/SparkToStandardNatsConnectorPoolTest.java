@@ -10,7 +10,7 @@ package com.logimethods.connector.spark.to_nats;
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static com.logimethods.connector.nats_spark.NatsSparkUtilities.encodeData;
-import static io.nats.client.Nats.PROP_URL;
+import static io.nats.client.Options.PROP_URL;
 
 import java.io.File;
 import java.io.Serializable;

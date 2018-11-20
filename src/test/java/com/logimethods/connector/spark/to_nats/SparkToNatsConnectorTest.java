@@ -12,13 +12,10 @@ import java.util.Properties;
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
 
-import io.nats.client.ConnectionFactory;
-
 public class SparkToNatsConnectorTest {
 
 	private static final String natsURL = "nats://123.123.123.123:4444";
 	private static final Properties properties = new Properties();
-	private static final ConnectionFactory connectionFactory = new ConnectionFactory();
 	private static final Collection<String> subjects = Arrays.asList("Hello", "World!");
 	private static final boolean isStoredAsKeyValue = true;
 
@@ -51,7 +48,7 @@ public class SparkToNatsConnectorTest {
 	public void testSparkToStandardNatsConnectorImpl_Serialization() throws IOException, ClassNotFoundException {
 		Long duration = 111l;
 		SparkToStandardNatsConnectorImpl source = 
-				new SparkToStandardNatsConnectorImpl(natsURL, properties, duration, connectionFactory, subjects, isStoredAsKeyValue);
+				new SparkToStandardNatsConnectorImpl(natsURL, properties, duration, subjects, isStoredAsKeyValue);
 		
 		SparkToStandardNatsConnectorImpl target = SerializationUtils.clone(source);
 		

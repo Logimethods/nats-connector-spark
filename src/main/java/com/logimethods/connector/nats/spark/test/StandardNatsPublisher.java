@@ -7,7 +7,9 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.spark.test;
 
-import io.nats.client.ConnectionFactory;
+import java.time.Duration;
+
+import io.nats.client.Nats;
 
 public class StandardNatsPublisher extends NatsPublisher {
 
@@ -22,8 +24,7 @@ public class StandardNatsPublisher extends NatsPublisher {
 
 			logger.debug("NATS Publisher ({}):  Starting", id);
 
-			ConnectionFactory cf = new ConnectionFactory(natsUrl);
-			io.nats.client.Connection c = cf.createConnection();
+			io.nats.client.Connection c = Nats.connect(natsUrl);
 			
 			logger.debug("A NATS Connection to '{}' has been created.", c.getConnectedUrl());
 			
@@ -35,7 +36,7 @@ public class StandardNatsPublisher extends NatsPublisher {
 				logger.trace("Publish '{}' to '{}'.", payload, subject);
 				tallyMessage();
 			}
-			c.flush();
+			c.flush(Duration.ofSeconds(3));
 
 			logger.debug("NATS Publisher ({}):  Published {} messages.", id, testCount);
 

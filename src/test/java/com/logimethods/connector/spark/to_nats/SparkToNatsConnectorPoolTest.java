@@ -22,7 +22,7 @@ import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
 
 import static com.logimethods.connector.nats_spark.Constants.*;
-import static io.nats.client.Nats.*;
+import static io.nats.client.Options.*;
 
 public class SparkToNatsConnectorPoolTest {
 
