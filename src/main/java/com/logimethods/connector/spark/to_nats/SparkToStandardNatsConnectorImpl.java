@@ -68,15 +68,10 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 	@Override
 	protected void publishToNats(byte[] payload) throws Exception {
 		resetClosingTimeout();
-		
-		final Message natsMessage = new Message();
-	
-		natsMessage.setData(payload, 0, payload.length);
 	
 		final Connection localConnection = getConnection();
 		for (String subject : getDefinedSubjects()) {
-			natsMessage.setSubject(subject);
-			localConnection.publish(natsMessage);
+			localConnection.publish(subject, payload);
 	
 			logger.trace("Send '{}' from Spark to NATS ({})", payload, subject);
 		}
@@ -91,15 +86,11 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 	@Override
 	protected void publishToNats(String postSubject, byte[] payload) throws Exception {
 		resetClosingTimeout();
-
-		final Message natsMessage = new Message();		
-		natsMessage.setData(payload, 0, payload.length);
 	
 		final Connection localConnection = getConnection();
 		for (String preSubject : getDefinedSubjects()) {
 			final String subject = combineSubjects(preSubject, postSubject);
-			natsMessage.setSubject(subject);
-			localConnection.publish(natsMessage);
+			localConnection.publish(subject, payload);
 	
 			logger.trace("Send '{}' from Spark to NATS ({})", payload, subject);
 		}
@@ -124,7 +115,11 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 			@Override
 			public void run() {
 				logger.debug("Caught CTRL-C, shutting down gracefully... " + this);
-				newConnection.close();
+				try {
+					newConnection.close();
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage());
+				}
 			}
 		}));
 		return newConnection;
@@ -136,7 +131,11 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 		removeFromPool();
 
 		if (connection != null) {
-			connection.close();
+			try {
+				connection.close();
+			} catch (InterruptedException e) {
+				logger.warn(e.getMessage());
+			}
 			logger.debug("{} has been CLOSED by {}", connection, super.toString());
 			connection = null;
 		}
