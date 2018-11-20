@@ -71,7 +71,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> setDurableName(String durableName) {
-    	getOptsBuilder().setDurableName(durableName);
+    	getOptsBuilder().durableName(durableName);
     	return this;
     }
 
@@ -82,7 +82,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> setMaxInFlight(int maxInFlight) {
-    	getOptsBuilder().setMaxInFlight(maxInFlight);
+    	getOptsBuilder().maxInFlight(maxInFlight);
         return this;
     }
 
@@ -93,7 +93,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> setAckWait(Duration ackWait) {
-    	getOptsBuilder().setAckWait(ackWait);
+    	getOptsBuilder().ackWait(ackWait);
         return this;
     }
 
@@ -105,7 +105,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> setAckWait(long ackWait, TimeUnit unit) {
-    	getOptsBuilder().setAckWait(ackWait, unit);
+    	getOptsBuilder().ackWait(ackWait, unit);
         return this;
     }
 
@@ -117,7 +117,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @return the connector itself
      */
     public OmnipotentNatsStreamingToSparkConnector<T,R,V> setManualAcks(boolean manualAcks) {
-    	getOptsBuilder().setManualAcks(manualAcks);
+    	if (manualAcks) getOptsBuilder().manualAcks();
         return this;
     }
 
