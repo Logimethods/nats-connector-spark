@@ -78,7 +78,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStreamingToKeyValueSparkConnectorImpl_2() {
-		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME);
+		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().durableName(DURABLE_NAME);
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
@@ -107,7 +107,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 	@Test
 	public void testNatsStreamingToKeyValueSparkConnectorImpl_4() {
 		final Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
-		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME).startAtTime(start);
+		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().durableName(DURABLE_NAME).startAtTime(start);
 		final String newName = "NEW NAME";
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector

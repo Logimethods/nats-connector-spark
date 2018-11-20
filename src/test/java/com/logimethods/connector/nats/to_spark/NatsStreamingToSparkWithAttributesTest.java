@@ -74,7 +74,7 @@ public class NatsStreamingToSparkWithAttributesTest {
 
 	@Test
 	public void testNatsStreamingToSparkConnectorImpl_2() {
-		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME);
+		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().durableName(DURABLE_NAME);
 		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
@@ -101,7 +101,7 @@ public class NatsStreamingToSparkWithAttributesTest {
 	@Test
 	public void testNatsStreamingToSparkConnectorImpl_4() {
 		final Instant start = Instant.now().minus(30, ChronoUnit.MINUTES);
-		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().setDurableName(DURABLE_NAME).startAtTime(start);
+		SubscriptionOptions.Builder optsBuilder = new SubscriptionOptions.Builder().durableName(DURABLE_NAME).startAtTime(start);
 		final String newName = "NEW NAME";
 		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
