@@ -30,6 +30,7 @@
 		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
 		<dependency.locations.enabled>false</dependency.locations.enabled>
 		<!-- NATS -->
+		<jnats.version>2.3.0</jnats.version>
 		<java-nats-streaming.version>2.1.2</java-nats-streaming.version>
 	</properties>
 
@@ -38,6 +39,11 @@
 			<groupId>io.nats</groupId>
 			<artifactId>java-nats-streaming</artifactId>
 			<version>${java-nats-streaming.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.nats</groupId>
+			<artifactId>jnats</artifactId>
+			<version>${jnats.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
