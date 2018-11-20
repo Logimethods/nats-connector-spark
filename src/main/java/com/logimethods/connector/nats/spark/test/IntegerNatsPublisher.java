@@ -9,7 +9,7 @@ package com.logimethods.connector.nats.spark.test;
 
 import java.nio.ByteBuffer;
 
-import io.nats.client.ConnectionFactory;
+import io.nats.client.Nats;
 
 public class IntegerNatsPublisher extends NatsPublisher {
 
@@ -24,8 +24,7 @@ public class IntegerNatsPublisher extends NatsPublisher {
 
 			logger.debug("NATS Publisher ({}):  Starting", id);
 
-			ConnectionFactory cf = new ConnectionFactory(natsUrl);
-			io.nats.client.Connection c = cf.createConnection();
+			io.nats.client.Connection c = Nats.connect(natsUrl);
 			
 			logger.debug("A NATS Connection to '{}' has been created.", c.getConnectedUrl());
 			

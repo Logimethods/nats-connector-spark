@@ -148,7 +148,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
     	startStreamingServer(clusterID, false);
 //    	ConnectionFactory connectionFactory = new ConnectionFactory(clusterID, getUniqueClientName());
 //    	connectionFactory.setNatsUrl("nats://localhost:" + STANServerPORT);
-//    	Connection stanc = connectionFactory.createConnection();
+//    	Connection stanc = Nats.connect();
 //    	logger.debug("ConnectionFactory ready: " + stanc);
     	final List<Integer> data = UnitTestUtilities.getData();
 

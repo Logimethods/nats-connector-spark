@@ -47,7 +47,6 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 
 	/**
 	 * @param properties
-	 * @param connectionFactory
 	 * @param subjects
 	 * @param b 
 	 */
@@ -61,7 +60,6 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 
 	/**
 	 * @param properties
-	 * @param connectionFactory
 	 * @param subjects
 	 */
 	protected SparkToNatsStreamingConnectorImpl(String clusterID, String natsURL, Properties properties, Long connectionTimeout, Options.Builder optionsBuilder, String... subjects) {

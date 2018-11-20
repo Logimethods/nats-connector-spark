@@ -8,8 +8,8 @@
 package com.logimethods.connector.nats.spark.test;
 
 import io.nats.client.AsyncSubscription;
-import io.nats.client.ConnectionFactory;
 import io.nats.client.Message;
+import io.nats.client.Nats;
 
 import java.nio.ByteBuffer;
 
@@ -31,7 +31,7 @@ public class IntegerNatsSubscriber extends NatsSubscriber {
 		try {
 			logger.info("NATS Subscriber ({}):  Subscribing to subject: {}", id, subject); //trace
 
-			io.nats.client.Connection c = new ConnectionFactory(natsUrl).createConnection();
+			io.nats.client.Connection c = Nats.connect(natsUrl);
 
 			AsyncSubscription s = c.subscribeAsync(subject, this);
 			s.start();

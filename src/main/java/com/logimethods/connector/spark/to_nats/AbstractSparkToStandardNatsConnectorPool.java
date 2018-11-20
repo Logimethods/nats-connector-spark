@@ -7,16 +7,12 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import io.nats.client.ConnectionFactory;
-
 public abstract class AbstractSparkToStandardNatsConnectorPool<T> extends SparkToNatsConnectorPool<T> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	// TODO No more static, needs to be checked on a cluster
-	protected ConnectionFactory 	connectionFactory;
 	
 	/**
 	 * 
@@ -33,23 +29,8 @@ public abstract class AbstractSparkToStandardNatsConnectorPool<T> extends SparkT
 		return new SparkToStandardNatsConnectorImpl(	getNatsURL(), 
 														getProperties(), 
 														getConnectionTimeout(), 
-														getConnectionFactory(), 
 														getDefinedSubjects(),
 														isStoredAsKeyValue());
-	}
-
-	/**
-	 * @return the connectionFactory
-	 */
-	protected ConnectionFactory getConnectionFactory() {
-		return connectionFactory;
-	}
-
-	/**
-	 * @param connectionFactory the connectionFactory to set
-	 */
-	protected void setConnectionFactory(ConnectionFactory factory) {
-		connectionFactory = factory;
 	}
 
 	@Override
@@ -63,7 +44,6 @@ public abstract class AbstractSparkToStandardNatsConnectorPool<T> extends SparkT
 	@Override
 	public String toString() {
 		return "SparkToStandardNatsConnectorPool ["
-				+ (connectionFactory != null ? "connectionFactory=" + connectionFactory + ", " : "")
 				+ (properties != null ? "properties=" + properties + ", " : "")
 				+ (subjects != null ? "subjects=" + subjects + ", " : "")
 				+ (natsURL != null ? "natsURL=" + natsURL + ", " : "") + "]";
