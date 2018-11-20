@@ -19,10 +19,10 @@ import org.apache.spark.storage.StorageLevel;
 import com.logimethods.connector.nats_spark.IncompleteException;
 
 import io.nats.client.Connection;
+import io.nats.client.Dispatcher;
 import io.nats.client.MessageHandler;
 import io.nats.client.Nats;
 import io.nats.client.Options;
-import io.nats.client.Subscription;
 
 /**
  * A NATS to Spark Connector.
@@ -33,7 +33,7 @@ import io.nats.client.Subscription;
  */
 @SuppressWarnings("serial")
 public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends NatsToSparkConnector<T,R,V> {
-
+			
 	protected OmnipotentStandardNatsToSparkConnector(Class<V> type, Properties properties, StorageLevel storageLevel, String... subjects) {
 		super(type, storageLevel, subjects);
 		this.properties = properties;
@@ -71,29 +71,39 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends Nats
 	/** Create a socket connection and receive data until receiver is stopped 
 	 * @throws IncompleteException 
 	 * @throws TimeoutException 
-	 * @throws IOException **/
-	protected void receive() throws IncompleteException, IOException, TimeoutException {
+	 * @throws IOException 
+	 * @throws InterruptedException 
+	 * @throws IllegalArgumentException 
+	 * @throws IllegalStateException **/
+	protected void receive() throws IncompleteException, IOException, TimeoutException, IllegalStateException, IllegalArgumentException, InterruptedException {
 
 		// Make connection and initialize streams			  
 		final Connection connection = Nats.connect(new Options.Builder(getEnrichedProperties()).build());
 		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);
-		
+
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+			@Override
+			public void run() {
+				logger.debug("Caught CTRL-C, shutting down gracefully..." + connection);
+				try {
+					Thread.sleep(500); // To allow the `dispatcher.unsubscribe(subject);` to be call
+					connection.close();
+				} catch (InterruptedException e) {
+					logger.debug(e.getMessage());
+				}
+			}
+		}));
+
 		for (String subject: getSubjects()) {
-			final Subscription sub = connection.subscribe(subject, queue, getMessageHandler());
+			final Dispatcher dispatcher = connection.createDispatcher(getMessageHandler()).subscribe(subject, queue);
 			logger.info("Listening on {}.", subject);
 			
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
 				@Override
 				public void run() {
-					logger.debug("Caught CTRL-C, shutting down gracefully..." + this);
-					try {
-						sub.unsubscribe();
-					} catch (IOException e) {
-						if (logger.isDebugEnabled()) {
-							logger.error("Exception while unsubscribing " + e.toString());
-						}
-					}
-					connection.close();
+					logger.debug("Caught CTRL-C, shutting down gracefully..." + dispatcher);
+					dispatcher.unsubscribe(subject);
+					connection.closeDispatcher(dispatcher);
 				}
 			}));
 		}
