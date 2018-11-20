@@ -1,4 +1,4 @@
-box: logimethods/maven-nats
+box: logimethods/maven-nats:v1.3.0
 
 build:
   steps:
@@ -16,7 +16,7 @@ deploy_snapshot:
     - xenoterracide/maven:
         name: Deploy Jar File
         goals: -s ./settings.xml -Dmaven.test.skip=true clean deploy
-        
+
 deploy:
   steps:
     - script:
@@ -33,7 +33,7 @@ deploy:
     - xenoterracide/maven:
         name: Sign & Deploy Artifacts
         goals: -s ./settings.xml -Dmaven.test.skip=true clean verify deploy
-        
+
 javadoc:
   steps:
     - add-ssh-key:
@@ -57,6 +57,6 @@ javadoc:
           ls docs | perl -e 'print "<html><body><ul>"; while(<>) { chop $_; print "<li><a href=\"./docs/$_/api\">$_</a></li>";} print "</ul></body></html>"' > index.htm
           echo "Last edited the $(date +'%Y-%m-%d at %H:%M:%S')" >> index.htm
           more index.htm
-          git add --all        
+          git add --all
           git commit -a -m "Wercker Run Id: '${WERCKER_RUN_ID}'"
           git push origin gh-pages
