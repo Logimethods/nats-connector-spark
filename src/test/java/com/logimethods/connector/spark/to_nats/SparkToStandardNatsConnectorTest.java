@@ -108,7 +108,7 @@ public class SparkToStandardNatsConnectorTest {
 		return ns1;
 	}*/
 
-	@Test(timeout=2000)
+	@Test(timeout=4000)
 	public void testStaticSparkToNatsNoSubjects() throws Exception {   
 		JavaRDD<Integer> rdd = UnitTestUtilities.getJavaRDD(sc);
 		
@@ -124,7 +124,7 @@ public class SparkToStandardNatsConnectorTest {
 		fail("An Exception(\"SparkToNatsConnector needs at least one Subject\") should have been raised.");
 	}
 
-	@Test(timeout=2000)
+	@Test(timeout=4000)
 	public void testStaticKeyValueSparkToNatsNoSubjects() throws Exception {   
 		String subject1 = "subject1";
 
@@ -143,7 +143,7 @@ public class SparkToStandardNatsConnectorTest {
 		return stream;
 	}
 
-	@Test(timeout=2000)
+	@Test(timeout=4000)
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 
@@ -200,7 +200,7 @@ public class SparkToStandardNatsConnectorTest {
 		ns2.waitForCompletion();
 	}
 
-	@Test(timeout=2000)
+	@Test(timeout=4000)
 	public void testStaticSparkToNatsWithProperties() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 
