@@ -71,7 +71,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 		logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorPoolTest.class);       
 	}
 
-    @Test(timeout=6000)
+    @Test(timeout=12000)
     public void testBasicPublish() {
         // Run a STAN server
         try (STANServer s = UnitTestUtilities.startStreamingServer(clusterID, false)) {
@@ -85,7 +85,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
         }
     }
 
-    @Test(timeout=8000)
+    @Test(timeout=16000)
     public void testStreamingSparkToNatsPublish() throws InterruptedException, IOException, TimeoutException {
 		String subject1 = "subject1";
 		String subject2 = "subject2";
@@ -108,7 +108,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 		connectorPool.getConnector();
     }
 
-    @Test(timeout=8000)
+    @Test(timeout=16000)
     public void testStreamingSparkToNatsWithPROP_URLPropertiesPublish() throws InterruptedException, IOException, TimeoutException {
 		String subject1 = "subject1";
 		String subject2 = "subject2";
@@ -120,7 +120,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 		validateConnectorPool(subject1, subject2, connectorPool);
     }
 
-    @Test(timeout=8000)
+    @Test(timeout=16000)
     public void testStreamingSparkToNatsWithFullPropertiesPublish() throws InterruptedException, IOException, TimeoutException {
 		String subject1 = "subject1";
 		String subject2 = "subject2";
