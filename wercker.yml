@@ -29,7 +29,7 @@ deploy:
           echo "${SONATYPE_PGP_KEYS_64}" | base64 -d > ./pgp/keys.asc
           ls -als ./pgp
           gpg --version
-          gpg --import ./pgp/keys.asc
+          gpg --batch --import ./pgp/keys.asc
     - xenoterracide/maven:
         name: Sign & Deploy Artifacts
         goals: -s ./settings.xml -Dmaven.test.skip=true clean verify deploy
