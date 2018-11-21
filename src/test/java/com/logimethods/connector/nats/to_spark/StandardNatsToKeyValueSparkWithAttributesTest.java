@@ -73,7 +73,7 @@ public class StandardNatsToKeyValueSparkWithAttributesTest {
 	 * Test method for {@link com.logimethods.connector.nats.to_spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
 	 * @throws Exception 
 	 */
-	@Test(timeout=12000, expected=IncompleteException.class)
+	@Test(timeout=16000, expected=IncompleteException.class)
 	public void testNatsToSparkConnectorWITHOUTSubjects() throws Exception {
 		NatsToSparkConnector.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY()).withNatsURL(NATS_SERVER_URL).receive();
 	}

@@ -71,7 +71,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 		logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorPoolTest.class);       
 	}
 
-    @Test(timeout=12000)
+    @Test(timeout=16000)
     public void testBasicPublish() {
         // Run a STAN server
         try (STANServer s = UnitTestUtilities.startStreamingServer(clusterID, false)) {
