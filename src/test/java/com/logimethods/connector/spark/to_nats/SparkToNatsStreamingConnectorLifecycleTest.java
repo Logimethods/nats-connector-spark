@@ -53,16 +53,16 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		UnitTestUtilities.setLogLevel(TestClient.class, level);
 		UnitTestUtilities.setLogLevel("org.apache.spark", Level.WARN);
 		UnitTestUtilities.setLogLevel("org.spark-project", Level.WARN);
-	
-		logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorLifecycleTest.class);       
+
+		logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorLifecycleTest.class);
 	}
 
-	@Test(timeout=30000)
-	public void testStaticSparkToNatsWithConnectionLifecycle() throws Exception {  
+	@Test(timeout=40000)
+	public void testStaticSparkToNatsWithConnectionLifecycle() throws Exception {
     	startStreamingServer(clusterID, false);
 
     	long poolSize = SparkToNatsStreamingConnectorPool.poolSize();
-		
+
 		final List<Integer> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
@@ -72,7 +72,7 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		final int partitionsNb = 3;
 		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(partitionsNb);
 		final JavaDStream<Integer> integers = lines.map(str -> Integer.parseInt(str));
-		
+
 		final Properties properties = new Properties();
 		properties.setProperty(PROP_URL, STAN_URL);
 		SparkToNatsConnectorPool
@@ -81,7 +81,7 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 			.withConnectionTimeout(Duration.ofSeconds(2))
 			.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
 			.publishToNats(integers);
-		
+
 		ssc.start();
 
 		TimeUnit.SECONDS.sleep(1);
@@ -92,11 +92,11 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
-		
+
 		TimeUnit.MILLISECONDS.sleep(100);
-		assertEquals("The connections Pool size should be the same as the number of Spark partitions", 
+		assertEquals("The connections Pool size should be the same as the number of Spark partitions",
 				poolSize + partitionsNb, SparkToNatsStreamingConnectorPool.poolSize());
-				
+
 		final NatsStreamingSubscriber ns1p = UnitTestUtilities.getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
 		final NatsStreamingSubscriber ns2p = UnitTestUtilities.getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
 		writeTmpFile(data);
@@ -104,21 +104,21 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		ns1p.waitForCompletion();
 		ns2p.waitForCompletion();
 		TimeUnit.MILLISECONDS.sleep(100);
-		assertEquals("The connections Pool size should be the same as the number of Spark partitions", 
+		assertEquals("The connections Pool size should be the same as the number of Spark partitions",
 				poolSize + partitionsNb, SparkToNatsStreamingConnectorPool.poolSize());
 
 		ssc.stop();
 		ssc = null;
-		
+
 		logger.debug("Spark Context Stopped");
-		
+
 		TimeUnit.SECONDS.sleep(5);
 		logger.debug("After 5 sec delay");
-		
+
 		assertTrue("The poolSize() of " + SparkToNatsStreamingConnectorPool.connectorsPoolMap + " should have been reverted to its original value",
 				SparkToNatsStreamingConnectorPool.poolSize() == poolSize);
 	}
-    
+
     static String getUniqueClientName() {
     	return "clientName_" + NatsSparkUtilities.generateUniqueID();
     }

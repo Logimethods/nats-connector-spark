@@ -62,7 +62,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 		UnitTestUtilities.startDefaultServer();
 	}
 
-	@Test(timeout=16000)
+	@Test(timeout=40000)
 	public void testStaticSparkToNatsIncludingMultipleSubjects() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 
@@ -87,7 +87,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 		ns2.waitForCompletion();
 	}
 
-	@Test(timeout=16000)
+	@Test(timeout=40000)
 	public void testStaticSparkStoredToNatsAsKeyValue() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 
@@ -112,7 +112,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 		ns1.waitForCompletion();
 	}
 
-	@Test(timeout=16000)
+	@Test(timeout=40000)
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 
@@ -137,7 +137,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 		ns2.waitForCompletion();
 	}
 
-	@Test(timeout=16000)
+	@Test(timeout=40000)
 	public void testStaticSparkToNatsWithMultipleProperties() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 
