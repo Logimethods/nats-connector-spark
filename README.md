@@ -11,6 +11,7 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 ## Release Notes
 ### Version 1.0.0-SNAPSHOT
 - Based on [Java Nats Streaming](https://github.com/nats-io/java-nats-streaming) `2.1.2`, which includes [NATS - Java Client](https://github.com/nats-io/java-nats) version `2.3.0`
+- Based on Spark version `2.3.2`
 - Tested with:
   - `nats-server version 1.3.0`
   - `nats-streaming-server version 0.11.2`
