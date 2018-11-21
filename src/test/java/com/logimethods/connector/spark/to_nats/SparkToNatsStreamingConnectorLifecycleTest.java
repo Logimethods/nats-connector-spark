@@ -57,7 +57,7 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorLifecycleTest.class);       
 	}
 
-	@Test(timeout=20000)
+	@Test(timeout=30000)
 	public void testStaticSparkToNatsWithConnectionLifecycle() throws Exception {  
     	startStreamingServer(clusterID, false);
 
