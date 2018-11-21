@@ -31,7 +31,7 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 		return new StandardNatsPublisher("np", NATS_SERVER_URL, DEFAULT_SUBJECT,  nbOfMessages);
 	}
 	
-	@Test(timeout=16000)
+	@Test(timeout=28000)
 	public void testNatsToSparkConnectorWithAdditionalPropertiesAndSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
