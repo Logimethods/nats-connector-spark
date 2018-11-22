@@ -190,7 +190,7 @@
 					<checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
 					<checkinComment>Publishing javadoc for
 						${project.artifactId}:${project.version}</checkinComment>
-					<content>target/site</content>
+					<content>target/apidocs</content>
 					<!-- <skipDeletedFiles>true</skipDeletedFiles> -->
 					<pubScmUrl>scm:git:git@github.com:Logimethods/nats-connector-spark.git</pubScmUrl>
 					<scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
