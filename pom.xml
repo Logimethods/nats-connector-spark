@@ -218,28 +218,28 @@
 						<goals>deploy</goals>
 					</configuration>
 				</plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-scm-publish-plugin</artifactId>
+          <version>3.0.0</version>
+          <!-- https://maven.apache.org/plugins/maven-scm-publish-plugin/usage.html -->
+          <extensions>true</extensions>
+  				<configuration>
+  					<serverId>github</serverId>
+  					<checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
+  					<checkinComment>Publishing javadoc for
+  						${project.artifactId}:${project.version}</checkinComment>
+  					<content>target/apidocs</content>
+  					<!-- <skipDeletedFiles>true</skipDeletedFiles> -->
+  					<pubScmUrl>scm:git:git@github.com:Logimethods/nats-connector-spark.git</pubScmUrl>
+  					<scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
+  					<ignorePathsToDelete>
+  						<ignorePathToDelete>?.?.?</ignorePathToDelete>
+  						<!-- <ignorePathToDelete>index.htm</ignorePathToDelete> -->
+  					</ignorePathsToDelete>
+  				</configuration>
+  			</plugin>
 			</plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-scm-publish-plugin</artifactId>
-        <version>3.0.0</version>
-        <!-- https://maven.apache.org/plugins/maven-scm-publish-plugin/usage.html -->
-        <extensions>true</extensions>
-				<configuration>
-					<serverId>github</serverId>
-					<checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
-					<checkinComment>Publishing javadoc for
-						${project.artifactId}:${project.version}</checkinComment>
-					<content>target/apidocs</content>
-					<!-- <skipDeletedFiles>true</skipDeletedFiles> -->
-					<pubScmUrl>scm:git:git@github.com:Logimethods/nats-connector-spark.git</pubScmUrl>
-					<scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
-					<ignorePathsToDelete>
-						<ignorePathToDelete>?.?.?</ignorePathToDelete>
-						<!-- <ignorePathToDelete>index.htm</ignorePathToDelete> -->
-					</ignorePathsToDelete>
-				</configuration>
-			</plugin>
 		</pluginManagement>
 		<resources>
 			<resource>
