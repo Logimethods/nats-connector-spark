@@ -2,15 +2,9 @@ box: logimethods/maven-nats:v1.3.0
 
 build:
   steps:
-    - script:
-        name: Start NATS servers
-        code: |
-          gnatsd -p 4221&
-          nats-streaming-server -p 4223&
-          sleep 10
     - xenoterracide/maven:
-        name: Compile & Test
-        goals: clean compile test
+        name: Compile
+        goals: clean compile
 
 deploy_snapshot:
   steps:
@@ -20,19 +14,6 @@ deploy_snapshot:
 
 deploy:
   steps:
-    - script:
-        name: Store keys
-        code: |
-          export ASC_DIRECTORY=$(pwd)/pgp
-          mkdir pgp
-          mkdir /root/.gnupg
-          echo "${SONATYPE_PGP_KEYS_64}" | base64 -d > ./pgp/keys.asc
-          ls -als ./pgp
-          gpg --version
-          gpg --batch --import ./pgp/keys.asc
-    - xenoterracide/maven:
-        name: Sign & Deploy Artifacts
-        goals: -s ./settings.xml -Dmaven.test.skip=true clean verify deploy
 
 javadoc:
   steps:
@@ -49,7 +30,7 @@ javadoc:
           git config --global user.name "$GITHUB_USERNAME"
     - xenoterracide/maven:
         name: Publish Javadoc to Github Pages
-        goals: -Dmaven.test.skip=true scm-publish:publish-scm
+        goals: -Dmaven.test.skip=true scm-publish:scmpublish
     - script:
         name: Set index.htm
         code: |-

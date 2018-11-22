@@ -173,7 +173,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-scm-publish-plugin</artifactId>
-				<version>1.1</version>
+				<version>3.0.0</version>
+        <!-- https://maven.apache.org/plugins/maven-scm-publish-plugin/usage.html -->
+        <extensions>true</extensions>
 				<configuration>
 					<serverId>github</serverId>
 					<checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
