@@ -34,3 +34,4 @@ repository/io/nats/java-nats-streaming/0.1.0-SNAPSHOT/maven-metadata-local.xml
 
 .DS_Store
 dependency-reduced-pom.xml
+mvn_on_docker.sh

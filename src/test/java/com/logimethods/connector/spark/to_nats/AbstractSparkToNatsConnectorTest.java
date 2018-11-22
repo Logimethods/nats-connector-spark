@@ -39,6 +39,9 @@ public class AbstractSparkToNatsConnectorTest implements Serializable {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		// To avoid "Only one StreamingContext may be started in this JVM. Currently running StreamingContext was started at .../..."
+		Thread.sleep(500);
+		
 		// Create a local StreamingContext with two working thread and batch interval of 1 second
 		SparkConf conf = new SparkConf().setMaster("local[3]").setAppName("My Spark Streaming Job").set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
 		ssc = new JavaStreamingContext(conf, Durations.seconds(1));

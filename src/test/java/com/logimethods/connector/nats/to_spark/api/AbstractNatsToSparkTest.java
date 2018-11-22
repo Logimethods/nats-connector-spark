@@ -78,6 +78,9 @@ public abstract class AbstractNatsToSparkTest {
 //		assertTrue(logger.isDebugEnabled());
 //		assertTrue(LoggerFactory.getLogger(NatsToSparkConnector.class).isTraceEnabled());
 		
+		// To avoid "Only one StreamingContext may be started in this JVM. Currently running StreamingContext was started at .../..."
+		Thread.sleep(500);
+		
 		DEFAULT_SUBJECT = DEFAULT_SUBJECT_ROOT + (DEFAULT_SUBJECT_INR++);
 		TOTAL_COUNT.set(0);
 		
