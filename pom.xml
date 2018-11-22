@@ -96,7 +96,11 @@
 						</goals>
 						<configuration>
 							<passphrase>${SONATYPE_PASSPHRASE}</passphrase>
-							<!-- <ascDirectory>${ASC_DIRECTORY}</ascDirectory> <publicKeyring>${ASC_DIRECTORY}/pubring.asc</publicKeyring>
+              <!-- https://myshittycode.com/2017/08/07/maven-gpg-plugin-prevent-signing-prompt-or-gpg-signing-failed-no-such-file-or-directory-error/ -->
+              <gpgArguments>
+                  <arg>--pinentry-mode</arg>
+                  <arg>loopback</arg>
+              </gpgArguments>							<!-- <ascDirectory>${ASC_DIRECTORY}</ascDirectory> <publicKeyring>${ASC_DIRECTORY}/pubring.asc</publicKeyring>
 								<secretKeyring>${ASC_DIRECTORY}/secring.asc</secretKeyring> -->
 						</configuration>
 					</execution>
