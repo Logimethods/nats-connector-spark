@@ -222,9 +222,9 @@ public abstract class AbstractNatsToSparkTest {
 		// start the publisher
 		executor.execute(np);
 		np.waitUntilReady();		
-		Thread.sleep(500);
+		Thread.sleep(1000);
 		ssc.close();		
-		Thread.sleep(500);
+		Thread.sleep(1000);
 		assertTrue("Not a single RDD did received messages.", atLeastSomeData);	
 		assertTrue("Not the right number of messages have been received", rightNumber);
 		assertEquals(nbOfMessages, TOTAL_COUNT.get());

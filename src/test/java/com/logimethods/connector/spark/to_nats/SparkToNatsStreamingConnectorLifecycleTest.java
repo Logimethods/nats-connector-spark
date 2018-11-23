@@ -93,7 +93,7 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
 
-		TimeUnit.MILLISECONDS.sleep(100);
+		TimeUnit.MILLISECONDS.sleep(200);
 		assertEquals("The connections Pool size should be the same as the number of Spark partitions",
 				poolSize + partitionsNb, SparkToNatsStreamingConnectorPool.poolSize());
 
@@ -103,7 +103,7 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		// wait for the subscribers to complete.
 		ns1p.waitForCompletion();
 		ns2p.waitForCompletion();
-		TimeUnit.MILLISECONDS.sleep(100);
+		TimeUnit.MILLISECONDS.sleep(800);
 		assertEquals("The connections Pool size should be the same as the number of Spark partitions",
 				poolSize + partitionsNb, SparkToNatsStreamingConnectorPool.poolSize());
 
