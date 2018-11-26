@@ -59,9 +59,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	 * @param optsBuilder, the NATS Streaming options used to set the connection to NATS
 	 * @return a NATS Streaming to Spark Connector
 	 */
-	public OmnipotentNatsStreamingToSparkConnector<T,R,V> withSubscriptionOptionsBuilder(SubscriptionOptions.Builder optsBuilder) {
+	@SuppressWarnings("unchecked")
+	public T withSubscriptionOptionsBuilder(SubscriptionOptions.Builder optsBuilder) {
 		this.optsBuilder = optsBuilder;
-		return this;
+		return (T)this;
 	}
 
     /**
@@ -70,9 +71,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param durableName the name of the durable subscriber
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> setDurableName(String durableName) {
+	@SuppressWarnings("unchecked")
+    public T setDurableName(String durableName) {
     	getOptsBuilder().durableName(durableName);
-    	return this;
+    	return (T)this;
     }
 
     /**
@@ -81,9 +83,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param maxInFlight the maximum number of in-flight messages
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> setMaxInFlight(int maxInFlight) {
+	@SuppressWarnings("unchecked")
+    public T setMaxInFlight(int maxInFlight) {
     	getOptsBuilder().maxInFlight(maxInFlight);
-        return this;
+        return (T)this;
     }
 
     /**
@@ -92,9 +95,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param ackWait the amount of time the subscription will wait for an ACK from the cluster
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> setAckWait(Duration ackWait) {
+	@SuppressWarnings("unchecked")
+    public T setAckWait(Duration ackWait) {
     	getOptsBuilder().ackWait(ackWait);
-        return this;
+        return (T)this;
     }
 
     /**
@@ -104,9 +108,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param unit the time unit
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> setAckWait(long ackWait, TimeUnit unit) {
+	@SuppressWarnings("unchecked")
+    public T setAckWait(long ackWait, TimeUnit unit) {
     	getOptsBuilder().ackWait(ackWait, unit);
-        return this;
+        return (T)this;
     }
 
     /**
@@ -116,9 +121,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param manualAcks whether or not messages must be manually acknowledged
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> setManualAcks(boolean manualAcks) {
+	@SuppressWarnings("unchecked")
+    public T setManualAcks(boolean manualAcks) {
     	if (manualAcks) getOptsBuilder().manualAcks();
-        return this;
+        return (T)this;
     }
 
     /**
@@ -127,9 +133,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param seq the sequence number from which to start receiving messages
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> startAtSequence(long seq) {
+	@SuppressWarnings("unchecked")
+    public T startAtSequence(long seq) {
     	getOptsBuilder().startAtSequence(seq);
-        return this;
+        return (T)this;
     }
 
     /**
@@ -138,9 +145,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param start the desired start time position expressed as a {@code java.time.Instant}
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> startAtTime(Instant start) {
+	@SuppressWarnings("unchecked")
+    public T startAtTime(Instant start) {
     	getOptsBuilder().startAtTime(start);
-        return this;
+        return (T)this;
     }
 
     /**
@@ -150,9 +158,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param unit the time unit
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> startAtTimeDelta(long ago, TimeUnit unit) {
+	@SuppressWarnings("unchecked")
+    public T startAtTimeDelta(long ago, TimeUnit unit) {
     	getOptsBuilder().startAtTimeDelta(ago, unit);
-        return this;
+        return (T)this;
     }
 
     /**
@@ -161,9 +170,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param ago the historical time delta (from now) from which to start receiving messages
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> startAtTimeDelta(Duration ago) {
+	@SuppressWarnings("unchecked")
+    public T startAtTimeDelta(Duration ago) {
     	getOptsBuilder().startAtTimeDelta(ago);
-        return this;
+        return (T)this;
     }
 
     /**
@@ -172,9 +182,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * 
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> startWithLastReceived() {
+	@SuppressWarnings("unchecked")
+    public T startWithLastReceived() {
     	getOptsBuilder().startWithLastReceived();
-        return this;
+        return (T)this;
     }
 
     /**
@@ -183,9 +194,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * 
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> deliverAllAvailable() {
+	@SuppressWarnings("unchecked")
+    public T deliverAllAvailable() {
     	getOptsBuilder().deliverAllAvailable();
-        return this;
+        return (T)this;
     }
 
 	
