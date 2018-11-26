@@ -157,6 +157,19 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 		return new NatsStreamingToSparkConnectorImpl<V>(type, storageLevel, clusterID, getUniqueClientName());
 	}
 	
+	/**
+	 * Will push messages provided by NATS into a Spark Streaming.
+	 *
+	 * @param type, the Class of Object to expect to receive from NATS
+	 * @param storageLevel, defines the StorageLevel used by Spark
+	 * @param clusterID, used by NATS Streaming
+	 * @param clientID, used by NATS Streaming
+	 * @return a NATS Streaming to Spark Connector
+	 */
+	public static <V extends Object> NatsStreamingToSparkConnectorImpl<V> receiveFromNatsStreaming(Class<V> type, StorageLevel storageLevel, String clusterID, String clientID) {
+		return new NatsStreamingToSparkConnectorImpl<V>(type, storageLevel, clusterID, clientID);
+	}
+	
 	@Override
 	public void onStart() {
 		//Start the thread that receives data over a connection
