@@ -42,8 +42,8 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	static final Logger logger = LoggerFactory.getLogger(OmnipotentNatsStreamingToSparkConnector.class);
 
 	protected String clusterID, clientID;
-	protected transient SubscriptionOptions opts;
-	protected SubscriptionOptions.Builder optsBuilder;
+	protected transient SubscriptionOptions subscriptionOpts;
+	protected SubscriptionOptions.Builder subscriptionOptsBuilder;
 
 	/* Constructors with subjects provided by the environment */
 	
@@ -61,7 +61,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	 */
 	@SuppressWarnings("unchecked")
 	public T withSubscriptionOptionsBuilder(SubscriptionOptions.Builder optsBuilder) {
-		this.optsBuilder = optsBuilder;
+		this.subscriptionOptsBuilder = optsBuilder;
 		return (T)this;
 	}
 
@@ -73,7 +73,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      */
 	@SuppressWarnings("unchecked")
     public T setDurableName(String durableName) {
-    	getOptsBuilder().durableName(durableName);
+    	getSubscriptionOptsBuilder().durableName(durableName);
     	return (T)this;
     }
 
@@ -85,7 +85,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      */
 	@SuppressWarnings("unchecked")
     public T setMaxInFlight(int maxInFlight) {
-    	getOptsBuilder().maxInFlight(maxInFlight);
+    	getSubscriptionOptsBuilder().maxInFlight(maxInFlight);
         return (T)this;
     }
 
@@ -97,7 +97,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      */
 	@SuppressWarnings("unchecked")
     public T setAckWait(Duration ackWait) {
-    	getOptsBuilder().ackWait(ackWait);
+    	getSubscriptionOptsBuilder().ackWait(ackWait);
         return (T)this;
     }
 
@@ -110,7 +110,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      */
 	@SuppressWarnings("unchecked")
     public T setAckWait(long ackWait, TimeUnit unit) {
-    	getOptsBuilder().ackWait(ackWait, unit);
+    	getSubscriptionOptsBuilder().ackWait(ackWait, unit);
         return (T)this;
     }
 
@@ -123,7 +123,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      */
 	@SuppressWarnings("unchecked")
     public T setManualAcks(boolean manualAcks) {
-    	if (manualAcks) getOptsBuilder().manualAcks();
+    	if (manualAcks) getSubscriptionOptsBuilder().manualAcks();
         return (T)this;
     }
 
@@ -135,7 +135,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      */
 	@SuppressWarnings("unchecked")
     public T startAtSequence(long seq) {
-    	getOptsBuilder().startAtSequence(seq);
+    	getSubscriptionOptsBuilder().startAtSequence(seq);
         return (T)this;
     }
 
@@ -147,7 +147,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      */
 	@SuppressWarnings("unchecked")
     public T startAtTime(Instant start) {
-    	getOptsBuilder().startAtTime(start);
+    	getSubscriptionOptsBuilder().startAtTime(start);
         return (T)this;
     }
 
@@ -160,7 +160,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      */
 	@SuppressWarnings("unchecked")
     public T startAtTimeDelta(long ago, TimeUnit unit) {
-    	getOptsBuilder().startAtTimeDelta(ago, unit);
+    	getSubscriptionOptsBuilder().startAtTimeDelta(ago, unit);
         return (T)this;
     }
 
@@ -172,7 +172,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      */
 	@SuppressWarnings("unchecked")
     public T startAtTimeDelta(Duration ago) {
-    	getOptsBuilder().startAtTimeDelta(ago);
+    	getSubscriptionOptsBuilder().startAtTimeDelta(ago);
         return (T)this;
     }
 
@@ -184,7 +184,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      */
 	@SuppressWarnings("unchecked")
     public T startWithLastReceived() {
-    	getOptsBuilder().startWithLastReceived();
+    	getSubscriptionOptsBuilder().startWithLastReceived();
         return (T)this;
     }
 
@@ -196,7 +196,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      */
 	@SuppressWarnings("unchecked")
     public T deliverAllAvailable() {
-    	getOptsBuilder().deliverAllAvailable();
+    	getSubscriptionOptsBuilder().deliverAllAvailable();
         return (T)this;
     }
 
@@ -205,20 +205,20 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	 * @return the opts
 	 */
 	protected SubscriptionOptions getSubscriptionOptions() {
-		if ((opts == null) && (optsBuilder != null)){
-			opts = optsBuilder.build();
+		if ((subscriptionOpts == null) && (subscriptionOptsBuilder != null)){
+			subscriptionOpts = subscriptionOptsBuilder.build();
 		}
-		return opts;
+		return subscriptionOpts;
 	}
 
 	/**
 	 * @return the optsBuilder
 	 */
-	protected SubscriptionOptions.Builder getOptsBuilder() {
-		if (optsBuilder == null) {
-			optsBuilder = new SubscriptionOptions.Builder();
+	protected SubscriptionOptions.Builder getSubscriptionOptsBuilder() {
+		if (subscriptionOptsBuilder == null) {
+			subscriptionOptsBuilder = new SubscriptionOptions.Builder();
 		}
-		return optsBuilder;
+		return subscriptionOptsBuilder;
 	}
 
 	/**
@@ -226,7 +226,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	 */
 	public NatsStreamingToKeyValueSparkConnectorImpl<V> storedAsKeyValue() {
 		return new NatsStreamingToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, queue, natsUrl, clusterID, clientID, 
-																opts, optsBuilder, dataDecoder, scalaDataDecoder);
+																subscriptionOpts, subscriptionOptsBuilder, dataDecoder, scalaDataDecoder);
 	}
 
 	/** Create a socket connection and receive data until receiver is stopped 
@@ -238,6 +238,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 		if (natsUrl != null) {
 			optionsBuilder.natsUrl(natsUrl);
 		}
+
 		final StreamingConnection connection = NatsStreaming.connect(clusterID, clientID, optionsBuilder.build());
 
 //		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);
