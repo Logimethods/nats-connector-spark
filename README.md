@@ -15,6 +15,7 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 - Tested with:
   - `nats-server version 1.3.0`
   - `nats-streaming-server version 0.11.2`
+- `public T withNatsQueue(String queue)` added
 
 ### Version 0.4.0
 	- SubscriptionOptions are now [serializable](https://github.com/nats-io/java-nats-streaming/issues/51)
@@ -253,6 +254,7 @@ JavaReceiverInputDStream<Float> messages =
 The optional settings are:
 
 * `withSubjects(String... subjects)`
+* `withNatsQueue(String natsQueue)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
 
@@ -291,6 +293,7 @@ JavaReceiverInputDStream<String> messages =
 The optional settings are:
 
 * `withSubjects(String... subjects)`
+* `withNatsQueue(String natsQueue)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
 

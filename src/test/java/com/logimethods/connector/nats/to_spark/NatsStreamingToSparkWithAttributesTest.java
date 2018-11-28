@@ -9,8 +9,7 @@ package com.logimethods.connector.nats.to_spark;
 
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Options.PROP_URL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -43,6 +42,7 @@ public class NatsStreamingToSparkWithAttributesTest {
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withProperties(PROPERTIES);
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
+		assertFalse(connector.keepConnectionDurable());
 		assertEquals(connector.getNatsUrl().toString(), STAN_URL, connector.getNatsUrl());
 		assertEquals(connector.getSubjects().toString(), 3, connector.getSubjects().size());
 	}
@@ -95,6 +95,7 @@ public class NatsStreamingToSparkWithAttributesTest {
 					.setDurableName(DURABLE_NAME)
 					.withSubjects("SUBJECT");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
+		assertTrue(connector.keepConnectionDurable());
 		assertEquals(DURABLE_NAME, connector.getSubscriptionOptions().getDurableName());
 	}
 
@@ -112,6 +113,7 @@ public class NatsStreamingToSparkWithAttributesTest {
 					.setDurableName(newName)
 					.withSubjects("SUBJECT");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
+		assertTrue(connector.keepConnectionDurable());
 		assertEquals(newName, connector.getSubscriptionOptions().getDurableName());
 		assertEquals(start, connector.getSubscriptionOptions().getStartTime());
 	}

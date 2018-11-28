@@ -37,23 +37,23 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends Nats
 	protected OmnipotentStandardNatsToSparkConnector(Class<V> type, Properties properties, StorageLevel storageLevel, String... subjects) {
 		super(type, storageLevel, subjects);
 		this.properties = properties;
-		setQueue();
+		setNatsQueue();
 	}
 
 	protected OmnipotentStandardNatsToSparkConnector(Class<V> type, StorageLevel storageLevel, String... subjects) {
 		super(type, storageLevel, subjects);
-		setQueue();
+		setNatsQueue();
 	}
 
 	protected OmnipotentStandardNatsToSparkConnector(Class<V> type, Properties properties, StorageLevel storageLevel) {
 		super(type, storageLevel);
 		this.properties = properties;
-		setQueue();
+		setNatsQueue();
 	}
 
 	protected OmnipotentStandardNatsToSparkConnector(Class<V> type, StorageLevel storageLevel) {
 		super(type, storageLevel);
-		setQueue();
+		setNatsQueue();
 	}
 	
 	protected OmnipotentStandardNatsToSparkConnector(Class<V> type, StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
@@ -63,7 +63,7 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends Nats
 	/**
 	 */
 	protected StandardNatsToKeyValueSparkConnectorImpl<V> storedAsKeyValue() {
-		return new StandardNatsToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, queue, natsUrl, dataDecoder, scalaDataDecoder);
+		return new StandardNatsToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, natsQueue, natsUrl, dataDecoder, scalaDataDecoder);
 	}
 
 	protected Properties enrichedProperties;
@@ -79,7 +79,7 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends Nats
 
 		// Make connection and initialize streams			  
 		final Connection connection = Nats.connect(new Options.Builder(getEnrichedProperties()).build());
-		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);
+		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, natsQueue);
 
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
 			@Override
@@ -87,7 +87,7 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends Nats
 				logger.debug("Caught CTRL-C, shutting down gracefully..." + connection);
 				try {
 					Thread.sleep(500); // To allow the `dispatcher.unsubscribe(subject);` to be call
-					connection.close();
+					if (connection != null ) connection.close();
 				} catch (InterruptedException e) {
 					logger.debug(e.getMessage());
 				}
@@ -95,15 +95,21 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends Nats
 		}));
 
 		for (String subject: getSubjects()) {
-			final Dispatcher dispatcher = connection.createDispatcher(getMessageHandler()).subscribe(subject, queue);
+			final Dispatcher dispatcher = connection.createDispatcher(getMessageHandler()).subscribe(subject, natsQueue);
 			logger.info("Listening on {}.", subject);
 			
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
 				@Override
 				public void run() {
-					logger.debug("Caught CTRL-C, shutting down gracefully..." + dispatcher);
-					dispatcher.unsubscribe(subject);
-					connection.closeDispatcher(dispatcher);
+					try {
+						logger.debug("Caught CTRL-C, shutting down gracefully..." + dispatcher);
+						dispatcher.unsubscribe(subject);
+						connection.closeDispatcher(dispatcher);
+					} catch (IllegalStateException e) {
+						if (logger.isDebugEnabled()) {
+							logger.error("Exception while unsubscribing " + e.toString());
+						}
+					}
 				}
 			}));
 		}

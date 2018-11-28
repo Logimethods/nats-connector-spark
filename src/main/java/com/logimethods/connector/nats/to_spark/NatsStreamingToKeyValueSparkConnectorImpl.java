@@ -40,7 +40,7 @@ public class NatsStreamingToKeyValueSparkConnectorImpl<V>
 		super(type, storageLevel, clusterID, clientID);
 		this.subjects = subjects;
 		this.properties = properties;
-		this.queue = queue;
+		this.natsQueue = queue;
 		this.natsUrl = natsUrl;
 		this.subscriptionOpts = subscriptionOpts;
 		this.subscriptionOptsBuilder = subscriptionOptsBuilder;

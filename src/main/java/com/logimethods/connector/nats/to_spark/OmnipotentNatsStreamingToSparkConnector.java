@@ -10,6 +10,9 @@ package com.logimethods.connector.nats.to_spark;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -21,7 +24,6 @@ import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
 import io.nats.streaming.NatsStreaming;
 import io.nats.streaming.Options;
-import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.Subscription;
 import io.nats.streaming.SubscriptionOptions;
 
@@ -44,6 +46,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	protected String clusterID, clientID;
 	protected transient SubscriptionOptions subscriptionOpts;
 	protected SubscriptionOptions.Builder subscriptionOptsBuilder;
+	protected Collection<Subscription> allSubscriptions = new HashSet<Subscription>();
 
 	/* Constructors with subjects provided by the environment */
 	
@@ -51,7 +54,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 		super(type, storageLevel);
 		this.clusterID = clusterID;
 		this.clientID = clientID;
-		setQueue();
+		setNatsQueue();
 //		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
 
@@ -225,7 +228,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	 * @return a NATS Streaming to Spark Connector where the NATS Messages are stored in Spark as Key (the NATS Subject) / Value (the NATS Payload)
 	 */
 	public NatsStreamingToKeyValueSparkConnectorImpl<V> storedAsKeyValue() {
-		return new NatsStreamingToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, queue, natsUrl, clusterID, clientID, 
+		return new NatsStreamingToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, natsQueue, natsUrl, clusterID, clientID, 
 																subscriptionOpts, subscriptionOptsBuilder, dataDecoder, scalaDataDecoder);
 	}
 
@@ -239,35 +242,89 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 			optionsBuilder.natsUrl(natsUrl);
 		}
 
-		final StreamingConnection connection = NatsStreaming.connect(clusterID, clientID, optionsBuilder.build());
+		connection = NatsStreaming.connect(clusterID, clientID, optionsBuilder.build());
 
 //		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);
 		
 		for (String subject: getSubjects()) {
-			final Subscription sub = connection.subscribe(subject, queue, getMessageHandler(), getSubscriptionOptions());
+			final Subscription sub = connection.subscribe(subject, natsQueue, getMessageHandler(), getSubscriptionOptions());
+			allSubscriptions.add(sub);
+			
 			logger.info("Listening on {}.", subject);
 			
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
 				@Override
 				public void run() {
 					logger.debug("Caught CTRL-C, shutting down gracefully..." + this);
+					
 					try {
-						sub.unsubscribe();
-					} catch (IOException e) {
+						allSubscriptions.remove(sub);
+						if (keepConnectionDurable()) {
+							logger.info("Closing NATS Subscription at Shutdown " + sub);
+							sub.close();
+						} else {
+							logger.info("Unsubscribing NATS Connection at Shutdown " + sub);
+							sub.unsubscribe();
+						}							
+					} catch (IOException | IllegalStateException e) {
 						if (logger.isDebugEnabled()) {
-							logger.error("Exception while unsubscribing " + e.toString());
+							logger.error("Exception while unsubscribing at Shutdown " + e.toString());
 						}
 					}
+					
 					try {
-						connection.close();
+						if ((! keepConnectionDurable()) && (connection != null)) {
+							logger.info("Closing NATS Connection at Shutdown " + connection);
+							connection.close();
+						}
+						connection = null;
 					} catch (IOException | TimeoutException | InterruptedException e) {
 						if (logger.isDebugEnabled()) {
-							logger.error("Exception while unsubscribing " + e.toString());
+							logger.error("Exception while unsubscribing at Shutdown " + e.toString());
 						}
 					}
 				}
 			}));
 		}
+	}
+	
+	@Override
+	public void onStop() {
+		try {			
+			Iterator<Subscription> setIterator = allSubscriptions.iterator();
+			while (setIterator.hasNext()) {
+				final Subscription sub = setIterator.next();
+				try {
+					if (keepConnectionDurable()) {
+						logger.info("Closing NATS Subscription to keep it DURABLE: " + sub);
+						sub.close();
+					} else {
+						logger.info("Unsubscribing NATS Connection " + sub);
+						sub.unsubscribe();
+					}							
+				} catch (IOException e) {
+					if (logger.isDebugEnabled()) {
+						logger.error("Exception while unsubscribing " + e.toString());
+					}
+				}
+			    setIterator.remove();
+			}
+
+			if ((! keepConnectionDurable()) && (connection != null)) {				
+				logger.info("Closing NATS Connection to keep it DURABLE: " + connection);
+				connection.close();
+				connection = null;
+			}
+		} catch (IOException | TimeoutException | InterruptedException e) {
+			if (logger.isDebugEnabled()) {
+				logger.error("Exception while unsubscribing " + e.toString());
+			}
+		}
+	}
+
+	protected boolean keepConnectionDurable() {
+		final String durableName = getSubscriptionOptsBuilder().build().getDurableName();
+		return (durableName != null && !durableName.isEmpty());
 	}
 
 	abstract protected MessageHandler getMessageHandler();
