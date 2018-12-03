@@ -20,11 +20,12 @@ import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
+import io.nats.streaming.AckHandler;
 import io.nats.streaming.NatsStreaming;
 import io.nats.streaming.Options;
 import io.nats.streaming.StreamingConnection;
 
-class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNatsStreamingConnectorImpl> {
+class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNatsStreamingConnectorImpl> implements AckHandler {
 
 	/**
 	 * 
@@ -105,6 +106,16 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 		}
 	}
 
+	// The ack handler will be invoked when a publish acknowledgement is received
+	// @See https://github.com/nats-io/java-nats-streaming#asynchronous-publishing
+    public void onAck(String guid, Exception err) {
+        if (err != null) {
+        	logger.error("Error publishing msg id %s: %s\n", guid, err.getMessage());
+        } else {
+        	logger.trace("Received ack for msg id %s\n", guid);
+        }
+    }
+	
 	protected synchronized StreamingConnection getConnection() throws Exception {
 		if (connection == null) {
 			connection = createConnection();

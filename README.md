@@ -16,6 +16,7 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
   - `nats-server version 1.3.0`
   - `nats-streaming-server version 0.11.2`
 - `public T withNatsQueue(String queue)` added
+- [Asynchronous Publishing](https://github.com/nats-io/java-nats-streaming#asynchronous-publishing) for Spark to NATS Streaming
 - The following methods has been @Deprecated
   * `withSubscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
   * `setDurableName(String durableName)`
