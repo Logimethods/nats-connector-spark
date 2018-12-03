@@ -36,6 +36,8 @@ import io.nats.streaming.SubscriptionOptions;
  */
 public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends NatsToSparkConnector<T,R,V> {
 
+	protected static final String DISPATCHER_NAME = "spark";
+
 	/**
 	 * 
 	 */
@@ -277,8 +279,8 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	 * @return the opts
 	 */
 	protected SubscriptionOptions getSubscriptionOptions() {
-		if ((subscriptionOpts == null) && (subscriptionOptsBuilder != null)){
-			subscriptionOpts = subscriptionOptsBuilder.build();
+		if (subscriptionOpts == null){
+			subscriptionOpts = getSubscriptionOptsBuilder().dispatcher(DISPATCHER_NAME).build();
 		}
 		return subscriptionOpts;
 	}
