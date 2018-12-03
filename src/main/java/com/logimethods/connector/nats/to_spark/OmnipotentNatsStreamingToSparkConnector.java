@@ -63,7 +63,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	 * @return a NATS Streaming to Spark Connector
 	 */
 	@SuppressWarnings("unchecked")
-	public T withSubscriptionOptionsBuilder(SubscriptionOptions.Builder optsBuilder) {
+	public T subscriptionOptionsBuilder(SubscriptionOptions.Builder optsBuilder) {
 		this.subscriptionOptsBuilder = optsBuilder;
 		return (T)this;
 	}
@@ -75,7 +75,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @return the connector itself
      */
 	@SuppressWarnings("unchecked")
-    public T setDurableName(String durableName) {
+    public T durableName(String durableName) {
     	getSubscriptionOptsBuilder().durableName(durableName);
     	return (T)this;
     }
@@ -87,7 +87,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @return the connector itself
      */
 	@SuppressWarnings("unchecked")
-    public T setMaxInFlight(int maxInFlight) {
+    public T maxInFlight(int maxInFlight) {
     	getSubscriptionOptsBuilder().maxInFlight(maxInFlight);
         return (T)this;
     }
@@ -99,11 +99,11 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @return the connector itself
      */
 	@SuppressWarnings("unchecked")
-    public T setAckWait(Duration ackWait) {
+    public T ackWait(Duration ackWait) {
     	getSubscriptionOptsBuilder().ackWait(ackWait);
         return (T)this;
     }
-
+	
     /**
      * Sets the amount of time the subscription will wait for ACKs from the cluster.
      * 
@@ -112,7 +112,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @return the connector itself
      */
 	@SuppressWarnings("unchecked")
-    public T setAckWait(long ackWait, TimeUnit unit) {
+    public T ackWait(long ackWait, TimeUnit unit) {
     	getSubscriptionOptsBuilder().ackWait(ackWait, unit);
         return (T)this;
     }
@@ -125,7 +125,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @return the connector itself
      */
 	@SuppressWarnings("unchecked")
-    public T setManualAcks(boolean manualAcks) {
+    public T manualAcks(boolean manualAcks) {
     	if (manualAcks) getSubscriptionOptsBuilder().manualAcks();
         return (T)this;
     }
@@ -203,6 +203,75 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
         return (T)this;
     }
 
+	/* Deprecated methods associated with the NATS Builder */
+
+	/**
+	 * @param optsBuilder, the NATS Streaming options used to set the connection to NATS
+	 * @return a NATS Streaming to Spark Connector
+	 */
+	@Deprecated
+	public T withSubscriptionOptionsBuilder(SubscriptionOptions.Builder optsBuilder) {
+		return subscriptionOptionsBuilder(optsBuilder);
+	}
+
+    /**
+     * Sets the durable subscriber name for the subscription.
+     * 
+     * @param durableName the name of the durable subscriber
+     * @return the connector itself
+     */
+	@Deprecated
+    public T setDurableName(String durableName) {
+    	return durableName(durableName);
+    }
+	
+    /**
+     * Sets the maximum number of in-flight (unacknowledged) messages for the subscription.
+     * 
+     * @param maxInFlight the maximum number of in-flight messages
+     * @return the connector itself
+     */
+	@Deprecated
+    public T setMaxInFlight(int maxInFlight) {
+    	return maxInFlight(maxInFlight);
+    }
+
+    /**
+     * Sets the amount of time the subscription will wait for ACKs from the cluster.
+     * 
+     * @param ackWait the amount of time the subscription will wait for an ACK from the cluster
+     * @return the connector itself
+     */
+	@Deprecated
+    public T setAckWait(Duration ackWait) {
+    	return ackWait(ackWait);
+    }
+
+    /**
+     * Sets the amount of time the subscription will wait for ACKs from the cluster.
+     * 
+     * @param ackWait the amount of time the subscription will wait for an ACK from the cluster
+     * @param unit the time unit
+     * @return the connector itself
+     */
+	@Deprecated
+    public T setAckWait(long ackWait, TimeUnit unit) {
+    	return ackWait(ackWait, unit);
+    }
+
+    /**
+     * Sets whether or not messages must be acknowledge individually by calling
+     * {@link Message#ack()}.
+     * 
+     * @param manualAcks whether or not messages must be manually acknowledged
+     * @return the connector itself
+     */
+	@Deprecated
+    public T setManualAcks(boolean manualAcks) {
+    	return manualAcks(manualAcks);
+    }
+	
+	/* End of the deprecated methods associated with the NATS Builder */
 	
 	/**
 	 * @return the opts

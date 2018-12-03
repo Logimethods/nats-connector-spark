@@ -16,6 +16,20 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
   - `nats-server version 1.3.0`
   - `nats-streaming-server version 0.11.2`
 - `public T withNatsQueue(String queue)` added
+- The following methods has been @Deprecated
+  * `withSubscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
+  * `setDurableName(String durableName)`
+  * `setMaxInFlight(int maxInFlight)`
+  * `setAckWait(Duration ackWait)`
+  * `setAckWait(long ackWait, TimeUnit unit)`
+  * `setManualAcks(boolean manualAcks)`
+in favor of more `SubscriptionOptionsBuilder` idiomatic ones:
+  * `subscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
+  * `durableName(String durableName)`
+  * `maxInFlight(int maxInFlight)`
+  * `ackWait(Duration ackWait)`
+  * `ackWait(long ackWait, TimeUnit unit)`
+  * `manualAcks(boolean manualAcks)`
 
 ### Version 0.4.0
 	- SubscriptionOptions are now [serializable](https://github.com/nats-io/java-nats-streaming/issues/51)
@@ -285,7 +299,7 @@ JavaReceiverInputDStream<String> messages =
 		.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), clusterID)
 		.withNatsURL(STAN_URL)
 		.withSubjects(DEFAULT_SUBJECT)
-		.setDurableName("MY_DURABLE_NAME")
+		.durableName("MY_DURABLE_NAME")
 		.startAtTime(start)
 		.asStreamOf(ssc);
 ```
@@ -299,12 +313,12 @@ The optional settings are:
 
 as well as options related to [NATS Streaming](https://github.com/nats-io/java-nats-streaming):
 
-* `withSubscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
-* `setDurableName(String durableName)`
-* `setMaxInFlight(int maxInFlight)`
-* `setAckWait(Duration ackWait)`
-* `setAckWait(long ackWait, TimeUnit unit)`
-* `setManualAcks(boolean manualAcks)`
+* `subscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
+* `durableName(String durableName)`
+* `maxInFlight(int maxInFlight)`
+* `ackWait(Duration ackWait)`
+* `ackWait(long ackWait, TimeUnit unit)`
+* `manualAcks(boolean manualAcks)`
 * `startAtSequence(long seq)`
 * `startAtTime(Instant start)`
 * `startAtTimeDelta(long ago, TimeUnit unit)`
@@ -561,7 +575,7 @@ Those connectors have been tested against a Spark Cluster, thanks to the [Docker
 
 (The MIT License)
 
-Copyright (c) 2016 Logimethods.
+Copyright (c) 2016-2018 Logimethods.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to

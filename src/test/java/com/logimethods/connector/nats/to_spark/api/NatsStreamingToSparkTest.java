@@ -210,7 +210,7 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 						.withNatsURL(STAN_URL)
 						.withSubjects(subject)
 						.withNatsQueue(queue)
-						.setDurableName(durableName)
+						.durableName(durableName)
 						.asStreamOfKeyValue(ssc);
 // messages.print();
 

@@ -83,7 +83,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(STAN_URL)
-					.withSubscriptionOptionsBuilder(optsBuilder)
+					.subscriptionOptionsBuilder(optsBuilder)
 					.withSubjects("SUBJECT")
 					.storedAsKeyValue();
 		assertTrue(connector instanceof NatsStreamingToKeyValueSparkConnectorImpl);
@@ -97,7 +97,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(STAN_URL)
 					.startWithLastReceived()
-					.setDurableName(DURABLE_NAME)
+					.durableName(DURABLE_NAME)
 					.withSubjects("SUBJECT")
 					.storedAsKeyValue();
 		assertTrue(connector instanceof NatsStreamingToKeyValueSparkConnectorImpl);
@@ -114,8 +114,8 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(STAN_URL)
 					//.withProperties(PROPERTIES)
-					.withSubscriptionOptionsBuilder(optsBuilder)
-					.setDurableName(newName)
+					.subscriptionOptionsBuilder(optsBuilder)
+					.durableName(newName)
 					.withSubjects("SUBJECT")
 					.storedAsKeyValue();
 		assertTrue(connector instanceof NatsStreamingToKeyValueSparkConnectorImpl);
@@ -131,7 +131,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withNatsURL(STAN_URL)
 					//.withProperties(PROPERTIES)
-					.setDurableName(DURABLE_NAME)
+					.durableName(DURABLE_NAME)
 					.startAtTime(start)
 					.withSubjects("SUBJECT")
 					.storedAsKeyValue();
