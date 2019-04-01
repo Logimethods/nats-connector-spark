@@ -41,7 +41,8 @@ javadoc:
         host: github.com
     - add-to-known_hosts:
         hostname: github.com
-        fingerprint: SHA256:nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8
+        fingerprint: nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8
+        type: rsa
     - script:
         name: Configure Git
         code: |-
