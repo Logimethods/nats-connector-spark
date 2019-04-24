@@ -1,9 +1,10 @@
-package com.logimethods.connector.nats.to_spark.api;
+package com.logimethods.connector.nats.to_spark;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.Serializable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,11 +15,13 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.apache.spark.util.LongAccumulator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -27,22 +30,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats.spark.test.NatsPublisher;
+import com.logimethods.connector.nats.spark.test.NatsToSparkValidator;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
+import com.logimethods.connector.nats.to_spark.api.StandardNatsToSparkConnectorTest;
+
+import org.apache.hadoop.security.UserGroupInformation;
 
 import scala.Tuple2;
 
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.*;
+
 public abstract class AbstractNatsToSparkTest {
+	
 	protected static String DEFAULT_SUBJECT_ROOT = "nats2sparkSubject";
 	protected static int DEFAULT_SUBJECT_INR = 0;
 	protected static String DEFAULT_SUBJECT;
 	protected static JavaSparkContext sc;
 	protected static AtomicInteger TOTAL_COUNT = new AtomicInteger();
-	static Logger logger = null;
-	static Boolean rightNumber = true;
-	static Boolean atLeastSomeData = false;
-	static String payload = null;
+	protected static Logger logger = null;
+	protected static Boolean rightNumber = true;
+	protected static Boolean atLeastSomeData = false;
+	protected static String payload = null;
 	
 	/**
 	 * @throws java.lang.Exception
@@ -82,12 +92,27 @@ public abstract class AbstractNatsToSparkTest {
 		Thread.sleep(500);
 		
 		DEFAULT_SUBJECT = DEFAULT_SUBJECT_ROOT + (DEFAULT_SUBJECT_INR++);
-		TOTAL_COUNT.set(0);
+		NatsToSparkValidator.TOTAL_COUNT.set(0);
 		
 		rightNumber = true;
 		atLeastSomeData = false;
 		
-		SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]").set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
+		 // https://stackoverflow.com/questions/41864985/hadoop-ioexception-failure-to-login
+//		UserGroupInformation.setLoginUser(UserGroupInformation.createRemoteUser("sparkuser"));
+		
+		SparkConf sparkConf = 
+				new SparkConf()
+					.setAppName("My Spark Job")
+					.setMaster(SPARK_MASTER)
+					.setJars(new String[] { 
+							// TODO target/nats-connector-spark-*.jar
+							"target/nats-connector-spark-1.0.0-SNAPSHOT.jar"})
+					.set("spark.executor.cores", UnitTestUtilities.getProperty("spark.executor.cores", "1"))
+					.set("spark.cores.max", UnitTestUtilities.getProperty("spark.cores.max", "2"))
+					;
+//					.set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
+//					.set("spark.driver.port", "7001");
+					;
 		sc = new JavaSparkContext(sparkConf);
 	}
 
@@ -125,7 +150,7 @@ public abstract class AbstractNatsToSparkTest {
 					logger.error("The number of messages received should have been {} instead of {}.", nbOfMessages, count);
 				}
 				
-				TOTAL_COUNT.getAndAdd((int) count);
+				NatsToSparkValidator.TOTAL_COUNT.getAndAdd((int) count);
 				
 				atLeastSomeData = atLeastSomeData || (count > 0);
 				
@@ -150,24 +175,24 @@ public abstract class AbstractNatsToSparkTest {
 		final int nbOfMessages = 5;
 		NatsPublisher np = getNatsPublisher(nbOfMessages);
 		
-		if (logger.isDebugEnabled()) {
+//		if (logger.isDebugEnabled()) {
 			messages.print();
-		}
+//		}
 		
-		messages.foreachRDD(new VoidFunction<JavaRDD<Integer>>() {
+/*		messages.foreachRDD(new VoidFunction<JavaRDD<Integer>>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void call(JavaRDD<Integer> rdd) throws Exception {
 				logger.debug("RDD received: {}", rdd.collect());
-				
+System.out.println("RDD received: " + rdd.collect());				
 				final long count = rdd.count();
 				if ((count != 0) && (count != nbOfMessages)) {
 					rightNumber = false;
 					logger.error("The number of messages received should have been {} instead of {}.", nbOfMessages, count);
 				}
 				
-				TOTAL_COUNT.getAndAdd((int) count);
+				NatsToSparkValidator.TOTAL_COUNT.getAndAdd((int) count);
 				
 				atLeastSomeData = atLeastSomeData || (count > 0);
 				
@@ -177,9 +202,13 @@ public abstract class AbstractNatsToSparkTest {
 						}
 				}
 			}			
-		});
+		});*/
+		
+		final LongAccumulator count = ssc.sparkContext().sc().longAccumulator();
+		NatsToSparkValidator.validateTheReceptionOfIntegerMessages(messages, count);
 		
 		closeTheValidation(ssc, executor, nbOfMessages, np);
+		assertEquals(nbOfMessages, count.sum());
 	}
 
 	protected void validateTheReceptionOfMessages(final JavaStreamingContext ssc,
@@ -193,42 +222,24 @@ public abstract class AbstractNatsToSparkTest {
 		if (logger.isDebugEnabled()) {
 			messages.print();
 		}
-		
-		JavaPairDStream<String, Integer> pairs = messages.mapToPair(s -> new Tuple2(s._1, 1));		
-		JavaPairDStream<String, Integer> counts = pairs.reduceByKey((a, b) -> a + b);
-		counts.print();
-		
-		counts.foreachRDD((VoidFunction<JavaPairRDD<String, Integer>>) pairRDD -> {
-			pairRDD.foreach((VoidFunction<Tuple2<String, Integer>>) tuple -> {
-				final long count = tuple._2;
-				if ((count != 0) && (count != nbOfMessages)) {
-					rightNumber = false;
-					logger.error("The number of messages received should have been {} instead of {}.", nbOfMessages, count);
-				}
 
-				TOTAL_COUNT.getAndAdd((int) count);
-
-				atLeastSomeData = atLeastSomeData || (count > 0);
-			});
-		});
+		final LongAccumulator count = ssc.sparkContext().sc().longAccumulator();
+		NatsToSparkValidator.validateTheReceptionOfMessages(messages, count);
 		
 		closeTheValidation(ssc, executor, nbOfMessages, np);		
+		assertEquals(nbOfMessages, count.sum());
 	}
 
 	protected void closeTheValidation(JavaStreamingContext ssc, ExecutorService executor, final int nbOfMessages,
 			NatsPublisher np) throws InterruptedException {
 		ssc.start();		
-		Thread.sleep(1000);		
+		Thread.sleep(1000);
 		// start the publisher
 		executor.execute(np);
 		np.waitUntilReady();		
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 		ssc.close();		
-		Thread.sleep(1000);
-		assertTrue("Not a single RDD did received messages.", atLeastSomeData);	
-		assertTrue("Not the right number of messages have been received", rightNumber);
-		assertEquals(nbOfMessages, TOTAL_COUNT.get());
-		assertNull("'" + payload + " should be '" + NatsPublisher.NATS_PAYLOAD + "'", payload);
+		Thread.sleep(2000);
 	}
 
 	protected abstract NatsPublisher getNatsPublisher(final int nbOfMessages);

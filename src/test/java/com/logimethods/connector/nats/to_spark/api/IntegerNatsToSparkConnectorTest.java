@@ -7,7 +7,8 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.to_spark.api;
 
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_LOCALHOST_URL;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Options.PROP_URL;
 
@@ -21,13 +22,14 @@ import org.junit.Test;
 
 import com.logimethods.connector.nats.spark.test.IntegerNatsPublisher;
 import com.logimethods.connector.nats.spark.test.NatsPublisher;
+import com.logimethods.connector.nats.to_spark.AbstractNatsToSparkTest;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 
 public class IntegerNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 	
 	@Override
 	protected NatsPublisher getNatsPublisher(final int nbOfMessages) {
-		return new IntegerNatsPublisher("np", NATS_SERVER_URL, DEFAULT_SUBJECT,  nbOfMessages);
+		return new IntegerNatsPublisher("np", NATS_LOCALHOST_URL, DEFAULT_SUBJECT,  nbOfMessages);
 	}
 	
 	@Test(timeout=240000)
@@ -36,7 +38,7 @@ public class IntegerNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final Properties properties = new Properties();
-		properties.setProperty(PROP_URL, NATS_SERVER_URL);
+		properties.setProperty(PROP_URL, NATS_URL);
 		final JavaReceiverInputDStream<Integer> messages =  
 				NatsToSparkConnector
 					.receiveFromNats(Integer.class, StorageLevel.MEMORY_ONLY())

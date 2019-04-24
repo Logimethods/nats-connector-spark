@@ -7,16 +7,14 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.STANServerPORT;
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.STAN_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_STREAMING_LOCALHOST_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_STREAMING_URL;
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.startStreamingServer;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Options.PROP_URL;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
@@ -29,15 +27,12 @@ import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats.spark.test.NatsStreamingSubscriber;
 import com.logimethods.connector.nats.spark.test.STANServer;
+import com.logimethods.connector.nats.spark.test.SparkToNatsStreamingValidator;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
-import com.logimethods.connector.spark.to_nats.AbstractSparkToNatsConnectorTest;
-import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
-import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
-import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorImpl;
 
 import io.nats.streaming.NatsStreaming;
 import io.nats.streaming.Options;
@@ -58,7 +53,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Enable tracing for debugging as necessary.
-		Level level = Level.WARN;
+		Level level = Level.DEBUG;
 		UnitTestUtilities.setLogLevel(SparkToNatsConnectorPool.class, level);
 		UnitTestUtilities.setLogLevel(NatsToSparkConnector.class, level);
 		UnitTestUtilities.setLogLevel(SparkToNatsStreamingConnectorPoolTest.class, level);
@@ -71,11 +66,11 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 		logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorPoolTest.class);       
 	}
 
-    @Test(timeout=240000)
+//    @Test(timeout=240000)
     public void testBasicPublish() {
         // Run a STAN server
         try (STANServer s = UnitTestUtilities.startStreamingServer(clusterID, false)) {
-        	Options options = new Options.Builder().natsUrl("nats://localhost:" + STANServerPORT).build();
+        	Options options = new Options.Builder().natsUrl(NATS_STREAMING_LOCALHOST_URL).build();
             try ( StreamingConnection sc =
             		NatsStreaming.connect(clusterID, getUniqueClientName(), options)) {
                 sc.publish("foo", "Hello World!".getBytes());
@@ -90,7 +85,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 		String subject1 = "subject1";
 		String subject2 = "subject2";
 		final SparkToNatsConnectorPool<?> connectorPool = 
-				SparkToNatsConnectorPool.newStreamingPool(clusterID).withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(STAN_URL);
+				SparkToNatsConnectorPool.newStreamingPool(clusterID).withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_STREAMING_URL);
 
 		validateConnectorPool(subject1, subject2, connectorPool);
     }
@@ -113,7 +108,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 		String subject1 = "subject1";
 		String subject2 = "subject2";
 		final Properties properties = new Properties();
-		properties.setProperty(PROP_URL, STAN_URL);
+		properties.setProperty(PROP_URL, NATS_STREAMING_URL);
 		final SparkToNatsConnectorPool<?> connectorPool = 
 				SparkToNatsConnectorPool.newStreamingPool(clusterID).withProperties(properties).withSubjects(DEFAULT_SUBJECT, subject1, subject2);
 
@@ -125,7 +120,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 		String subject1 = "subject1";
 		String subject2 = "subject2";
 		final Properties properties = new Properties();
-		properties.setProperty(PROP_URL, STAN_URL);
+		properties.setProperty(PROP_URL, NATS_STREAMING_URL);
 		properties.setProperty(PROP_SUBJECTS, subject1 + ","+DEFAULT_SUBJECT+" , "+subject2);
 		final SparkToNatsConnectorPool<?> connectorPool = 
 				SparkToNatsConnectorPool.newStreamingPool(clusterID).withProperties(properties);
@@ -152,31 +147,36 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 //    	logger.debug("ConnectionFactory ready: " + stanc);
     	final List<Integer> data = UnitTestUtilities.getData();
 
-    	NatsStreamingSubscriber<Integer> ns1 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
+    	NatsStreamingSubscriber<Integer> ns1 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1", NATS_STREAMING_LOCALHOST_URL);
     	logger.debug("ns1 NatsStreamingSubscriber ready");
 
-    	NatsStreamingSubscriber<Integer> ns2 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB2", STAN_URL);
+    	NatsStreamingSubscriber<Integer> ns2 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB2", NATS_STREAMING_LOCALHOST_URL);
     	logger.debug("ns2 NatsStreamingSubscriber ready");
 
-    	JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
-    	JavaDStream<Integer> integers = lines.map(str -> Integer.parseInt(str));
-
+//-    	JavaDStream<Integer> integers = SparkToNatsStreamingValidator.generateIntegers(ssc, ssc.textFileStream(tempDir.getAbsolutePath()));
+    	JavaDStream<Integer> integers = SparkToNatsStreamingValidator.generateIntegers(dataSource.dataStream(ssc));
+integers.print();
     	connectorPool.publishToNats(integers);
 
     	ssc.start();
 
     	Thread.sleep(1000);
 
-    	File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
+    	/*File tmpFile = new File(tempDir.getAbsolutePath(), "tmp.txt");
     	PrintWriter writer = new PrintWriter(tmpFile, "UTF-8");
     	for(Integer str: data) {
     		writer.println(str);
     	}		
-    	writer.close();
+    	writer.close();*/
+//    	writeTmpFile(data);
+		dataSource.open();
+		dataSource.write(data);
 
     	// wait for the subscribers to complete.
     	ns1.waitForCompletion();
     	ns2.waitForCompletion();
+    	
+		dataSource.close();
     }
     
     static String getUniqueClientName() {

@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.spark.storage.StorageLevel;
 
 import com.logimethods.connector.nats_spark.IncompleteException;
@@ -78,7 +79,14 @@ public abstract class OmnipotentStandardNatsToSparkConnector<T,R,V> extends Nats
 	protected void receive() throws IncompleteException, IOException, TimeoutException, IllegalStateException, IllegalArgumentException, InterruptedException {
 
 		// Make connection and initialize streams			  
-		final Connection connection = Nats.connect(new Options.Builder(getEnrichedProperties()).build());
+		Connection connection;
+		final Options options = new Options.Builder(getEnrichedProperties()).build();
+		try {
+			connection = Nats.connect(options);
+		} catch (Exception e) {
+			logger.error("Nats.connect({}, {}, {}) PRODUCES {}", ReflectionToStringBuilder.toString(options), e.getMessage());
+			throw(e);
+		}
 		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, natsQueue);
 
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){

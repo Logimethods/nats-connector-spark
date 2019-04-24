@@ -16,9 +16,12 @@ import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.logimethods.connector.nats_spark.IncompleteException;
 
 import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
@@ -305,7 +308,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 
 	/** Create a socket connection and receive data until receiver is stopped 
 	 * @throws Exception **/
-	protected void receive() throws Exception {
+	protected void receive() throws IOException, InterruptedException, IncompleteException, TimeoutException {
 
 		// Make connection and initialize streams			  
 		final Options.Builder optionsBuilder = new Options.Builder();
@@ -313,49 +316,67 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 			optionsBuilder.natsUrl(natsUrl);
 		}
 
-		connection = NatsStreaming.connect(clusterID, clientID, optionsBuilder.build());
-
-//		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);
+		final Options options = optionsBuilder.build();
+		try {
+			connection = NatsStreaming.connect(clusterID, clientID, options);
+		} catch (IOException | InterruptedException e) {
+			logger.error("NatsStreaming.connect({}, {}, {}) PRODUCES {}", clusterID, clientID, ReflectionToStringBuilder.toString(options), e.getMessage());
+			throw(e);
+		}
 		
-		for (String subject: getSubjects()) {
-			final Subscription sub = connection.subscribe(subject, natsQueue, getMessageHandler(), getSubscriptionOptions());
-			allSubscriptions.add(sub);
-			
-			logger.info("Listening on {}.", subject);
-			
-			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
-				@Override
-				public void run() {
-					logger.debug("Caught CTRL-C, shutting down gracefully..." + this);
-					
-					try {
-						allSubscriptions.remove(sub);
-						if (keepConnectionDurable()) {
-							logger.info("Closing NATS Subscription at Shutdown " + sub);
-							sub.close();
-						} else {
-							logger.info("Unsubscribing NATS Connection at Shutdown " + sub);
-							sub.unsubscribe();
-						}							
-					} catch (IOException | IllegalStateException e) {
-						if (logger.isDebugEnabled()) {
-							logger.error("Exception while unsubscribing at Shutdown " + e.toString());
-						}
-					}
-					
-					try {
-						if ((! keepConnectionDurable()) && (connection != null)) {
-							logger.info("Closing NATS Connection at Shutdown " + connection);
-							connection.close();
-						}
-						connection = null;
-					} catch (IOException | TimeoutException | InterruptedException e) {
-						if (logger.isDebugEnabled()) {
-							logger.error("Exception while unsubscribing at Shutdown " + e.toString());
-						}
-					}
+		try {
+			for (String subject: getSubjects()) {
+				Subscription sub;
+				final MessageHandler messageHandler = getMessageHandler();
+				final SubscriptionOptions subscriptionOptions = getSubscriptionOptions();
+				try {
+					sub = connection.subscribe(subject, natsQueue, messageHandler, subscriptionOptions);
+					logger.info("{}.subscribe({}, {}, {}, {})", connection, subject, natsQueue, messageHandler, subscriptionOptions);
+				}  catch (IOException | InterruptedException | TimeoutException e) {
+					logger.error("{}.subscribe({}, {}, {}, {}) PRODUCES {}", connection, subject, natsQueue, messageHandler, subscriptionOptions, e.getMessage());
+					throw(e);
 				}
-			}));
+				allSubscriptions.add(sub);
+				
+				logger.info("Listening on {}.", subject);
+				
+				Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+					@Override
+					public void run() {
+						logger.debug("Caught CTRL-C, shutting down gracefully..." + this);
+						
+						try {
+							allSubscriptions.remove(sub);
+							if (keepConnectionDurable()) {
+								logger.info("Closing NATS Subscription at Shutdown " + sub);
+								sub.close();
+							} else {
+								logger.info("Unsubscribing NATS Connection at Shutdown " + sub);
+								sub.unsubscribe();
+							}							
+						} catch (IOException | IllegalStateException e) {
+							if (logger.isDebugEnabled()) {
+								logger.error("Exception while unsubscribing at Shutdown " + e.toString());
+							}
+						}
+						
+						try {
+							if ((! keepConnectionDurable()) && (connection != null)) {
+								logger.info("Closing NATS Connection at Shutdown " + connection);
+								connection.close();
+							}
+							connection = null;
+						} catch (IOException | TimeoutException | InterruptedException e) {
+							if (logger.isDebugEnabled()) {
+								logger.error("Exception while unsubscribing at Shutdown " + e.toString());
+							}
+						}
+					}
+				}));
+			}
+		} catch (IncompleteException e) {
+			logger.error("getSubjects() PRODUCES {}", e.getMessage());
+			throw(e);
 		}
 	}
 	

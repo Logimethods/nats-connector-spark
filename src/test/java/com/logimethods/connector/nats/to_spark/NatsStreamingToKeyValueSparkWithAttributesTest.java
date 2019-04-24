@@ -8,6 +8,7 @@
 package com.logimethods.connector.nats.to_spark;
 
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.*;
 import static io.nats.client.Options.PROP_URL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -22,19 +23,19 @@ import org.junit.Test;
 import com.logimethods.connector.nats_spark.IncompleteException;
 
 import io.nats.streaming.SubscriptionOptions;
-import scala.Tuple2;
+
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_STREAMING_PORT ;
 
 public class NatsStreamingToKeyValueSparkWithAttributesTest {
 	protected final static String CLUSTER_ID = "CLUSTER_ID";
-	private static final int STANServerPORT = 4223;
-	private static final String STAN_URL = "nats://localhost:" + STANServerPORT;
-	private static final String ALT_STAN_URL = "nats://1.1.1.1:" + STANServerPORT;
+//	private static final String STAN_URL = "nats://localhost:" + NATS_STREAMING_PORT;
+	private static final String ALT_NATS_STREAMING_URL = "nats://1.1.1.1:" + NATS_STREAMING_PORT;
 	protected final static String DURABLE_NAME = "$DURABLE_NAME";
 	protected final static Properties PROPERTIES = new Properties();
 	
 	{
 		PROPERTIES.setProperty(PROP_SUBJECTS, "sub1,sub3 , sub2");
-		PROPERTIES.setProperty(PROP_URL, STAN_URL);
+		PROPERTIES.setProperty(PROP_URL, NATS_STREAMING_URL);
 	}
 
 	@Test
@@ -45,7 +46,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 					.withProperties(PROPERTIES)
 					.storedAsKeyValue();
 		assertTrue(connector instanceof NatsStreamingToKeyValueSparkConnectorImpl);
-		assertEquals(connector.getNatsUrl().toString(), STAN_URL, connector.getNatsUrl());
+		assertEquals(connector.getNatsUrl().toString(), NATS_STREAMING_URL, connector.getNatsUrl());
 		assertEquals(connector.getSubjects().toString(), 3, connector.getSubjects().size());
 	}
 
@@ -54,11 +55,11 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-					.withNatsURL(ALT_STAN_URL)
+					.withNatsURL(ALT_NATS_STREAMING_URL)
 					.withSubjects("sub1", "sub2")
 					.storedAsKeyValue();
 		assertTrue(connector instanceof NatsStreamingToKeyValueSparkConnectorImpl);
-		assertEquals(ALT_STAN_URL, connector.natsUrl);
+		assertEquals(ALT_NATS_STREAMING_URL, connector.natsUrl);
 		assertEquals(connector.getSubjects().toString(), 2, connector.getSubjects().size());
 	}
 
@@ -67,12 +68,12 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-					.withNatsURL(ALT_STAN_URL)
+					.withNatsURL(ALT_NATS_STREAMING_URL)
 					.withSubjects("sub1", "sub2")
 					.withProperties(PROPERTIES)
 					.storedAsKeyValue();
 		assertTrue(connector instanceof NatsStreamingToKeyValueSparkConnectorImpl);
-		assertEquals(ALT_STAN_URL, connector.natsUrl);
+		assertEquals(ALT_NATS_STREAMING_URL, connector.natsUrl);
 		assertEquals(connector.getSubjects().toString(), 2, connector.getSubjects().size());
 	}
 
@@ -82,7 +83,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-					.withNatsURL(STAN_URL)
+					.withNatsURL(NATS_STREAMING_URL)
 					.subscriptionOptionsBuilder(optsBuilder)
 					.withSubjects("SUBJECT")
 					.storedAsKeyValue();
@@ -95,7 +96,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-					.withNatsURL(STAN_URL)
+					.withNatsURL(NATS_STREAMING_URL)
 					.startWithLastReceived()
 					.durableName(DURABLE_NAME)
 					.withSubjects("SUBJECT")
@@ -112,7 +113,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-					.withNatsURL(STAN_URL)
+					.withNatsURL(NATS_STREAMING_URL)
 					//.withProperties(PROPERTIES)
 					.subscriptionOptionsBuilder(optsBuilder)
 					.durableName(newName)
@@ -129,7 +130,7 @@ public class NatsStreamingToKeyValueSparkWithAttributesTest {
 		NatsStreamingToKeyValueSparkConnectorImpl connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-					.withNatsURL(STAN_URL)
+					.withNatsURL(NATS_STREAMING_URL)
 					//.withProperties(PROPERTIES)
 					.durableName(DURABLE_NAME)
 					.startAtTime(start)

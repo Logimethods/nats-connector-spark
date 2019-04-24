@@ -37,6 +37,7 @@ import com.logimethods.connector.nats.spark.test.NatsStreamingPublisher;
 import com.logimethods.connector.nats.spark.test.STANServer;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
+import com.logimethods.connector.nats.to_spark.AbstractNatsToSparkTest;
 import com.logimethods.connector.nats.to_spark.NatsStreamingToSparkConnectorImpl;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
@@ -52,13 +53,13 @@ import io.nats.streaming.Subscription;
 import io.nats.streaming.SubscriptionOptions;
 import scala.Tuple2;
 
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.* ;
+
 public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 	private static final String DURABLE_NAME = "durable-foo";
 	protected final static String CLUSTER_ID = "test-cluster";
 	protected final static String CLIENT_ID = "me";
 	private static final String DEFAULT_QUEUE = "my_queue";
-	private static final int STANServerPORT = 4223;
-	private static final String STAN_URL = "nats://localhost:" + STANServerPORT;
 	
 	/**
 	 * @throws java.lang.Exception
@@ -81,10 +82,10 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 
 	@Override
 	protected NatsPublisher getNatsPublisher(int nbOfMessages) {
-		return new NatsStreamingPublisher("np", CLUSTER_ID, getUniqueClientName(), STAN_URL, DEFAULT_SUBJECT,  nbOfMessages);
+		return new NatsStreamingPublisher("np", CLUSTER_ID, getUniqueClientName(), NATS_STREAMING_LOCALHOST_URL, DEFAULT_SUBJECT,  nbOfMessages);
 	}
 	
-	@Test(timeout = 8000)
+	@Test(timeout = 16000)
 	public void testNatsToSparkConnectorWithAdditionalSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
@@ -92,14 +93,14 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 		final JavaReceiverInputDStream<String> messages = 
 				NatsToSparkConnector
 						.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-						.withNatsURL(STAN_URL)
+						.withNatsURL(NATS_STREAMING_URL)
 						.withSubjects(DEFAULT_SUBJECT)
 						.asStreamOf(ssc);
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}
 	
-	@Test(timeout = 8000)
+	@Test(timeout = 16000)
 	public void testNatsToKeyValueSparkConnectorWithAdditionalSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
@@ -107,7 +108,7 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
 						.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-						.withNatsURL(STAN_URL)
+						.withNatsURL(NATS_STREAMING_URL)
 						.withSubjects(DEFAULT_SUBJECT)
 						.asStreamOfKeyValue(ssc);
 
@@ -119,7 +120,7 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
         // Run a STAN server
     	
         try (STANServer s = runServer(CLUSTER_ID, false)) {
-            Options options = new Options.Builder().natsUrl(STAN_URL).build();
+            Options options = new Options.Builder().natsUrl(NATS_STREAMING_LOCALHOST_URL).build();
             try (StreamingConnection sc = NatsStreaming.connect(CLUSTER_ID, getUniqueClientName(), options)) {
                 SubscriptionOptions sopts = new SubscriptionOptions.Builder().build();
                 try (Subscription sub = sc.subscribe("foo", new MessageHandler() {
@@ -141,7 +142,7 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
     // See https://github.com/nats-io/java-nats-streaming/blob/80bf55b327e7e429959ba4cad0089ea846924da9/src/test/java/io/nats/streaming/SubscribeTests.java#L773
     public void testDurableSubscriberCloseVersusUnsub() throws Exception {
     	// TODO Generalize the usage of NatsStreamingTestServer
-        try (NatsStreamingTestServer srv = new NatsStreamingTestServer(UnitTestUtilities.STANServerPORT, CLUSTER_ID, true)) {
+        try (NatsStreamingTestServer srv = new NatsStreamingTestServer(NATS_STREAMING_PORT, CLUSTER_ID, true)) {
             final String subject = "CloseVersusUnsub_SUBJECT_" + NatsSparkUtilities.generateUniqueID(this);
             final String queue = "CloseVersusUnsub_QUEUE_" + NatsSparkUtilities.generateUniqueID(this);
            
@@ -185,7 +186,19 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
             natsSC.getNatsConnection().flush(java.time.Duration.ofSeconds(2));
             
             // Restart a completely new Spark Context
-    		SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]").set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
+    		SparkConf sparkConf = 
+    				new SparkConf()
+    					.setAppName("DurableSubscriberCloseVersusUnsub")
+    					.setMaster(SPARK_MASTER)
+    					.setJars(new String[] { 
+//    							"/Users/laugimethods/Documents/GitHub/nats-connector-spark/src/test/resources/code.jar"})
+//    							"target/nats-connector-spark-1.0.0-SNAPSHOT.jar"})
+    							// TODO target/nats-connector-spark-*.jar
+    							"target/nats-connector-spark-1.0.0-SNAPSHOT.jar"})
+    					.set("spark.executor.cores", UnitTestUtilities.getProperty("spark.executor.cores", "1"))
+    					.set("spark.cores.max", UnitTestUtilities.getProperty("spark.cores.max", "2"))
+    					;
+//    					.set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
     		sc = new JavaSparkContext(sparkConf);
             ssc = new JavaStreamingContext(sc, new Duration(200));
             
@@ -207,7 +220,7 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
 						.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-						.withNatsURL(STAN_URL)
+						.withNatsURL(NATS_STREAMING_URL)
 						.withSubjects(subject)
 						.withNatsQueue(queue)
 						.durableName(durableName)

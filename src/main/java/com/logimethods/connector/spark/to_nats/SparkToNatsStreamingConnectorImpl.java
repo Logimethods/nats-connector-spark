@@ -131,7 +131,14 @@ class SparkToNatsStreamingConnectorImpl extends SparkToNatsConnector<SparkToNats
 	}
 	
 	protected StreamingConnection createConnection() throws IOException, TimeoutException, Exception {
-		final StreamingConnection newConnection = NatsStreaming.connect(clusterID, getClientID(), getOptionsBuilder().build());
+		StreamingConnection newConnection;
+		final Options options = getOptionsBuilder().build();
+		try {
+			newConnection = NatsStreaming.connect(clusterID, getClientID(), options);
+		} catch (Exception e) {
+			logger.error("NatsStreaming.connect({}, {}, {}) PRODUCES {}", clusterID, getClientID(), options, e.getMessage());
+			throw(e);
+		}
 		logger.debug("A NATS Connection {} has been created for {}", newConnection, this);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){

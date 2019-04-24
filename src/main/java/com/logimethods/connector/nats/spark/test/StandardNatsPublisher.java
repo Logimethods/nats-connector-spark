@@ -19,12 +19,16 @@ public class StandardNatsPublisher extends NatsPublisher {
 
 	@Override
 	public void run() {
-
 		try {
+			logger.info("NATS Publisher ({}, {}):  Starting", natsUrl, id);
 
-			logger.debug("NATS Publisher ({}):  Starting", id);
-
-			io.nats.client.Connection c = Nats.connect(natsUrl);
+			io.nats.client.Connection c;
+			try {
+				c = Nats.connect(natsUrl);
+			} catch (Exception e) {
+				logger.error("Nats.connect({}) PRODUCES", natsUrl, e.getMessage());
+				throw(e);
+			}
 			
 			logger.debug("A NATS Connection to '{}' has been created.", c.getConnectedUrl());
 			

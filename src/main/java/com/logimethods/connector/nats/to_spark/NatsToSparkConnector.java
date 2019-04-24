@@ -46,8 +46,10 @@ import scala.Tuple2;
  * 
  * @author Laurent Magnin
  */
-@SuppressWarnings("serial")
+//@SuppressWarnings("serial")
 public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
+
+	private static final long serialVersionUID = -1917312737332564226L;
 
 	static final Logger logger = LoggerFactory.getLogger(NatsToSparkConnector.class);
 	
