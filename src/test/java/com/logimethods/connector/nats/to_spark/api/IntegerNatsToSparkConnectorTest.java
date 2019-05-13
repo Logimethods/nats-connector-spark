@@ -32,7 +32,7 @@ public class IntegerNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 		return new IntegerNatsPublisher("np", NATS_LOCALHOST_URL, DEFAULT_SUBJECT,  nbOfMessages);
 	}
 	
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testNatsToSparkConnectorWithAdditionalPropertiesAndSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));

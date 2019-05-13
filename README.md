@@ -551,6 +551,8 @@ You should instead use the dedicated [nats-connector-spark-scala](https://github
 ## Testing
 
 JUnit tests are included. To perform those tests, [gnatsd](http://nats.io/download/nats-io/gnatsd/) and [nats-streaming-server](http://nats.io/documentation/streaming/nats-streaming-intro/) are required.
+To do so, you do have two options:
+- no docker, local Spark
 You have then first to start those servers:
 ```Shell
 gnatsd -p 4221&
@@ -559,6 +561,14 @@ nats-streaming-server -p 4223&
 Then call Maven:
 ```Shell
 nats-connector-spark> mvn compile test
+```
+
+- Docker based Spark Cluster
+```Shell
+nats-connector-spark/src/test/resources >  docker-compose -f docker-compose-spark.yml up
+
+nats-connector-spark > mvn compile package -DskipTests
+nats-connector-spark > TEST_MODE="cluster" mvn test
 ```
 
 Those connectors have been tested against a Spark Cluster, thanks to the [Docker Based Application](https://github.com/Logimethods/docker-nats-connector-spark).
@@ -576,7 +586,7 @@ Those connectors have been tested against a Spark Cluster, thanks to the [Docker
 
 (The MIT License)
 
-Copyright (c) 2016-2018 Logimethods.
+Copyright (c) 2016-2019 Logimethods.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to

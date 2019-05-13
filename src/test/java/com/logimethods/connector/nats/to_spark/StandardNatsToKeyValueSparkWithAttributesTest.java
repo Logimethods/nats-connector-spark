@@ -12,6 +12,7 @@ import static io.nats.client.Options.PROP_URL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.spark.storage.StorageLevel;
@@ -71,7 +72,7 @@ public class StandardNatsToKeyValueSparkWithAttributesTest {
 	 * Test method for {@link com.logimethods.connector.nats.to_spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
 	 * @throws Exception 
 	 */
-	@Test(timeout=240000, expected=IncompleteException.class)
+	@Test(timeout=360000, expected=IOException.class)
 	public void testNatsToSparkConnectorWITHOUTSubjects() throws Exception {
 		NatsToSparkConnector.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY()).withNatsURL(NATS_URL).receive();
 	}

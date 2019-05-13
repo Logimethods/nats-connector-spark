@@ -101,18 +101,8 @@ public abstract class AbstractNatsToSparkTest {
 //		UserGroupInformation.setLoginUser(UserGroupInformation.createRemoteUser("sparkuser"));
 		
 		SparkConf sparkConf = 
-				new SparkConf()
-					.setAppName("My Spark Job")
-					.setMaster(SPARK_MASTER)
-					.setJars(new String[] { 
-							// TODO target/nats-connector-spark-*.jar
-							"target/nats-connector-spark-1.0.0-SNAPSHOT.jar"})
-					.set("spark.executor.cores", UnitTestUtilities.getProperty("spark.executor.cores", "1"))
-					.set("spark.cores.max", UnitTestUtilities.getProperty("spark.cores.max", "2"))
-					;
-//					.set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
-//					.set("spark.driver.port", "7001");
-					;
+				UnitTestUtilities.newSparkConf()
+					.setAppName("My Spark Job");
 		sc = new JavaSparkContext(sparkConf);
 	}
 

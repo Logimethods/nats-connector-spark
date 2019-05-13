@@ -7,6 +7,8 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.spark.test;
 
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.SPARK_MASTER;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -21,18 +23,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.log4j.Level;
+import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
-import org.apache.spark.api.java.function.PairFunction;
-import org.apache.spark.streaming.api.java.JavaDStream;
-import org.apache.spark.streaming.api.java.JavaPairDStream;
-import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import scala.Tuple2;
 
 public class UnitTestUtilities {
+	protected static final Logger LOGGER = LoggerFactory.getLogger(UnitTestUtilities.class);
+
 	public final static String SPARK_MASTER;
 
 	public final static String NATS_STREAMING_SERVER;
@@ -43,11 +45,19 @@ public class UnitTestUtilities {
 	
 	protected static final Properties properties = new Properties();
 
+	protected static final String DEFAULT_TEST_MODE = "local";	
+	public static enum TestMode {local, cluster};
+	protected static TestMode TEST_MODE;	
+	
 	static {
-        InputStream stream = UnitTestUtilities.class.getResourceAsStream("/config.properties");        
+		String testModeStr = System.getenv("TEST_MODE");
+		testModeStr = testModeStr != null ? testModeStr : DEFAULT_TEST_MODE;
+		TEST_MODE = TestMode.valueOf(testModeStr);
+		LOGGER.info("TEST_MODE: " + testModeStr);
+        InputStream stream = UnitTestUtilities.class.getResourceAsStream("/config_" + testModeStr + ".properties");        
         try {
             properties.load(stream);
-            LoggerFactory.getLogger(UnitTestUtilities.class).info("PROPERTIES: " + properties.toString());
+            LOGGER.info("PROPERTIES: " + properties.toString());
 //            System.out.println("PROPERTIES " + properties.toString());
         } catch (IOException e) {
             e.printStackTrace();
@@ -279,14 +289,6 @@ public class UnitTestUtilities {
 		return rdd;
 	}
 
-	public static JavaPairDStream<String, String> getJavaPairDStream(final JavaDStream<String> lines, final JavaStreamingContext ssc, final String subject1) {
-	//-	final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
-		JavaPairDStream<String, String> keyValues = lines.mapToPair((PairFunction<String, String, String>) str -> {
-							return new Tuple2<String, String>(subject1 + "." + str, str);
-						});
-		return keyValues;
-	}
-
 	/**
 	 * @param data
 	 * @param subject
@@ -325,5 +327,30 @@ public class UnitTestUtilities {
 		// wait for subscribers to be ready.
 		ns.waitUntilReady();
 		return ns;
+	}
+
+	public static SparkConf newSparkConf() {
+		SparkConf conf = new SparkConf()
+			.setMaster(SPARK_MASTER)
+//			.set("spark.executor.cores", UnitTestUtilities.getProperty("spark.executor.cores", "1"))
+//			.set("spark.cores.max", UnitTestUtilities.getProperty("spark.cores.max", "2"))
+			;
+
+		//-					.set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
+
+		switch (TEST_MODE) {
+		case cluster : 
+			final File targetDir = new File("target");
+			for (File file : targetDir.listFiles()) {
+				if (file.getName().endsWith((".pom"))) {
+					final String fileName = file.getName();
+					final String jarFile = "target/" + fileName.substring(0, fileName.length() - 3) + "jar";
+					LOGGER.info("{} shared with the Spark CLuster", jarFile);
+					return conf.setJars(new String[] {jarFile});
+				}
+			}		
+
+		default : return conf;
+		}
 	}
 }

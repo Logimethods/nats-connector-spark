@@ -49,7 +49,7 @@ public abstract class AbstractSparkToStandardNatsConnectorLifecycleTest extends 
 		UnitTestUtilities.startDefaultServer();
 	}
 
-	@Test(timeout=240000)
+//	@Test(timeout=360000) TODO
 	public void testStaticSparkToNatsWithConnectionLifecycle() throws Exception {  
 		final long poolSize = SparkToStandardNatsConnectorPool.poolSize();
 		

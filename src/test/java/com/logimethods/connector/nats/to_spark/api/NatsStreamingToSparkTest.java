@@ -187,18 +187,8 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
             
             // Restart a completely new Spark Context
     		SparkConf sparkConf = 
-    				new SparkConf()
-    					.setAppName("DurableSubscriberCloseVersusUnsub")
-    					.setMaster(SPARK_MASTER)
-    					.setJars(new String[] { 
-//    							"/Users/laugimethods/Documents/GitHub/nats-connector-spark/src/test/resources/code.jar"})
-//    							"target/nats-connector-spark-1.0.0-SNAPSHOT.jar"})
-    							// TODO target/nats-connector-spark-*.jar
-    							"target/nats-connector-spark-1.0.0-SNAPSHOT.jar"})
-    					.set("spark.executor.cores", UnitTestUtilities.getProperty("spark.executor.cores", "1"))
-    					.set("spark.cores.max", UnitTestUtilities.getProperty("spark.cores.max", "2"))
-    					;
-//    					.set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
+    				UnitTestUtilities.newSparkConf()
+    					.setAppName("DurableSubscriberCloseVersusUnsub");
     		sc = new JavaSparkContext(sparkConf);
             ssc = new JavaStreamingContext(sc, new Duration(200));
             

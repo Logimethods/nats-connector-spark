@@ -66,16 +66,8 @@ public class AbstractSparkToNatsConnectorTest implements Serializable {
 		
 		// Create a local StreamingContext with two working thread and batch interval of 1 second
 		SparkConf conf = 
-				new SparkConf()
-					.setMaster(SPARK_MASTER)
-					.setAppName("AbstractSparkToNatsConnector")
-					.setJars(new String[] { 
-							// TODO target/nats-connector-spark-*.jar
-							"target/nats-connector-spark-1.0.0-SNAPSHOT.jar"})
-//					.set("spark.executor.cores", UnitTestUtilities.getProperty("spark.executor.cores", "1"))
-//					.set("spark.cores.max", UnitTestUtilities.getProperty("spark.cores.max", "2"))
-					;
-//-					.set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
+				UnitTestUtilities.newSparkConf()
+					.setAppName("AbstractSparkToNatsConnector");
 		ssc = new JavaStreamingContext(conf, Durations.seconds(1));
 		
 //	    tempDir = Files.createTempDir();

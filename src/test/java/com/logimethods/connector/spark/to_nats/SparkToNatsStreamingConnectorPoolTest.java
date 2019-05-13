@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats.spark.test.NatsStreamingSubscriber;
 import com.logimethods.connector.nats.spark.test.STANServer;
-import com.logimethods.connector.nats.spark.test.SparkToNatsStreamingValidator;
+import com.logimethods.connector.nats.spark.test.SparkToNatsValidator;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
@@ -66,7 +66,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 		logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorPoolTest.class);       
 	}
 
-//    @Test(timeout=240000)
+//    @Test(timeout=360000)
     public void testBasicPublish() {
         // Run a STAN server
         try (STANServer s = UnitTestUtilities.startStreamingServer(clusterID, false)) {
@@ -80,7 +80,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
         }
     }
 
-    @Test(timeout=240000)
+    @Test(timeout=360000)
     public void testStreamingSparkToNatsPublish() throws InterruptedException, IOException, TimeoutException {
 		String subject1 = "subject1";
 		String subject2 = "subject2";
@@ -103,7 +103,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 		connectorPool.getConnector();
     }
 
-    @Test(timeout=240000)
+    @Test(timeout=360000)
     public void testStreamingSparkToNatsWithPROP_URLPropertiesPublish() throws InterruptedException, IOException, TimeoutException {
 		String subject1 = "subject1";
 		String subject2 = "subject2";
@@ -115,7 +115,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
 		validateConnectorPool(subject1, subject2, connectorPool);
     }
 
-    @Test(timeout=240000)
+    @Test(timeout=360000)
     public void testStreamingSparkToNatsWithFullPropertiesPublish() throws InterruptedException, IOException, TimeoutException {
 		String subject1 = "subject1";
 		String subject2 = "subject2";
@@ -154,7 +154,7 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
     	logger.debug("ns2 NatsStreamingSubscriber ready");
 
 //-    	JavaDStream<Integer> integers = SparkToNatsStreamingValidator.generateIntegers(ssc, ssc.textFileStream(tempDir.getAbsolutePath()));
-    	JavaDStream<Integer> integers = SparkToNatsStreamingValidator.generateIntegers(dataSource.dataStream(ssc));
+    	JavaDStream<Integer> integers = SparkToNatsValidator.generateIntegers(dataSource.dataStream(ssc));
 integers.print();
     	connectorPool.publishToNats(integers);
 

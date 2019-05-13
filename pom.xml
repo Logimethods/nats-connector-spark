@@ -24,7 +24,7 @@
 		<java.version>1.8</java.version>
 		<!-- 1.6.1 is not compatible with a docker-compose made cluster -->
 		<!-- https://forums.docker.com/t/underscore-in-domain-names/12584/2 -->
-		<spark.version>2.3.2</spark.version>
+		<spark.version>2.3.1</spark.version>
 		<junit-version>4.11</junit-version>
 		<github.global.server>github</github.global.server>
 		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
@@ -294,19 +294,6 @@
 				<role>Senior Consultant</role>
 			</roles>
 			<timezone>America/Montreal</timezone>
-			<!-- <properties> <picUrl>http://www.example.com/jdoe/pic</picUrl> </properties> -->
-		</developer>
-		<developer>
-			<id>igor-fomenko</id>
-			<name>Igor Fomenko</name>
-			<email>igor.fomenko@logimethods.com</email>
-			<url>https://github.com/igor-fomenko</url>
-			<organization>Logimethods</organization>
-			<organizationUrl>http://www.logimethods.com/</organizationUrl>
-			<roles>
-				<role>Senior Consultant</role>
-			</roles>
-			<timezone>America/Toronto</timezone>
 			<!-- <properties> <picUrl>http://www.example.com/jdoe/pic</picUrl> </properties> -->
 		</developer>
 	</developers>

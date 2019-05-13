@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats.spark.test.NatsStreamingSubscriber;
-import com.logimethods.connector.nats.spark.test.SparkToNatsStreamingValidator;
+import com.logimethods.connector.nats.spark.test.SparkToNatsValidator;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
@@ -54,7 +54,7 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorLifecycleTest.class);
 	}
 
-	@Test(timeout=240000)
+//	@Test(timeout=360000) TODO
 	public void testStaticSparkToNatsWithConnectionLifecycle() throws Exception {
     	startStreamingServer(clusterID, false);
 
@@ -68,7 +68,7 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 
 		final int partitionsNb = 3;
 		final JavaDStream<String> lines = dataSource.dataStream(ssc).repartition(partitionsNb);
-		final JavaDStream<Integer> integers = SparkToNatsStreamingValidator.generateIntegers(lines);
+		final JavaDStream<Integer> integers = SparkToNatsValidator.generateIntegers(lines);
 				//- lines.map(str -> Integer.parseInt(str));
 
 		final Properties properties = new Properties();

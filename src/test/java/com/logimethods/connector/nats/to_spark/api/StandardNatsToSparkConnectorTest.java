@@ -33,7 +33,7 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 		return new StandardNatsPublisher("np", NATS_LOCALHOST_URL, DEFAULT_SUBJECT,  nbOfMessages);
 	}
 	
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testNatsToSparkConnectorWithAdditionalPropertiesAndSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
@@ -50,7 +50,7 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 		validateTheReceptionOfMessages(ssc, messages);
 	}
 	
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testNatsToSparkConnectorWithAdditionalSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
@@ -65,7 +65,7 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 		validateTheReceptionOfMessages(ssc, messages);
 	}
 	
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testNatsToSparkConnectorWithAdditionalPropertiesAndMultipleSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
@@ -82,7 +82,7 @@ public class StandardNatsToSparkConnectorTest extends AbstractNatsToSparkTest {
 		validateTheReceptionOfMessages(ssc, messages);
 	}
 	
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testNatsToSparkConnectorWithAdditionalProperties() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
