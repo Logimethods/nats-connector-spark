@@ -7,8 +7,6 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.spark.test;
 
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.SPARK_MASTER;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +45,7 @@ public class UnitTestUtilities {
 
 	protected static final String DEFAULT_TEST_MODE = "local";	
 	public static enum TestMode {local, cluster};
-	protected static TestMode TEST_MODE;	
+	public static TestMode TEST_MODE;	
 	
 	static {
 		String testModeStr = System.getenv("TEST_MODE");

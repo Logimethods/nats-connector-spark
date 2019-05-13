@@ -79,7 +79,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 		
 		ssc.start();
 
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 
 		writeFullData(data);
 
@@ -104,7 +104,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 				
 		ssc.start();
 
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 
 		writeFullData(data);
 
@@ -128,7 +128,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 		
 		ssc.start();
 
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 
 		writeFullData(data);
 
@@ -157,7 +157,7 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 		
 		ssc.start();
 
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 
 		writeFullData(data);
 

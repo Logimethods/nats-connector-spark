@@ -54,6 +54,7 @@ import io.nats.streaming.SubscriptionOptions;
 import scala.Tuple2;
 
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.* ;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.TestMode.* ;
 
 public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 	private static final String DURABLE_NAME = "durable-foo";
@@ -141,69 +142,94 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
     @Test
     // See https://github.com/nats-io/java-nats-streaming/blob/80bf55b327e7e429959ba4cad0089ea846924da9/src/test/java/io/nats/streaming/SubscribeTests.java#L773
     public void testDurableSubscriberCloseVersusUnsub() throws Exception {
-    	// TODO Generalize the usage of NatsStreamingTestServer
-        try (NatsStreamingTestServer srv = new NatsStreamingTestServer(NATS_STREAMING_PORT, CLUSTER_ID, true)) {
-            final String subject = "CloseVersusUnsub_SUBJECT_" + NatsSparkUtilities.generateUniqueID(this);
-            final String queue = "CloseVersusUnsub_QUEUE_" + NatsSparkUtilities.generateUniqueID(this);
-           
-        	Options options = new Options.Builder().natsUrl(srv.getURI()).build();
-            final StreamingConnection natsSC = NatsStreaming.connect(CLUSTER_ID, CLIENT_ID + NatsSparkUtilities.generateUniqueID(this), options);
+    	if (UnitTestUtilities.TEST_MODE.equals(cluster)) {
+			// TODO Generalize the usage of NatsStreamingTestServer
+			try (NatsStreamingTestServer srv = new NatsStreamingTestServer(NATS_STREAMING_PORT, CLUSTER_ID, true)) {
+				final String subject = "CloseVersusUnsub_SUBJECT_" + NatsSparkUtilities.generateUniqueID(this);
+				final String queue = "CloseVersusUnsub_QUEUE_" + NatsSparkUtilities.generateUniqueID(this);
 
-            int counter = 0;
-            
-            // Spark Client
-            JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
-            
-    		setupMessagesReception(ssc, subject, queue, DURABLE_NAME);
-//    		setupMessagesReception(ssc, subject, null, DURABLE_NAME);
-//    		setupMessagesReception(ssc, subject, queue, null);
-       		
-    		ssc.start();
-    		logger.info("!!!!!!!!!! Spark Streaming Context Started");
+				Options options = new Options.Builder().natsUrl(srv.getURI()).build();
+				final StreamingConnection natsSC = NatsStreaming.connect(CLUSTER_ID,
+						CLIENT_ID + NatsSparkUtilities.generateUniqueID(this), options);
 
-    		try {Thread.sleep(2000);} catch(Exception e) {};
-    		
-            natsSC.publish(subject, ("msg_" + String.valueOf(counter++)).getBytes(StandardCharsets.UTF_8));
-            natsSC.getNatsConnection().flush(java.time.Duration.ofSeconds(1));
+				int counter = 0;
 
-            try {Thread.sleep(2000);} catch(Exception e) {}; // get the ack in the queue
-                ssc.close();
-                sc.stop();
-  
-           		assertEquals(counter, TOTAL_COUNT.get());
+				// Spark Client
+				JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
-                natsSC.getNatsConnection().flush(java.time.Duration.ofSeconds(2));
-                try {Thread.sleep(2000);} catch(Exception e) {}; // Give the server time to clean up
+				setupMessagesReception(ssc, subject, queue, DURABLE_NAME);
+				//    		setupMessagesReception(ssc, subject, null, DURABLE_NAME);
+				//    		setupMessagesReception(ssc, subject, queue, null);
 
-            /*
-             * Test reopen after close()
-             */
-            natsSC.publish(subject, ("msg_" + String.valueOf(counter++)).getBytes(StandardCharsets.UTF_8));
-            try {Thread.sleep(800);} catch(Exception e) {}; // get the ack in the queue
-            natsSC.publish(subject, ("msg_" + String.valueOf(counter++)).getBytes(StandardCharsets.UTF_8));
-            try {Thread.sleep(2000);} catch(Exception e) {}; // get the ack in the queue
+				ssc.start();
+				logger.info("!!!!!!!!!! Spark Streaming Context Started");
 
-            natsSC.getNatsConnection().flush(java.time.Duration.ofSeconds(2));
-            
-            // Restart a completely new Spark Context
-    		SparkConf sparkConf = 
-    				UnitTestUtilities.newSparkConf()
-    					.setAppName("DurableSubscriberCloseVersusUnsub");
-    		sc = new JavaSparkContext(sparkConf);
-            ssc = new JavaStreamingContext(sc, new Duration(200));
-            
-    		setupMessagesReception(ssc, subject, queue, DURABLE_NAME); // That one should receive the waiting message
-//    		setupMessagesReception(ssc, subject, null, DURABLE_NAME); // That one should NOT receive the waiting message
-//    		setupMessagesReception(ssc, subject, queue, null); // That one should NOT receive the waiting message
-   		
-    		ssc.start();
-    		logger.info("!!!!!!!!!! Spark Streaming Context Started AGAIN");
+				try {
+					Thread.sleep(2000);
+				} catch (Exception e) {
+				}
+				;
 
-            try {Thread.sleep(4000);} catch(Exception e) {}; // get the ack in the queue
+				natsSC.publish(subject, ("msg_" + String.valueOf(counter++)).getBytes(StandardCharsets.UTF_8));
+				natsSC.getNatsConnection().flush(java.time.Duration.ofSeconds(1));
 
-       		assertEquals(counter, TOTAL_COUNT.get());
-            ssc.close();
-        } // runServer()
+				try {
+					Thread.sleep(2000);
+				} catch (Exception e) {
+				}
+				; // get the ack in the queue
+				ssc.close();
+				sc.stop();
+
+				assertEquals(counter, TOTAL_COUNT.get());
+
+				natsSC.getNatsConnection().flush(java.time.Duration.ofSeconds(2));
+				try {
+					Thread.sleep(2000);
+				} catch (Exception e) {
+				}
+				; // Give the server time to clean up
+
+				/*
+				 * Test reopen after close()
+				 */
+				natsSC.publish(subject, ("msg_" + String.valueOf(counter++)).getBytes(StandardCharsets.UTF_8));
+				try {
+					Thread.sleep(800);
+				} catch (Exception e) {
+				}
+				; // get the ack in the queue
+				natsSC.publish(subject, ("msg_" + String.valueOf(counter++)).getBytes(StandardCharsets.UTF_8));
+				try {
+					Thread.sleep(2000);
+				} catch (Exception e) {
+				}
+				; // get the ack in the queue
+
+				natsSC.getNatsConnection().flush(java.time.Duration.ofSeconds(2));
+
+				// Restart a completely new Spark Context
+				SparkConf sparkConf = UnitTestUtilities.newSparkConf().setAppName("DurableSubscriberCloseVersusUnsub");
+				sc = new JavaSparkContext(sparkConf);
+				ssc = new JavaStreamingContext(sc, new Duration(200));
+
+				setupMessagesReception(ssc, subject, queue, DURABLE_NAME); // That one should receive the waiting message
+				//    		setupMessagesReception(ssc, subject, null, DURABLE_NAME); // That one should NOT receive the waiting message
+				//    		setupMessagesReception(ssc, subject, queue, null); // That one should NOT receive the waiting message
+
+				ssc.start();
+				logger.info("!!!!!!!!!! Spark Streaming Context Started AGAIN");
+
+				try {
+					Thread.sleep(4000);
+				} catch (Exception e) {
+				}
+				; // get the ack in the queue
+
+				assertEquals(counter, TOTAL_COUNT.get());
+				ssc.close();
+			} // runServer()
+		}
     }
 
 	protected void setupMessagesReception(JavaStreamingContext ssc, String subject, String queue, String durableName) {
