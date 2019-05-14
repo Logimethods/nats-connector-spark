@@ -9,9 +9,9 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.logimethods/nats-connector-spark/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.logimethods/nats-connector-spark)
 
 ## Release Notes
-### Version 1.0.0-SNAPSHOT
+### Version 1.0.0
 - Based on [Java Nats Streaming](https://github.com/nats-io/java-nats-streaming) `2.1.2`, which includes [NATS - Java Client](https://github.com/nats-io/java-nats) version `2.3.0`
-- Based on Spark version `2.3.2`
+- Based on Spark version `2.3.1`
 - Tested with:
   - `nats-server version 1.3.0`
   - `nats-streaming-server version 0.11.2`
@@ -112,7 +112,7 @@ If you are embedding the NATS Spark connectors, add the following dependency to 
     <dependency>
       <groupId>com.logimethods</groupId>
       <artifactId>nats-connector-spark</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
 ```
