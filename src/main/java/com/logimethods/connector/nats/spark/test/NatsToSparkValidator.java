@@ -112,11 +112,30 @@ System.out.println("RDD received: " + rdd.collect());
 		closeTheValidation(ssc, executor, nbOfMessages, np);
 	}
 */
-	public static void validateTheReceptionOfIntegerMessages(final JavaDStream<Integer> messages, LongAccumulator count) throws InterruptedException {
+	public static void validateTheReceptionOfIntegerMessages(final JavaDStream<Integer> messages, final LongAccumulator count) {
 		messages.count().foreachRDD(rdd -> rdd.foreach(n -> count.add(n)));
 	}
 
-	public static void validateTheReceptionOfMessages(final JavaPairDStream<String, String> messages, LongAccumulator count) throws InterruptedException {
+	public static void validateTheReceptionOfMessages(final JavaPairDStream<String, String> messages, final LongAccumulator count) {
 		messages.count().foreachRDD(rdd -> rdd.foreach(n -> count.add(n)));
 	}
+
+	public static void validateTheReceptionOfPairMessages(final JavaPairDStream<String, String> messages, final LongAccumulator accum) {
+		// messages.print();
+
+		JavaPairDStream<String, Integer> pairs = messages.mapToPair(s -> new Tuple2(s._1, 1));		
+		JavaPairDStream<String, Integer> counts = pairs.reduceByKey((a, b) -> a + b);
+
+		// counts.print();
+
+		counts.foreachRDD((VoidFunction<JavaPairRDD<String, Integer>>) pairRDD -> {
+			pairRDD.foreach((VoidFunction<Tuple2<String, Integer>>) tuple -> {
+				logger.info("{} RECEIVED", tuple);
+				final long count = tuple._2;        				
+				accum.add(count);
+			});
+		});
+	}
+
+
 }

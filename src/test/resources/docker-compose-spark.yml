@@ -37,7 +37,7 @@ services:
     entrypoint:
       - sh
       - -c
-      - "nc -lk 9998 | nc -lk 9999"
+      - "nc -lk 9988 | nc -lk 9989"
     ports:
-      - 9998:9998
-      - 9999:9999
+      - 9988:9988
+      - 9989:9989

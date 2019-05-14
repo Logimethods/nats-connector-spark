@@ -97,7 +97,8 @@ public abstract class AbstractNatsToSparkTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		sc.stop();
+		if (sc != null)
+			sc.stop();
 	}
 	
 	protected void validateTheReceptionOfMessages(JavaStreamingContext ssc,

@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats.spark.test.NatsPublisher;
 import com.logimethods.connector.nats.spark.test.NatsStreamingPublisher;
+import com.logimethods.connector.nats.spark.test.NatsToSparkValidator;
 import com.logimethods.connector.nats.spark.test.STANServer;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
@@ -52,7 +53,6 @@ import io.nats.streaming.NatsStreaming;
 import io.nats.streaming.Options;
 import io.nats.streaming.Subscription;
 import io.nats.streaming.SubscriptionOptions;
-import scala.Tuple2;
 
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.* ;
 
@@ -156,7 +156,7 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 
 				// Spark Client
 				JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
-				LongAccumulator accum = ssc.sparkContext().sc().longAccumulator();
+				final LongAccumulator accum = ssc.sparkContext().sc().longAccumulator();
 
 				setupMessagesReception(ssc, subject, queue, DURABLE_NAME, accum);
 				//    		setupMessagesReception(ssc, subject, null, DURABLE_NAME);
@@ -181,6 +181,7 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 				; // get the ack in the queue
 				ssc.close();
 				sc.stop();
+				sc = null;
 
 				assertEquals(counter, accum.sum());
 
@@ -210,15 +211,16 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 				natsSC.getNatsConnection().flush(java.time.Duration.ofSeconds(2));
 
 				// Restart a completely new Spark Context
-				SparkConf sparkConf = UnitTestUtilities.newSparkConf().setAppName("DurableSubscriberCloseVersusUnsub");
-				sc = new JavaSparkContext(sparkConf);
-				ssc = new JavaStreamingContext(sc, new Duration(200));
-
-				setupMessagesReception(ssc, subject, queue, DURABLE_NAME, accum); // That one should receive the waiting message
+				final SparkConf sparkConf = UnitTestUtilities.newSparkConf().setAppName("DurableSubscriberCloseVersusUnsub");
+				final JavaSparkContext newSc = new JavaSparkContext(sparkConf);
+				final JavaStreamingContext newSsc = new JavaStreamingContext(newSc, new Duration(200));
+				final LongAccumulator newAccum = newSsc.sparkContext().sc().longAccumulator();
+				
+				setupMessagesReception(newSsc, subject, queue, DURABLE_NAME, newAccum); // That one should receive the waiting message
 				//    		setupMessagesReception(ssc, subject, null, DURABLE_NAME); // That one should NOT receive the waiting message
 				//    		setupMessagesReception(ssc, subject, queue, null); // That one should NOT receive the waiting message
 
-				ssc.start();
+				newSsc.start();
 				logger.info("!!!!!!!!!! Spark Streaming Context Started AGAIN");
 
 				try {
@@ -227,8 +229,10 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 				}
 				; // get the ack in the queue
 
-				assertEquals(counter, accum.sum());
-				ssc.close();
+				newSsc.close();
+				newSc.stop();
+				
+				assertEquals(counter, accum.sum() + newAccum.sum());
 	//		} // runServer()
 //		}
     }
@@ -242,19 +246,8 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 						.withNatsQueue(queue)
 						.durableName(durableName)
 						.asStreamOfKeyValue(ssc);
-// messages.print();
-
-		JavaPairDStream<String, Integer> pairs = messages.mapToPair(s -> new Tuple2(s._1, 1));		
-		JavaPairDStream<String, Integer> counts = pairs.reduceByKey((a, b) -> a + b);
-
-// counts.print();
 		
-		counts.foreachRDD((VoidFunction<JavaPairRDD<String, Integer>>) pairRDD -> {
-			pairRDD.foreach((VoidFunction<Tuple2<String, Integer>>) tuple -> {
-				final long count = tuple._2;        				
-				accum.add(count);
-			});
-		});
+		NatsToSparkValidator.validateTheReceptionOfPairMessages(messages, accum);
 	}
 
     static STANServer runServer(String clusterID) {
