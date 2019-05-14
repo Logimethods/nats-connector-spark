@@ -1,4 +1,4 @@
-box: logimethods/maven-nats:v1.3.0
+box: logimethods/maven-nats:v1.4.0
 
 build:
   steps:
@@ -8,6 +8,10 @@ build:
           gnatsd -p 4221&
           nats-streaming-server -p 4223&
           sleep 10
+    - script:
+        name: Start Ncat
+        code: |
+          nc -lk 9998 | nc -lk 9999 &
     - xenoterracide/maven:
         name: Compile & Test
         goals: clean compile test
