@@ -7,7 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_URL;
 
 import java.time.Duration;
 
@@ -22,7 +22,8 @@ import scala.Tuple2;
 public class KeyValueSparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToStandardNatsConnectorLifecycleTest {
 
 	protected void publishToNats(final String subject1, final String subject2, final int partitionsNb) {
-		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(partitionsNb);		
+		final JavaDStream<String> lines = dataSource.dataStream(ssc).repartition(partitionsNb);
+		//-		ssc.textFileStream(tempDir.getAbsolutePath()).repartition(partitionsNb);		
 		
 		JavaPairDStream<String, String> stream1 = 
 				lines.mapToPair((PairFunction<String, String, String>) str -> {
@@ -40,7 +41,7 @@ public class KeyValueSparkToStandardNatsConnectorLifecycleTest extends AbstractS
 		
 		SparkToNatsConnectorPool
 			.newPool()
-			.withNatsURL(NATS_SERVER_URL)
+			.withNatsURL(NATS_URL)
 			.withConnectionTimeout(Duration.ofSeconds(2))
 			.publishToNatsAsKeyValue(stream);
 	}

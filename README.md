@@ -9,12 +9,29 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.logimethods/nats-connector-spark/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.logimethods/nats-connector-spark)
 
 ## Release Notes
-### Version 1.0.0-SNAPSHOT
+### Version 1.0.0
 - Based on [Java Nats Streaming](https://github.com/nats-io/java-nats-streaming) `2.1.2`, which includes [NATS - Java Client](https://github.com/nats-io/java-nats) version `2.3.0`
-- Based on Spark version `2.3.2`
+- Based on Spark version `2.3.1`
 - Tested with:
   - `nats-server version 1.3.0`
   - `nats-streaming-server version 0.11.2`
+- `public T withNatsQueue(String queue)` added
+- [Asynchronous Publishing](https://github.com/nats-io/java-nats-streaming#asynchronous-publishing) for Spark to NATS Streaming
+- The following methods has been @Deprecated
+  * `withSubscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
+  * `setDurableName(String durableName)`
+  * `setMaxInFlight(int maxInFlight)`
+  * `setAckWait(Duration ackWait)`
+  * `setAckWait(long ackWait, TimeUnit unit)`
+  * `setManualAcks(boolean manualAcks)`
+in favor of more `SubscriptionOptionsBuilder` idiomatic ones:
+  * `subscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
+  * `durableName(String durableName)`
+  * `maxInFlight(int maxInFlight)`
+  * `ackWait(Duration ackWait)`
+  * `ackWait(long ackWait, TimeUnit unit)`
+  * `manualAcks(boolean manualAcks)`
+- JUnit Tested on a Spark Cluster
 
 ### Version 0.4.0
 	- SubscriptionOptions are now [serializable](https://github.com/nats-io/java-nats-streaming/issues/51)
@@ -95,7 +112,7 @@ If you are embedding the NATS Spark connectors, add the following dependency to 
     <dependency>
       <groupId>com.logimethods</groupId>
       <artifactId>nats-connector-spark</artifactId>
-      <version>0.4.0-SNAPSHOT</version>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
 ```
@@ -253,6 +270,7 @@ JavaReceiverInputDStream<Float> messages =
 The optional settings are:
 
 * `withSubjects(String... subjects)`
+* `withNatsQueue(String natsQueue)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
 
@@ -283,7 +301,7 @@ JavaReceiverInputDStream<String> messages =
 		.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), clusterID)
 		.withNatsURL(STAN_URL)
 		.withSubjects(DEFAULT_SUBJECT)
-		.setDurableName("MY_DURABLE_NAME")
+		.durableName("MY_DURABLE_NAME")
 		.startAtTime(start)
 		.asStreamOf(ssc);
 ```
@@ -291,17 +309,18 @@ JavaReceiverInputDStream<String> messages =
 The optional settings are:
 
 * `withSubjects(String... subjects)`
+* `withNatsQueue(String natsQueue)`
 * `withNatsURL(String natsURL)`
 * `withProperties(Properties properties)`
 
 as well as options related to [NATS Streaming](https://github.com/nats-io/java-nats-streaming):
 
-* `withSubscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
-* `setDurableName(String durableName)`
-* `setMaxInFlight(int maxInFlight)`
-* `setAckWait(Duration ackWait)`
-* `setAckWait(long ackWait, TimeUnit unit)`
-* `setManualAcks(boolean manualAcks)`
+* `subscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
+* `durableName(String durableName)`
+* `maxInFlight(int maxInFlight)`
+* `ackWait(Duration ackWait)`
+* `ackWait(long ackWait, TimeUnit unit)`
+* `manualAcks(boolean manualAcks)`
 * `startAtSequence(long seq)`
 * `startAtTime(Instant start)`
 * `startAtTimeDelta(long ago, TimeUnit unit)`
@@ -533,14 +552,25 @@ You should instead use the dedicated [nats-connector-spark-scala](https://github
 ## Testing
 
 JUnit tests are included. To perform those tests, [gnatsd](http://nats.io/download/nats-io/gnatsd/) and [nats-streaming-server](http://nats.io/documentation/streaming/nats-streaming-intro/) are required.
+To do so, you do have two options:
+- no docker, local Spark
 You have then first to start those servers:
 ```Shell
 gnatsd -p 4221&
 nats-streaming-server -p 4223&
+nc -lk 9998 | nc -lk 9999 &
 ````
 Then call Maven:
 ```Shell
 nats-connector-spark> mvn compile test
+```
+
+- Docker based Spark Cluster
+```Shell
+nats-connector-spark/src/test/resources >  docker-compose -f docker-compose-spark.yml up
+
+nats-connector-spark > mvn compile package -DskipTests
+nats-connector-spark > TEST_MODE="cluster" mvn test
 ```
 
 Those connectors have been tested against a Spark Cluster, thanks to the [Docker Based Application](https://github.com/Logimethods/docker-nats-connector-spark).
@@ -558,7 +588,7 @@ Those connectors have been tested against a Spark Cluster, thanks to the [Docker
 
 (The MIT License)
 
-Copyright (c) 2016 Logimethods.
+Copyright (c) 2016-2019 Logimethods.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to

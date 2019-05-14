@@ -7,7 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.STAN_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.*;
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.startStreamingServer;
 import static io.nats.client.Options.PROP_URL;
 import static org.junit.Assert.assertEquals;
@@ -25,13 +25,10 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import com.logimethods.connector.nats.spark.test.NatsStreamingSubscriber;
+import com.logimethods.connector.nats.spark.test.SparkToNatsValidator;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
-import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
-import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
-import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorImpl;
-import com.logimethods.connector.spark.to_nats.SparkToNatsStreamingConnectorPool;
 
 //@Ignore
 @SuppressWarnings("serial")
@@ -57,7 +54,7 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		logger = LoggerFactory.getLogger(SparkToNatsStreamingConnectorLifecycleTest.class);
 	}
 
-	@Test(timeout=240000)
+//	@Test(timeout=360000) TODO
 	public void testStaticSparkToNatsWithConnectionLifecycle() throws Exception {
     	startStreamingServer(clusterID, false);
 
@@ -70,11 +67,12 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 		final String subject2 = "subject2";
 
 		final int partitionsNb = 3;
-		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(partitionsNb);
-		final JavaDStream<Integer> integers = lines.map(str -> Integer.parseInt(str));
+		final JavaDStream<String> lines = dataSource.dataStream(ssc).repartition(partitionsNb);
+		final JavaDStream<Integer> integers = SparkToNatsValidator.generateIntegers(lines);
+				//- lines.map(str -> Integer.parseInt(str));
 
 		final Properties properties = new Properties();
-		properties.setProperty(PROP_URL, STAN_URL);
+		properties.setProperty(PROP_URL, NATS_STREAMING_URL);
 		SparkToNatsConnectorPool
 			.newStreamingPool(clusterID)
 			.withProperties(properties)
@@ -86,29 +84,34 @@ public class SparkToNatsStreamingConnectorLifecycleTest extends AbstractSparkToN
 
 		TimeUnit.SECONDS.sleep(1);
 
-		final NatsStreamingSubscriber ns1 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
-		final NatsStreamingSubscriber ns2 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
-		writeTmpFile(data);
+		final NatsStreamingSubscriber ns1 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1", NATS_STREAMING_LOCALHOST_URL);
+		final NatsStreamingSubscriber ns2 = UnitTestUtilities.getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB1", NATS_STREAMING_LOCALHOST_URL);
+    	
+		dataSource.open();
+
+		dataSource.write(data);
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
 
-		TimeUnit.MILLISECONDS.sleep(100);
+		TimeUnit.MILLISECONDS.sleep(200);
 		assertEquals("The connections Pool size should be the same as the number of Spark partitions",
 				poolSize + partitionsNb, SparkToNatsStreamingConnectorPool.poolSize());
 
-		final NatsStreamingSubscriber ns1p = UnitTestUtilities.getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
-		final NatsStreamingSubscriber ns2p = UnitTestUtilities.getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB1", STAN_URL);
-		writeTmpFile(data);
+		final NatsStreamingSubscriber ns1p = UnitTestUtilities.getNatsStreamingSubscriber(data, subject1, clusterID, getUniqueClientName() + "_SUB1", NATS_STREAMING_LOCALHOST_URL);
+		final NatsStreamingSubscriber ns2p = UnitTestUtilities.getNatsStreamingSubscriber(data, subject2, clusterID, getUniqueClientName() + "_SUB1", NATS_STREAMING_LOCALHOST_URL);
+		dataSource.write(data);
 		// wait for the subscribers to complete.
 		ns1p.waitForCompletion();
 		ns2p.waitForCompletion();
-		TimeUnit.MILLISECONDS.sleep(100);
+		TimeUnit.MILLISECONDS.sleep(800);
 		assertEquals("The connections Pool size should be the same as the number of Spark partitions",
 				poolSize + partitionsNb, SparkToNatsStreamingConnectorPool.poolSize());
 
 		ssc.stop();
 		ssc = null;
+
+		dataSource.close();
 
 		logger.debug("Spark Context Stopped");
 

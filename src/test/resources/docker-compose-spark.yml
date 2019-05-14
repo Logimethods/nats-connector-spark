@@ -1,0 +1,43 @@
+version: '2.2'
+
+services:
+  spark-master:
+    extends:
+      file: common-services.yml
+      service: spark-master
+
+  spark-worker1:
+    extends:
+      file: common-services.yml
+      service: spark-worker
+    hostname: spark-worker1
+    ports:
+      - 8081:8081
+
+  spark-worker2:
+    extends:
+      file: common-services.yml
+      service: spark-worker
+    hostname: spark-worker2
+    links:
+      - spark-master
+    ports:
+      - 8082:8081
+
+  nats-main:
+    extends:
+      file: common-services.yml
+      service: nats-streaming
+    container_name: nats-main
+    hostname: nats-main
+
+  netcat:
+    image: subfuzion/netcat
+    hostname: netcat
+    entrypoint:
+      - sh
+      - -c
+      - "nc -lk 9988 | nc -lk 9989"
+    ports:
+      - 9988:9988
+      - 9989:9989

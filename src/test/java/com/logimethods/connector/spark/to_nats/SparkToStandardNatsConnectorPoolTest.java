@@ -7,7 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.*;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static com.logimethods.connector.nats_spark.NatsSparkUtilities.encodeData;
 import static io.nats.client.Options.PROP_URL;
@@ -28,6 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+import com.logimethods.connector.nats.spark.test.SparkToNatsValidator;
 import com.logimethods.connector.nats.spark.test.StandardNatsSubscriber;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
@@ -62,104 +63,103 @@ public class SparkToStandardNatsConnectorPoolTest extends AbstractSparkToNatsCon
 		UnitTestUtilities.startDefaultServer();
 	}
 
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testStaticSparkToNatsIncludingMultipleSubjects() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
-		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
+		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_LOCALHOST_URL);
 
 		final String subject2 = "subject2";
-		final StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
+		final StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_LOCALHOST_URL);
 
-		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+		final JavaDStream<String> lines = dataSource.dataStream(ssc);
 
-		SparkToNatsConnectorPool.newPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL).publishToNats(lines);
+		SparkToNatsConnectorPool.newPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_URL).publishToNats(lines);
 		
 		ssc.start();
 
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 
-		writeTmpFile(data);
+		writeFullData(data);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
 	}
 
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testStaticSparkStoredToNatsAsKeyValue() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
-		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1 + ".>", NATS_SERVER_URL);
+		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1 + ".>", NATS_LOCALHOST_URL);
 
-		JavaPairDStream<String, String> keyValues = UnitTestUtilities.getJavaPairDStream(tempDir, ssc, subject1);		
+		JavaPairDStream<String, String> keyValues = SparkToNatsValidator.getJavaPairDStream(dataSource.dataStream(ssc), ssc, subject1);		
 
 		SparkToNatsConnectorPool.newPool()
-								.withNatsURL(NATS_SERVER_URL)
-								.publishToNatsAsKeyValue(keyValues, (java.util.function.Function<String,  byte[]> & Serializable) str -> str.getBytes());
-		
-		java.util.function.Function toto = (java.util.function.Function<String,  byte[]> & Serializable) str -> str.getBytes();
-		
+								.withNatsURL(NATS_URL)
+								.publishToNatsAsKeyValue(keyValues, SparkToNatsValidator.getBytes);
+//		.publishToNatsAsKeyValue(keyValues, (java.util.function.Function<String,  byte[]> & Serializable) str -> str.getBytes());
+				
 		ssc.start();
 
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 
-		writeTmpFile(data);
+		writeFullData(data);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 	}
 
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
-		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
+		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_LOCALHOST_URL);
 
 		final String subject2 = "subject2";
-		final StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
+		final StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_LOCALHOST_URL);
 
-		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+		final JavaDStream<String> lines = dataSource.dataStream(ssc);
 
-		SparkToNatsConnectorPool.newPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_SERVER_URL).publishToNats(lines);
+		SparkToNatsConnectorPool.newPool().withSubjects(DEFAULT_SUBJECT, subject1, subject2).withNatsURL(NATS_URL).publishToNats(lines);
 		
 		ssc.start();
 
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 
-		writeTmpFile(data);
+		writeFullData(data);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
 	}
 
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testStaticSparkToNatsWithMultipleProperties() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 
 		final String subject1 = "subject1";
-		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
+		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_LOCALHOST_URL);
 
 		final String subject2 = "subject2";
-		final StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
+		final StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_LOCALHOST_URL);
 
-		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
+		final JavaDStream<String> lines = dataSource.dataStream(ssc);
 
 		final Properties properties = new Properties();
-		properties.setProperty(PROP_URL, NATS_SERVER_URL);
+		properties.setProperty(PROP_URL, NATS_URL);
 		properties.setProperty(PROP_SUBJECTS, subject1+","+DEFAULT_SUBJECT+" , "+subject2);
 
 		SparkToNatsConnectorPool.newPool().withProperties(properties).publishToNats(lines);
 		
 		ssc.start();
 
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 
-		writeTmpFile(data);
+		writeFullData(data);
 
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();

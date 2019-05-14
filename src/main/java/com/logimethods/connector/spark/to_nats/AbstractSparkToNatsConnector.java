@@ -21,9 +21,12 @@ import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
 import static com.logimethods.connector.nats_spark.Constants.*;
 
-@SuppressWarnings("serial")
 abstract class AbstractSparkToNatsConnector<T> implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	protected transient Integer connectionSignature;
 
 	/**

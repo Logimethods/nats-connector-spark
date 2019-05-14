@@ -7,8 +7,12 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.spark.test;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.concurrent.TimeoutException;
+
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
@@ -45,7 +49,6 @@ public class NatsStreamingSubscriber<V> extends NatsSubscriber {
 
 	@Override
 	public void run() {
-
 		try {
 			logger.info("NATS Subscriber ({}):  Subscribing to subject: {}", id, subject); //trace
 
@@ -53,19 +56,30 @@ public class NatsStreamingSubscriber<V> extends NatsSubscriber {
 			if (natsUrl != null) {
 				optionsBuilder.natsUrl(natsUrl);
 			}
-			final StreamingConnection c = NatsStreaming.connect(clusterName, clientName, optionsBuilder.build());
+			StreamingConnection c;
+			final Options options = optionsBuilder.build();
+			try {
+				c = NatsStreaming.connect(clusterName, clientName, options);
+			} catch (Exception e) {
+				logger.error("NatsStreaming.connect({}, {}, {}) PRODUCES {}", clusterName, clientName, ReflectionToStringBuilder.toString(options), e.getMessage());
+				throw(e);
+			}
 			
-//			AsyncSubscription s = c.subscribeAsync(subject, this);
-//			s.start();
+//				AsyncSubscription s = c.subscribeAsync(subject, this);
+//				s.start();
 			Subscription sub = c.subscribe(subject, new MessageHandler() {
 			    public void onMessage(Message m) {
-			        //System.out.printf("Received a message: %s\n", m.getData());
+					final int tallyMessage = tallyMessage();
+					logger.info("NATS Subscriber ({}) Received {}/{} message(s).", clientName, tallyMessage, testCount);
+
+					//System.out.printf("Received a message: %s\n", m.getData());
 			    	final V obj = NatsSparkUtilities.decodeData(type, m.getData());
 			    	logger.info("Received a message ({}) on subject: {}", obj, subject);
-			        if (! data.remove(obj)) {
+/*			        if (! data.remove(obj)) {
 			        	throw new RuntimeException(data.toString() + " does not contain " + obj);
-			        }
-					if (tallyMessage() == testCount)
+			        }*/
+			        
+					if (tallyMessage == testCount)
 					{
 						logger.info("NATS Subscriber ({}) Received {} messages.  Completed.", clientName, testCount);
 						setComplete();
@@ -75,7 +89,7 @@ public class NatsStreamingSubscriber<V> extends NatsSubscriber {
 
 			setReady();
 
-			logger.info("NATS Subscriber ({}):  Subscribing to subject: {}", id, subject); // debug
+			logger.info("NATS Subscriber waiting for Completion"); // debug
 
 			waitForCompletion();
 
@@ -91,6 +105,18 @@ public class NatsStreamingSubscriber<V> extends NatsSubscriber {
 		{
 			ex.printStackTrace();
 		}
+	}
+
+	public String getClusterName() {
+		return clusterName;
+	}
+
+	public String getClientName() {
+		return clientName;
+	}
+
+	public Collection<V> getData() {
+		return data;
 	}
 
 }

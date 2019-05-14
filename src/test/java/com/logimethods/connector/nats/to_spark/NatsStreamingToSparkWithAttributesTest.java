@@ -9,8 +9,7 @@ package com.logimethods.connector.nats.to_spark;
 
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Options.PROP_URL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -23,17 +22,18 @@ import com.logimethods.connector.nats_spark.IncompleteException;
 
 import io.nats.streaming.SubscriptionOptions;
 
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.* ;
+
 public class NatsStreamingToSparkWithAttributesTest {
 	protected final static String CLUSTER_ID = "CLUSTER_ID";
-	private static final int STANServerPORT = 4223;
-	private static final String STAN_URL = "nats://localhost:" + STANServerPORT;
-	private static final String ALT_STAN_URL = "nats://1.1.1.1:" + STANServerPORT;
+//-	private static final String STAN_URL = "nats://localhost:" + NATS_STREAMING_PORT;
+	private static final String ALT_NATS_STREAMING_URL = "nats://1.1.1.1:" + NATS_STREAMING_PORT;
 	protected final static String DURABLE_NAME = "$DURABLE_NAME";
 	protected final static Properties PROPERTIES = new Properties();
 	
 	{
 		PROPERTIES.setProperty(PROP_SUBJECTS, "sub1,sub3 , sub2");
-		PROPERTIES.setProperty(PROP_URL, STAN_URL);
+		PROPERTIES.setProperty(PROP_URL, NATS_STREAMING_URL);
 	}
 
 	@Test
@@ -43,7 +43,8 @@ public class NatsStreamingToSparkWithAttributesTest {
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
 					.withProperties(PROPERTIES);
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
-		assertEquals(connector.getNatsUrl().toString(), STAN_URL, connector.getNatsUrl());
+		assertFalse(connector.keepConnectionDurable());
+		assertEquals(connector.getNatsUrl().toString(), NATS_STREAMING_URL, connector.getNatsUrl());
 		assertEquals(connector.getSubjects().toString(), 3, connector.getSubjects().size());
 	}
 
@@ -52,10 +53,10 @@ public class NatsStreamingToSparkWithAttributesTest {
 		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-					.withNatsURL(ALT_STAN_URL)
+					.withNatsURL(ALT_NATS_STREAMING_URL)
 					.withSubjects("sub1", "sub2");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
-		assertEquals(ALT_STAN_URL, connector.natsUrl);
+		assertEquals(ALT_NATS_STREAMING_URL, connector.natsUrl);
 		assertEquals(connector.getSubjects().toString(), 2, connector.getSubjects().size());
 	}
 
@@ -64,11 +65,11 @@ public class NatsStreamingToSparkWithAttributesTest {
 		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-					.withNatsURL(ALT_STAN_URL)
+					.withNatsURL(ALT_NATS_STREAMING_URL)
 					.withSubjects("sub1", "sub2")
 					.withProperties(PROPERTIES);
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
-		assertEquals(ALT_STAN_URL, connector.natsUrl);
+		assertEquals(ALT_NATS_STREAMING_URL, connector.natsUrl);
 		assertEquals(connector.getSubjects().toString(), 2, connector.getSubjects().size());
 	}
 
@@ -78,8 +79,8 @@ public class NatsStreamingToSparkWithAttributesTest {
 		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-					.withNatsURL(STAN_URL)
-					.withSubscriptionOptionsBuilder(optsBuilder)
+					.withNatsURL(NATS_STREAMING_URL)
+					.subscriptionOptionsBuilder(optsBuilder)
 					.withSubjects("SUBJECT");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
 		assertEquals(DURABLE_NAME, connector.getSubscriptionOptions().getDurableName());
@@ -90,11 +91,12 @@ public class NatsStreamingToSparkWithAttributesTest {
 		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-					.withNatsURL(STAN_URL)
+					.withNatsURL(NATS_STREAMING_URL)
 					.startWithLastReceived()
-					.setDurableName(DURABLE_NAME)
+					.durableName(DURABLE_NAME)
 					.withSubjects("SUBJECT");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
+		assertTrue(connector.keepConnectionDurable());
 		assertEquals(DURABLE_NAME, connector.getSubscriptionOptions().getDurableName());
 	}
 
@@ -106,12 +108,13 @@ public class NatsStreamingToSparkWithAttributesTest {
 		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-					.withNatsURL(STAN_URL)
+					.withNatsURL(NATS_STREAMING_URL)
 					//.withProperties(PROPERTIES)
-					.withSubscriptionOptionsBuilder(optsBuilder)
-					.setDurableName(newName)
+					.subscriptionOptionsBuilder(optsBuilder)
+					.durableName(newName)
 					.withSubjects("SUBJECT");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);
+		assertTrue(connector.keepConnectionDurable());
 		assertEquals(newName, connector.getSubscriptionOptions().getDurableName());
 		assertEquals(start, connector.getSubscriptionOptions().getStartTime());
 	}
@@ -122,9 +125,9 @@ public class NatsStreamingToSparkWithAttributesTest {
 		NatsStreamingToSparkConnectorImpl<String> connector = 
 				NatsToSparkConnector
 					.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
-					.withNatsURL(STAN_URL)
+					.withNatsURL(NATS_STREAMING_URL)
 					//.withProperties(PROPERTIES)
-					.setDurableName(DURABLE_NAME)
+					.durableName(DURABLE_NAME)
 					.startAtTime(start)
 					.withSubjects("SUBJECT");
 		assertTrue(connector instanceof NatsStreamingToSparkConnectorImpl);

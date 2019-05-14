@@ -28,7 +28,13 @@ public class StandardNatsSubscriber extends NatsSubscriber {
 		try {
 			logger.info("NATS Subscriber ({}):  Subscribing to subject: {}", id, subject); //trace
 
-			final io.nats.client.Connection c = Nats.connect(natsUrl);
+			io.nats.client.Connection c;
+			try {
+				c = Nats.connect(natsUrl);
+			} catch (Exception e) {
+				logger.error("Nats.connect({}) PRODUCES", natsUrl, e.getMessage());
+				throw(e);
+			}
 			final Dispatcher dispatcher = c.createDispatcher(this).subscribe(subject);
 
 			setReady();

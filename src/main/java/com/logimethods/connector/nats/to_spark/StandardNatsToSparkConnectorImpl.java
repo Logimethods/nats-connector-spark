@@ -98,7 +98,7 @@ public class StandardNatsToSparkConnectorImpl<R> extends OmnipotentStandardNatsT
 			public void onMessage(Message m) {
 				R s = decodeData(m);
 				if (logger.isTraceEnabled()) {
-					logger.trace("Received by {} on Subject '{}' sharing Queue '{}': {}.", StandardNatsToSparkConnectorImpl.this, m.getSubject(), queue, s);
+					logger.trace("Received by {} on Subject '{}' sharing Queue '{}': {}.", StandardNatsToSparkConnectorImpl.this, m.getSubject(), natsQueue, s);
 				}
 				store(s);
 			}

@@ -16,37 +16,86 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.log4j.Level;
+import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
-import org.apache.spark.api.java.function.PairFunction;
-import org.apache.spark.streaming.api.java.JavaDStream;
-import org.apache.spark.streaming.api.java.JavaPairDStream;
-import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import scala.Tuple2;
 
 public class UnitTestUtilities {
+	protected static final Logger LOGGER = LoggerFactory.getLogger(UnitTestUtilities.class);
+
+	public final static String SPARK_MASTER;
+
+	public final static String NATS_STREAMING_SERVER;
+    public final static int NATS_STREAMING_PORT;
+	
+	public final static String NATS_SERVER;
+	public final static int NATS_PORT;
+	
+	protected static final Properties properties = new Properties();
+
+	protected static final String DEFAULT_TEST_MODE = "local";	
+	public static enum TestMode {local, cluster};
+	public static TestMode TEST_MODE;	
+	
+	static {
+		String testModeStr = System.getenv("TEST_MODE");
+		testModeStr = testModeStr != null ? testModeStr : DEFAULT_TEST_MODE;
+		TEST_MODE = TestMode.valueOf(testModeStr);
+		LOGGER.info("TEST_MODE: " + testModeStr);
+        InputStream stream = UnitTestUtilities.class.getResourceAsStream("/config_" + testModeStr + ".properties");        
+        try {
+            properties.load(stream);
+            LOGGER.info("PROPERTIES: " + properties.toString());
+//            System.out.println("PROPERTIES " + properties.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+            // You will have to take some action here...
+        }
+        
+        SPARK_MASTER = properties.getProperty("spark_master", "local[2]");
+
+        NATS_SERVER = properties.getProperty("nats_server", "localhost");
+        NATS_PORT = Integer.valueOf(properties.getProperty("nats_port", "4222"));
+        
+        NATS_STREAMING_SERVER = properties.getProperty("nats_streaming_server", "localhost");
+        NATS_STREAMING_PORT = Integer.valueOf(properties.getProperty("nats_streaming_port", "4222"));
+    }
 
 	private static final String ORG_SLF4J_SIMPLE_LOGGER_LOG = "org.slf4j.simpleLogger.log.";
 	static NATSServer defaultServer = null;
-	public static final int NATS_SERVER_PORT = 4221;
-	public static final String NATS_SERVER_URL = "nats://localhost:"+NATS_SERVER_PORT;
 
-	public static final int STANServerPORT = 4223;
-	public static final String STAN_URL = "nats://localhost:" + STANServerPORT;	
+	public static final String NATS_URL = "nats://"+NATS_SERVER+":"+NATS_PORT;
+	public static final String NATS_STREAMING_URL = "nats://"+NATS_STREAMING_SERVER+":"+NATS_STREAMING_PORT;	
+
+	public static final String NATS_LOCALHOST_URL = "nats://localhost:"+NATS_PORT;
+	public static final String NATS_STREAMING_LOCALHOST_URL = "nats://localhost:"+NATS_STREAMING_PORT;	
+
 	public static final String CLUSTER_ID = "test-cluster";
-
 
 	Process authServerProcess = null;
 
+	public static final String getProperty(String key, String defaultValue) {
+		return properties.getProperty(key, defaultValue);
+	}
+	
+	public static int getIntProperty(String key, int defaultValue) {
+		final String valueStr = properties.getProperty(key);
+		return (valueStr != null) ? Integer.valueOf(valueStr) : defaultValue;
+	}
+
 	public static synchronized void startDefaultServer() {
 		if (defaultServer == null) {
-			defaultServer = new NATSServer(NATS_SERVER_PORT);
+			defaultServer = new NATSServer(NATS_PORT);
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
@@ -62,7 +111,7 @@ public class UnitTestUtilities {
 	}
 
     public static STANServer startStreamingServer(String clusterID, boolean debug) {
-        STANServer srv = new STANServer(clusterID, STANServerPORT, debug);
+        STANServer srv = new STANServer(clusterID, NATS_STREAMING_PORT, debug);
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
@@ -238,14 +287,6 @@ public class UnitTestUtilities {
 		return rdd;
 	}
 
-	public static JavaPairDStream<String, String> getJavaPairDStream(final File tempDir, final JavaStreamingContext ssc, final String subject1) {
-		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath());
-		JavaPairDStream<String, String> keyValues = lines.mapToPair((PairFunction<String, String, String>) str -> {
-							return new Tuple2<String, String>(subject1 + "." + str, str);
-						});
-		return keyValues;
-	}
-
 	/**
 	 * @param data
 	 * @param subject
@@ -284,5 +325,30 @@ public class UnitTestUtilities {
 		// wait for subscribers to be ready.
 		ns.waitUntilReady();
 		return ns;
+	}
+
+	public static SparkConf newSparkConf() {
+		SparkConf conf = new SparkConf()
+			.setMaster(SPARK_MASTER)
+//			.set("spark.executor.cores", UnitTestUtilities.getProperty("spark.executor.cores", "1"))
+//			.set("spark.cores.max", UnitTestUtilities.getProperty("spark.cores.max", "2"))
+			;
+
+		//-					.set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
+
+		switch (TEST_MODE) {
+		case cluster : 
+			final File targetDir = new File("target");
+			for (File file : targetDir.listFiles()) {
+				if (file.getName().endsWith((".pom"))) {
+					final String fileName = file.getName();
+					final String jarFile = "target/" + fileName.substring(0, fileName.length() - 3) + "jar";
+					LOGGER.info("{} shared with the Spark CLuster", jarFile);
+					return conf.setJars(new String[] {jarFile});
+				}
+			}		
+
+		default : return conf;
+		}
 	}
 }

@@ -7,7 +7,8 @@
  *******************************************************************************/
 package com.logimethods.connector.nats.to_spark.api;
 
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_LOCALHOST_URL;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Options.PROP_URL;
 
@@ -22,22 +23,23 @@ import org.junit.Test;
 
 import com.logimethods.connector.nats.spark.test.NatsPublisher;
 import com.logimethods.connector.nats.spark.test.StandardNatsPublisher;
+import com.logimethods.connector.nats.to_spark.AbstractNatsToSparkTest;
 import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 
 public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSparkTest implements Serializable {
 	
 	@Override
 	protected NatsPublisher getNatsPublisher(final int nbOfMessages) {
-		return new StandardNatsPublisher("np", NATS_SERVER_URL, DEFAULT_SUBJECT,  nbOfMessages);
+		return new StandardNatsPublisher("np", NATS_LOCALHOST_URL, DEFAULT_SUBJECT,  nbOfMessages);
 	}
 	
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testNatsToSparkConnectorWithAdditionalPropertiesAndSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final Properties properties = new Properties();
-		properties.setProperty(PROP_URL, NATS_SERVER_URL);
+		properties.setProperty(PROP_URL, NATS_URL);
 
 		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
@@ -49,7 +51,7 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 		validateTheReceptionOfMessages(ssc, messages);
 	}
 	
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testNatsToSparkConnectorWithAdditionalSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
@@ -57,14 +59,14 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
 					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY())
-					.withNatsURL(NATS_SERVER_URL)
+					.withNatsURL(NATS_URL)
 					.withSubjects(DEFAULT_SUBJECT)
 					.asStreamOfKeyValue(ssc);
 
 		validateTheReceptionOfMessages(ssc, messages);
 	}
 	
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testNatsToSparkConnectorWithAdditionalPropertiesAndMultipleSubjects() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
@@ -73,7 +75,7 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
 					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY())
-					.withNatsURL(NATS_SERVER_URL)
+					.withNatsURL(NATS_URL)
 					.withProperties(properties)
 					.withSubjects(DEFAULT_SUBJECT, "EXTRA_SUBJECT")
 					.asStreamOfKeyValue(ssc);
@@ -81,14 +83,14 @@ public class StandardNatsToSparkKeyValueConnectorTest extends AbstractNatsToSpar
 		validateTheReceptionOfMessages(ssc, messages);
 	}
 	
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testNatsToSparkConnectorWithAdditionalProperties() throws InterruptedException {
 		
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
 
 		final Properties properties = new Properties();
 		properties.setProperty(PROP_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
-		properties.setProperty(PROP_URL, NATS_SERVER_URL);
+		properties.setProperty(PROP_URL, NATS_URL);
 		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
 					.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY())

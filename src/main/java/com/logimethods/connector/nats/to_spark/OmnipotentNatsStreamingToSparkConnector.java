@@ -10,18 +10,23 @@ package com.logimethods.connector.nats.to_spark;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.logimethods.connector.nats_spark.IncompleteException;
 
 import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
 import io.nats.streaming.NatsStreaming;
 import io.nats.streaming.Options;
-import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.Subscription;
 import io.nats.streaming.SubscriptionOptions;
 
@@ -34,6 +39,8 @@ import io.nats.streaming.SubscriptionOptions;
  */
 public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends NatsToSparkConnector<T,R,V> {
 
+	protected static final String DISPATCHER_NAME = "spark";
+
 	/**
 	 * 
 	 */
@@ -42,8 +49,9 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	static final Logger logger = LoggerFactory.getLogger(OmnipotentNatsStreamingToSparkConnector.class);
 
 	protected String clusterID, clientID;
-	protected transient SubscriptionOptions opts;
-	protected SubscriptionOptions.Builder optsBuilder;
+	protected transient SubscriptionOptions subscriptionOpts;
+	protected SubscriptionOptions.Builder subscriptionOptsBuilder;
+	protected Collection<Subscription> allSubscriptions = new HashSet<Subscription>();
 
 	/* Constructors with subjects provided by the environment */
 	
@@ -51,7 +59,7 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 		super(type, storageLevel);
 		this.clusterID = clusterID;
 		this.clientID = clientID;
-		setQueue();
+		setNatsQueue();
 //		logger.debug("CREATE NatsToSparkConnector {} with Properties '{}', Storage Level {} and NATS Subjects '{}'.", this, properties, storageLevel, subjects);
 	}
 
@@ -59,9 +67,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
 	 * @param optsBuilder, the NATS Streaming options used to set the connection to NATS
 	 * @return a NATS Streaming to Spark Connector
 	 */
-	public OmnipotentNatsStreamingToSparkConnector<T,R,V> withSubscriptionOptionsBuilder(SubscriptionOptions.Builder optsBuilder) {
-		this.optsBuilder = optsBuilder;
-		return this;
+	@SuppressWarnings("unchecked")
+	public T subscriptionOptionsBuilder(SubscriptionOptions.Builder optsBuilder) {
+		this.subscriptionOptsBuilder = optsBuilder;
+		return (T)this;
 	}
 
     /**
@@ -70,9 +79,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param durableName the name of the durable subscriber
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> setDurableName(String durableName) {
-    	getOptsBuilder().durableName(durableName);
-    	return this;
+	@SuppressWarnings("unchecked")
+    public T durableName(String durableName) {
+    	getSubscriptionOptsBuilder().durableName(durableName);
+    	return (T)this;
     }
 
     /**
@@ -81,9 +91,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param maxInFlight the maximum number of in-flight messages
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> setMaxInFlight(int maxInFlight) {
-    	getOptsBuilder().maxInFlight(maxInFlight);
-        return this;
+	@SuppressWarnings("unchecked")
+    public T maxInFlight(int maxInFlight) {
+    	getSubscriptionOptsBuilder().maxInFlight(maxInFlight);
+        return (T)this;
     }
 
     /**
@@ -92,11 +103,12 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param ackWait the amount of time the subscription will wait for an ACK from the cluster
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> setAckWait(Duration ackWait) {
-    	getOptsBuilder().ackWait(ackWait);
-        return this;
+	@SuppressWarnings("unchecked")
+    public T ackWait(Duration ackWait) {
+    	getSubscriptionOptsBuilder().ackWait(ackWait);
+        return (T)this;
     }
-
+	
     /**
      * Sets the amount of time the subscription will wait for ACKs from the cluster.
      * 
@@ -104,9 +116,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param unit the time unit
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> setAckWait(long ackWait, TimeUnit unit) {
-    	getOptsBuilder().ackWait(ackWait, unit);
-        return this;
+	@SuppressWarnings("unchecked")
+    public T ackWait(long ackWait, TimeUnit unit) {
+    	getSubscriptionOptsBuilder().ackWait(ackWait, unit);
+        return (T)this;
     }
 
     /**
@@ -116,9 +129,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param manualAcks whether or not messages must be manually acknowledged
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> setManualAcks(boolean manualAcks) {
-    	if (manualAcks) getOptsBuilder().manualAcks();
-        return this;
+	@SuppressWarnings("unchecked")
+    public T manualAcks(boolean manualAcks) {
+    	if (manualAcks) getSubscriptionOptsBuilder().manualAcks();
+        return (T)this;
     }
 
     /**
@@ -127,9 +141,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param seq the sequence number from which to start receiving messages
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> startAtSequence(long seq) {
-    	getOptsBuilder().startAtSequence(seq);
-        return this;
+	@SuppressWarnings("unchecked")
+    public T startAtSequence(long seq) {
+    	getSubscriptionOptsBuilder().startAtSequence(seq);
+        return (T)this;
     }
 
     /**
@@ -138,9 +153,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param start the desired start time position expressed as a {@code java.time.Instant}
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> startAtTime(Instant start) {
-    	getOptsBuilder().startAtTime(start);
-        return this;
+	@SuppressWarnings("unchecked")
+    public T startAtTime(Instant start) {
+    	getSubscriptionOptsBuilder().startAtTime(start);
+        return (T)this;
     }
 
     /**
@@ -150,9 +166,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param unit the time unit
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> startAtTimeDelta(long ago, TimeUnit unit) {
-    	getOptsBuilder().startAtTimeDelta(ago, unit);
-        return this;
+	@SuppressWarnings("unchecked")
+    public T startAtTimeDelta(long ago, TimeUnit unit) {
+    	getSubscriptionOptsBuilder().startAtTimeDelta(ago, unit);
+        return (T)this;
     }
 
     /**
@@ -161,9 +178,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * @param ago the historical time delta (from now) from which to start receiving messages
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> startAtTimeDelta(Duration ago) {
-    	getOptsBuilder().startAtTimeDelta(ago);
-        return this;
+	@SuppressWarnings("unchecked")
+    public T startAtTimeDelta(Duration ago) {
+    	getSubscriptionOptsBuilder().startAtTimeDelta(ago);
+        return (T)this;
     }
 
     /**
@@ -172,9 +190,10 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * 
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> startWithLastReceived() {
-    	getOptsBuilder().startWithLastReceived();
-        return this;
+	@SuppressWarnings("unchecked")
+    public T startWithLastReceived() {
+    	getSubscriptionOptsBuilder().startWithLastReceived();
+        return (T)this;
     }
 
     /**
@@ -183,78 +202,221 @@ public abstract class OmnipotentNatsStreamingToSparkConnector<T,R,V> extends Nat
      * 
      * @return the connector itself
      */
-    public OmnipotentNatsStreamingToSparkConnector<T,R,V> deliverAllAvailable() {
-    	getOptsBuilder().deliverAllAvailable();
-        return this;
+	@SuppressWarnings("unchecked")
+    public T deliverAllAvailable() {
+    	getSubscriptionOptsBuilder().deliverAllAvailable();
+        return (T)this;
     }
 
+	/* Deprecated methods associated with the NATS Builder */
+
+	/**
+	 * @param optsBuilder, the NATS Streaming options used to set the connection to NATS
+	 * @return a NATS Streaming to Spark Connector
+	 */
+	@Deprecated
+	public T withSubscriptionOptionsBuilder(SubscriptionOptions.Builder optsBuilder) {
+		return subscriptionOptionsBuilder(optsBuilder);
+	}
+
+    /**
+     * Sets the durable subscriber name for the subscription.
+     * 
+     * @param durableName the name of the durable subscriber
+     * @return the connector itself
+     */
+	@Deprecated
+    public T setDurableName(String durableName) {
+    	return durableName(durableName);
+    }
+	
+    /**
+     * Sets the maximum number of in-flight (unacknowledged) messages for the subscription.
+     * 
+     * @param maxInFlight the maximum number of in-flight messages
+     * @return the connector itself
+     */
+	@Deprecated
+    public T setMaxInFlight(int maxInFlight) {
+    	return maxInFlight(maxInFlight);
+    }
+
+    /**
+     * Sets the amount of time the subscription will wait for ACKs from the cluster.
+     * 
+     * @param ackWait the amount of time the subscription will wait for an ACK from the cluster
+     * @return the connector itself
+     */
+	@Deprecated
+    public T setAckWait(Duration ackWait) {
+    	return ackWait(ackWait);
+    }
+
+    /**
+     * Sets the amount of time the subscription will wait for ACKs from the cluster.
+     * 
+     * @param ackWait the amount of time the subscription will wait for an ACK from the cluster
+     * @param unit the time unit
+     * @return the connector itself
+     */
+	@Deprecated
+    public T setAckWait(long ackWait, TimeUnit unit) {
+    	return ackWait(ackWait, unit);
+    }
+
+    /**
+     * Sets whether or not messages must be acknowledge individually by calling
+     * {@link Message#ack()}.
+     * 
+     * @param manualAcks whether or not messages must be manually acknowledged
+     * @return the connector itself
+     */
+	@Deprecated
+    public T setManualAcks(boolean manualAcks) {
+    	return manualAcks(manualAcks);
+    }
+	
+	/* End of the deprecated methods associated with the NATS Builder */
 	
 	/**
 	 * @return the opts
 	 */
 	protected SubscriptionOptions getSubscriptionOptions() {
-		if ((opts == null) && (optsBuilder != null)){
-			opts = optsBuilder.build();
+		if (subscriptionOpts == null){
+			subscriptionOpts = getSubscriptionOptsBuilder().dispatcher(DISPATCHER_NAME).build();
 		}
-		return opts;
+		return subscriptionOpts;
 	}
 
 	/**
 	 * @return the optsBuilder
 	 */
-	protected SubscriptionOptions.Builder getOptsBuilder() {
-		if (optsBuilder == null) {
-			optsBuilder = new SubscriptionOptions.Builder();
+	protected SubscriptionOptions.Builder getSubscriptionOptsBuilder() {
+		if (subscriptionOptsBuilder == null) {
+			subscriptionOptsBuilder = new SubscriptionOptions.Builder();
 		}
-		return optsBuilder;
+		return subscriptionOptsBuilder;
 	}
 
 	/**
 	 * @return a NATS Streaming to Spark Connector where the NATS Messages are stored in Spark as Key (the NATS Subject) / Value (the NATS Payload)
 	 */
 	public NatsStreamingToKeyValueSparkConnectorImpl<V> storedAsKeyValue() {
-		return new NatsStreamingToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, queue, natsUrl, clusterID, clientID, 
-																opts, optsBuilder, dataDecoder, scalaDataDecoder);
+		return new NatsStreamingToKeyValueSparkConnectorImpl<V>(type, storageLevel(), subjects, properties, natsQueue, natsUrl, clusterID, clientID, 
+																subscriptionOpts, subscriptionOptsBuilder, dataDecoder, scalaDataDecoder);
 	}
 
 	/** Create a socket connection and receive data until receiver is stopped 
 	 * @throws Exception **/
-	protected void receive() throws Exception {
+	protected void receive() throws IOException, InterruptedException, IncompleteException, TimeoutException {
 
 		// Make connection and initialize streams			  
 		final Options.Builder optionsBuilder = new Options.Builder();
 		if (natsUrl != null) {
 			optionsBuilder.natsUrl(natsUrl);
 		}
-		final StreamingConnection connection = NatsStreaming.connect(clusterID, clientID, optionsBuilder.build());
 
-//		logger.info("A NATS from '{}' to Spark Connection has been created for '{}', sharing Queue '{}'.", connection.getConnectedUrl(), this, queue);
+		final Options options = optionsBuilder.build();
+		try {
+			connection = NatsStreaming.connect(clusterID, clientID, options);
+		} catch (IOException | InterruptedException e) {
+			logger.error("NatsStreaming.connect({}, {}, {}) PRODUCES {}", clusterID, clientID, ReflectionToStringBuilder.toString(options), e.getMessage());
+			throw(e);
+		}
 		
-		for (String subject: getSubjects()) {
-			final Subscription sub = connection.subscribe(subject, queue, getMessageHandler(), getSubscriptionOptions());
-			logger.info("Listening on {}.", subject);
-			
-			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
-				@Override
-				public void run() {
-					logger.debug("Caught CTRL-C, shutting down gracefully..." + this);
-					try {
-						sub.unsubscribe();
-					} catch (IOException e) {
-						if (logger.isDebugEnabled()) {
-							logger.error("Exception while unsubscribing " + e.toString());
+		try {
+			for (String subject: getSubjects()) {
+				Subscription sub;
+				final MessageHandler messageHandler = getMessageHandler();
+				final SubscriptionOptions subscriptionOptions = getSubscriptionOptions();
+				try {
+					sub = connection.subscribe(subject, natsQueue, messageHandler, subscriptionOptions);
+					logger.info("{}.subscribe({}, {}, {}, {})", connection, subject, natsQueue, messageHandler, subscriptionOptions);
+				}  catch (IOException | InterruptedException | TimeoutException e) {
+					logger.error("{}.subscribe({}, {}, {}, {}) PRODUCES {}", connection, subject, natsQueue, messageHandler, subscriptionOptions, e.getMessage());
+					throw(e);
+				}
+				allSubscriptions.add(sub);
+				
+				logger.info("Listening on {}.", subject);
+				
+				Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+					@Override
+					public void run() {
+						logger.debug("Caught CTRL-C, shutting down gracefully..." + this);
+						
+						try {
+							allSubscriptions.remove(sub);
+							if (keepConnectionDurable()) {
+								logger.info("Closing NATS Subscription at Shutdown " + sub);
+								sub.close();
+							} else {
+								logger.info("Unsubscribing NATS Connection at Shutdown " + sub);
+								sub.unsubscribe();
+							}							
+						} catch (IOException | IllegalStateException e) {
+							if (logger.isDebugEnabled()) {
+								logger.error("Exception while unsubscribing at Shutdown " + e.toString());
+							}
+						}
+						
+						try {
+							if ((! keepConnectionDurable()) && (connection != null)) {
+								logger.info("Closing NATS Connection at Shutdown " + connection);
+								connection.close();
+							}
+							connection = null;
+						} catch (IOException | TimeoutException | InterruptedException e) {
+							if (logger.isDebugEnabled()) {
+								logger.error("Exception while unsubscribing at Shutdown " + e.toString());
+							}
 						}
 					}
-					try {
-						connection.close();
-					} catch (IOException | TimeoutException | InterruptedException e) {
-						if (logger.isDebugEnabled()) {
-							logger.error("Exception while unsubscribing " + e.toString());
-						}
+				}));
+			}
+		} catch (IncompleteException e) {
+			logger.error("getSubjects() PRODUCES {}", e.getMessage());
+			throw(e);
+		}
+	}
+	
+	@Override
+	public void onStop() {
+		try {			
+			Iterator<Subscription> setIterator = allSubscriptions.iterator();
+			while (setIterator.hasNext()) {
+				final Subscription sub = setIterator.next();
+				try {
+					if (keepConnectionDurable()) {
+						logger.info("Closing NATS Subscription to keep it DURABLE: " + sub);
+						sub.close();
+					} else {
+						logger.info("Unsubscribing NATS Connection " + sub);
+						sub.unsubscribe();
+					}							
+				} catch (IOException e) {
+					if (logger.isDebugEnabled()) {
+						logger.error("Exception while unsubscribing " + e.toString());
 					}
 				}
-			}));
+			    setIterator.remove();
+			}
+
+			if ((! keepConnectionDurable()) && (connection != null)) {				
+				logger.info("Closing NATS Connection to keep it DURABLE: " + connection);
+				connection.close();
+				connection = null;
+			}
+		} catch (IOException | TimeoutException | InterruptedException e) {
+			if (logger.isDebugEnabled()) {
+				logger.error("Exception while unsubscribing " + e.toString());
+			}
 		}
+	}
+
+	protected boolean keepConnectionDurable() {
+		final String durableName = getSubscriptionOptsBuilder().build().getDurableName();
+		return (durableName != null && !durableName.isEmpty());
 	}
 
 	abstract protected MessageHandler getMessageHandler();

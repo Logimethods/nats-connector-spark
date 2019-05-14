@@ -1,0 +1,26 @@
+version: '2.2'
+
+services:
+  nats-main:
+    extends:
+      file: common-services.yml
+      service: nats-streaming
+    container_name: nats-main
+    hostname: nats-main
+
+  netcat:
+    image: subfuzion/netcat
+    hostname: netcat
+    entrypoint:
+      - sh
+      - -c
+      - "nc -lk 9998 | nc -lk 9999"
+    ports:
+      - 9998:9998
+      - 9999:9999
+
+# See https://github.com/docker/compose/issues/229
+networks:
+  default:
+    external:
+      name: spark

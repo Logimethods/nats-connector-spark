@@ -36,14 +36,14 @@ public class NatsStreamingToKeyValueSparkConnectorImpl<V>
 
 	protected NatsStreamingToKeyValueSparkConnectorImpl(Class<V> type, StorageLevel storageLevel, Collection<String> subjects,
 			Properties properties, String queue, String natsUrl, String clusterID, String clientID, 
-			SubscriptionOptions opts, SubscriptionOptions.Builder optsBuilder, Function<byte[], V> dataDecoder, scala.Function1<byte[], V> scalaDataDecoder) {
+			SubscriptionOptions subscriptionOpts, SubscriptionOptions.Builder subscriptionOptsBuilder, Function<byte[], V> dataDecoder, scala.Function1<byte[], V> scalaDataDecoder) {
 		super(type, storageLevel, clusterID, clientID);
 		this.subjects = subjects;
 		this.properties = properties;
-		this.queue = queue;
+		this.natsQueue = queue;
 		this.natsUrl = natsUrl;
-		this.opts = opts;
-		this.optsBuilder = optsBuilder;
+		this.subscriptionOpts = subscriptionOpts;
+		this.subscriptionOptsBuilder = subscriptionOptsBuilder;
 		this.dataDecoder = dataDecoder;
 		this.scalaDataDecoder = scalaDataDecoder;
 	}

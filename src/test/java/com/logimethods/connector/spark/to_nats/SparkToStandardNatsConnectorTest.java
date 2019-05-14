@@ -7,7 +7,8 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.*;
+
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Options.PROP_URL;
 import static org.junit.Assert.fail;
@@ -31,6 +32,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.logimethods.connector.nats.spark.test.SparkToNatsValidator;
 import com.logimethods.connector.nats.spark.test.StandardNatsSubscriber;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
@@ -38,6 +40,8 @@ import com.logimethods.connector.spark.to_nats.SparkToNatsConnector;
 import com.logimethods.connector.spark.to_nats.SparkToStandardNatsConnectorImpl;
 
 import scala.Tuple2;
+
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.*;
 
 //@Ignore
 public class SparkToStandardNatsConnectorTest {
@@ -62,7 +66,9 @@ public class SparkToStandardNatsConnectorTest {
 		
 		logger = LoggerFactory.getLogger(SparkToStandardNatsConnectorTest.class);       
 
-		SparkConf sparkConf = new SparkConf().setAppName("My Spark Job").setMaster("local[2]").set("spark.driver.host", "localhost"); // https://issues.apache.org/jira/browse/
+		SparkConf sparkConf = 
+				UnitTestUtilities.newSparkConf()
+					.setAppName("SparkToStandardNatsConnector");
 		sc = new JavaSparkContext(sparkConf);
 
 		UnitTestUtilities.startDefaultServer();
@@ -108,12 +114,12 @@ public class SparkToStandardNatsConnectorTest {
 		return ns1;
 	}*/
 
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testStaticSparkToNatsNoSubjects() throws Exception {   
 		JavaRDD<Integer> rdd = UnitTestUtilities.getJavaRDD(sc);
 		
 		try {
-			SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).publishToNats(rdd);
+			SparkToNatsConnector.newConnection().withNatsURL(NATS_URL).publishToNats(rdd);
 		} catch (Exception e) {
 			if (e.getMessage().contains("needs at least one NATS Subject"))
 				return;
@@ -124,12 +130,12 @@ public class SparkToStandardNatsConnectorTest {
 		fail("An Exception(\"SparkToNatsConnector needs at least one Subject\") should have been raised.");
 	}
 
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testStaticKeyValueSparkToNatsNoSubjects() throws Exception {   
 		String subject1 = "subject1";
 
 		JavaRDD<Tuple2<String, Integer>> stream = getKeyValueStream(subject1);		
-		SparkToNatsConnector.newConnection().withNatsURL(NATS_SERVER_URL).publishToNatsAsKeyValue(stream);
+		SparkToNatsConnector.newConnection().withNatsURL(NATS_URL).publishToNatsAsKeyValue(stream);
 	}
 
 	protected JavaRDD<Tuple2<String, Integer>> getKeyValueStream(String subject1) {
@@ -137,27 +143,25 @@ public class SparkToStandardNatsConnectorTest {
 		JavaRDD<Integer> rdd = sc.parallelize(data);
 				
 		JavaRDD<Tuple2<String, Integer>> stream = 
-				rdd.map((Function<Integer, Tuple2<String, Integer>>) str -> {
-									return new Tuple2<String, Integer>(subject1, str);
-								});
+				SparkToNatsValidator.newSubjectStringTuple(subject1, rdd);
 		return stream;
 	}
 
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testStaticSparkToNatsWithMultipleSubjects() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 
 		String subject1 = "subject1";
-		StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
+		StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_LOCALHOST_URL);
 
 		String subject2 = "subject2";
-		StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
+		StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_LOCALHOST_URL);
 
 		JavaRDD<Integer> rdd = sc.parallelize(data);
 
 		SparkToNatsConnector
 					.newConnection()
-					.withNatsURL(NATS_SERVER_URL)
+					.withNatsURL(NATS_URL)
 					.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
 					.publishToNats(rdd);
 
@@ -166,32 +170,28 @@ public class SparkToStandardNatsConnectorTest {
 		ns2.waitForCompletion();
 	}
 
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testStaticKeyValueSparkToNatsWithMultipleSubjects() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 		
 		final String rootSubject = "ROOT";
 
 		String subject1 = "subject1";
-		StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, rootSubject + "." + subject1 + ".>", NATS_SERVER_URL);
+		StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, rootSubject + "." + subject1 + ".>", NATS_LOCALHOST_URL);
 
 		String subject2 = "subject2";
-		StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, rootSubject + "." + subject2 + ".>", NATS_SERVER_URL);
+		StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, rootSubject + "." + subject2 + ".>", NATS_LOCALHOST_URL);
 
 		JavaRDD<Integer> rdd = sc.parallelize(data);
 		JavaRDD<Tuple2<String, Integer>> stream1 = 
-				rdd.map((Function<Integer, Tuple2<String, Integer>>) str -> {
-									return new Tuple2<String, Integer>(subject1 + "." + str, str);
-								});		
+				SparkToNatsValidator.newSubjectDotStringTuple(subject1, rdd);		
 		JavaRDD<Tuple2<String, Integer>> stream2 = 
-				rdd.map((Function<Integer, Tuple2<String, Integer>>) str -> {
-									return new Tuple2<String, Integer>(subject2 + "." + str, str);
-								});		
+				SparkToNatsValidator.newSubjectDotStringTuple(subject2, rdd);		
 		JavaRDD<Tuple2<String, Integer>> stream = stream1.union(stream2);
 
 		SparkToNatsConnector
 			.newConnection()
-			.withNatsURL(NATS_SERVER_URL)
+			.withNatsURL(NATS_URL)
 			.withSubjects(rootSubject + ".")
 			.publishToNatsAsKeyValue(stream);
 
@@ -200,16 +200,16 @@ public class SparkToStandardNatsConnectorTest {
 		ns2.waitForCompletion();
 	}
 
-	@Test(timeout=240000)
+	@Test(timeout=360000)
 	public void testStaticSparkToNatsWithProperties() throws Exception {   
 		final List<Integer> data = UnitTestUtilities.getData();
 
-		StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, DEFAULT_SUBJECT, NATS_SERVER_URL);
+		StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, DEFAULT_SUBJECT, NATS_LOCALHOST_URL);
 
 		JavaRDD<Integer> rdd = sc.parallelize(data);
 
 		final Properties properties = new Properties();
-		properties.setProperty(PROP_URL, NATS_SERVER_URL);
+		properties.setProperty(PROP_URL, NATS_URL);
 		properties.setProperty(PROP_SUBJECTS, "sub1,"+DEFAULT_SUBJECT+" , sub2");
 
 //		rdd.foreach(SparkToNatsConnector.newConnection().withProperties(properties).publishToNats());		

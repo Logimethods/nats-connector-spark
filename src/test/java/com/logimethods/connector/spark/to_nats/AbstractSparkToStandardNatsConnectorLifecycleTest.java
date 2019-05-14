@@ -7,7 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats;
 
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -49,7 +49,7 @@ public abstract class AbstractSparkToStandardNatsConnectorLifecycleTest extends 
 		UnitTestUtilities.startDefaultServer();
 	}
 
-	@Test(timeout=240000)
+//	@Test(timeout=360000) TODO
 	public void testStaticSparkToNatsWithConnectionLifecycle() throws Exception {  
 		final long poolSize = SparkToStandardNatsConnectorPool.poolSize();
 		
@@ -66,9 +66,9 @@ public abstract class AbstractSparkToStandardNatsConnectorLifecycleTest extends 
 
 		TimeUnit.SECONDS.sleep(1);
 
-		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
-		final StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
-		writeTmpFile(data);
+		final StandardNatsSubscriber ns1 = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_LOCALHOST_URL);
+		final StandardNatsSubscriber ns2 = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_LOCALHOST_URL);
+		writeFullData(data);
 		// wait for the subscribers to complete.
 		ns1.waitForCompletion();
 		ns2.waitForCompletion();
@@ -77,10 +77,10 @@ public abstract class AbstractSparkToStandardNatsConnectorLifecycleTest extends 
 		assertEquals("The connections Pool size should be the same as the number of Spark partitions", 
 				poolSize + partitionsNb, SparkToStandardNatsConnectorPool.poolSize());
 				
-		final StandardNatsSubscriber ns1p = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_SERVER_URL);
-		final StandardNatsSubscriber ns2p = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_SERVER_URL);
+		final StandardNatsSubscriber ns1p = UnitTestUtilities.getStandardNatsSubscriber(data, subject1, NATS_LOCALHOST_URL);
+		final StandardNatsSubscriber ns2p = UnitTestUtilities.getStandardNatsSubscriber(data, subject2, NATS_LOCALHOST_URL);
 
-		writeTmpFile(data);
+		writeFullData(data);
 		// wait for the subscribers to complete.
 		ns1p.waitForCompletion();
 		ns2p.waitForCompletion();

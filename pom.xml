@@ -11,7 +11,7 @@
 
 	<groupId>com.logimethods</groupId>
 	<artifactId>nats-connector-spark</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 
 	<name>nats-connector-spark</name>
 	<description>Spark Plugin for NATS Connector</description>
@@ -24,7 +24,7 @@
 		<java.version>1.8</java.version>
 		<!-- 1.6.1 is not compatible with a docker-compose made cluster -->
 		<!-- https://forums.docker.com/t/underscore-in-domain-names/12584/2 -->
-		<spark.version>2.3.2</spark.version>
+		<spark.version>2.3.1</spark.version>
 		<junit-version>4.11</junit-version>
 		<github.global.server>github</github.global.server>
 		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
@@ -147,7 +147,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.0.1</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -170,6 +170,17 @@
 					</execution>
 				</executions>
 			</plugin>
+      <!-- https://stackoverflow.com/questions/51091539/maven-site-plugins-3-3-java-lang-classnotfoundexception-org-apache-maven-doxia -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.7.1</version>
+      </plugin>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>3.0.0</version>
+      </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-scm-publish-plugin</artifactId>
@@ -283,19 +294,6 @@
 				<role>Senior Consultant</role>
 			</roles>
 			<timezone>America/Montreal</timezone>
-			<!-- <properties> <picUrl>http://www.example.com/jdoe/pic</picUrl> </properties> -->
-		</developer>
-		<developer>
-			<id>igor-fomenko</id>
-			<name>Igor Fomenko</name>
-			<email>igor.fomenko@logimethods.com</email>
-			<url>https://github.com/igor-fomenko</url>
-			<organization>Logimethods</organization>
-			<organizationUrl>http://www.logimethods.com/</organizationUrl>
-			<roles>
-				<role>Senior Consultant</role>
-			</roles>
-			<timezone>America/Toronto</timezone>
 			<!-- <properties> <picUrl>http://www.example.com/jdoe/pic</picUrl> </properties> -->
 		</developer>
 	</developers>

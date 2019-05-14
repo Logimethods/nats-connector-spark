@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,9 +106,9 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 	
 	protected Connection createConnection() throws IOException, TimeoutException, Exception {
 		final Connection newConnection = 
-				(getProperties() != null) ? Nats.connect(new Options.Builder(getProperties()).build()) :
-					(getNatsURL() != null ) ? Nats.connect(getNatsURL()) :
-						Nats.connect();
+				(getProperties() != null) ? NatsConnect(new Options.Builder(getProperties()).build()) :
+					(getNatsURL() != null ) ? NatsConnect(getNatsURL()) :
+						NatsConnect();
 
 		logger.debug("A NATS Connection {} has been created for {}", newConnection, this);
 		
@@ -125,6 +126,33 @@ class SparkToStandardNatsConnectorImpl extends SparkToNatsConnector<SparkToStand
 		return newConnection;
 	}
 
+	private Connection NatsConnect() throws IOException, InterruptedException {
+		try {
+			return Nats.connect();
+		} catch (Exception e) {
+			logger.error("Nats.connect("+io.nats.client.Options.DEFAULT_URL+") PRODUCES {}", e.getMessage());
+			throw(e);
+		}
+	}
+
+	private Connection NatsConnect(Options options) throws IOException, InterruptedException {
+		try {
+			return Nats.connect(options);
+		} catch (Exception e) {
+			logger.error("Nats.connect("+ReflectionToStringBuilder.toString(options)+") PRODUCES {}", e.getMessage());
+			throw(e);
+		}
+	}
+
+	private Connection NatsConnect(String url) throws IOException, InterruptedException {
+		try {
+			return Nats.connect(url);
+		} catch (Exception e) {
+			logger.error("Nats.connect("+url+") PRODUCES {}", e.getMessage());
+			throw(e);
+		}
+	}
+	
 	@Override
 	protected synchronized void closeConnection() {
 		logger.debug("At {}, ready to close '{}' by {}", new Date().getTime(), connection, super.toString());

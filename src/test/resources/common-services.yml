@@ -1,0 +1,83 @@
+version: '2.2'
+
+services:
+  gatling:
+    image: logimethods/nats-connector-spark:inject
+    environment:
+      - GATLING_TO_NATS_SUBJECT=INPUT
+
+  nats:
+    image: nats
+    ports:
+      - 4222:4222
+      - 8222:8222
+      - 6222:6222
+
+  nats-streaming:
+    image: nats-streaming:0.11.2
+    ports:
+      - 4222:4222
+      - 8222:8222
+      - 6222:6222
+
+  app:
+    image: logimethods/nats-connector-spark:app
+    command: "INPUT OUTPUT"
+    ports:
+      - 4040:4040
+
+  monitor:
+    image: logimethods/nats-connector-spark:monitor
+    command: "OUTPUT"
+
+  spark-master:
+    image: gettyimages/spark:2.3.1-hadoop-3.0
+    command: bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
+    environment:
+      MASTER: spark://master:7077
+      SPARK_CONF_DIR: /conf
+      SPARK_PUBLIC_DNS: localhost
+    expose:
+      - 7001
+      - 7002
+      - 7003
+      - 7004
+      - 7005
+      - 7077
+      - 6066
+    ports:
+#      - 4040:4040
+      - 7001:7001
+      - 7002:7002
+      - 7003:7003
+      - 7004:7004
+      - 7005:7005
+      - 6066:6066
+      - 7077:7077
+      - 8080:8080
+    volumes:
+      - ./conf/master:/conf
+      - ./data:/tmp/data
+
+  spark-worker:
+    image: gettyimages/spark:2.3.1-hadoop-3.0
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    environment:
+      SPARK_CONF_DIR: /conf
+      SPARK_WORKER_CORES: 1
+      SPARK_WORKER_MEMORY: 1g
+      SPARK_WORKER_PORT: 8881
+      SPARK_WORKER_WEBUI_PORT: 8081
+      SPARK_PUBLIC_DNS: localhost
+    expose:
+      - 7012
+      - 7013
+      - 7014
+      - 7015
+      - 8881
+    volumes:
+      - ./conf/worker:/conf
+      - ./data:/tmp/data
+
+##x  spark-shell:
+##x    image: logimethods/nats-connector-spark:shell_0.2.0

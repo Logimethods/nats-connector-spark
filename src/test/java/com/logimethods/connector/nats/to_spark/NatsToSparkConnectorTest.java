@@ -20,10 +20,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_URL;
 
 @SuppressWarnings("serial")
 public class NatsToSparkConnectorTest implements Serializable {
-    private static final String NATS_URL = "NATS_URL";
     
 	@Rule
     public ExpectedException thrown= ExpectedException.none();

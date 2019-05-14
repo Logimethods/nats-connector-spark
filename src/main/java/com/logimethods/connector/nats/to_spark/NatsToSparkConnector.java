@@ -10,8 +10,10 @@ package com.logimethods.connector.nats.to_spark;
 import static com.logimethods.connector.nats_spark.Constants.PROP_SUBJECTS;
 import static io.nats.client.Options.PROP_URL;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
 import org.apache.spark.storage.StorageLevel;
@@ -23,6 +25,7 @@ import com.logimethods.connector.nats_spark.IncompleteException;
 import com.logimethods.connector.nats_spark.NatsSparkUtilities;
 
 import io.nats.client.Message;
+import io.nats.streaming.StreamingConnection;
 import scala.Tuple2;
 
 /**
@@ -43,18 +46,21 @@ import scala.Tuple2;
  * 
  * @author Laurent Magnin
  */
-@SuppressWarnings("serial")
+//@SuppressWarnings("serial")
 public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
+
+	private static final long serialVersionUID = -1917312737332564226L;
 
 	static final Logger logger = LoggerFactory.getLogger(NatsToSparkConnector.class);
 	
 	protected final 	Class<V> type;
 	protected Collection<String> subjects;
 	protected Properties		 properties;
-	protected String 			 queue;
+	protected String 			 natsQueue;
 	protected String 			 natsUrl;
 	protected Function<byte[], V> dataDecoder = null;
 	protected scala.Function1<byte[], V> scalaDataDecoder = null;
+	protected transient StreamingConnection connection;
 
 	protected final static String CLIENT_ID = "NatsToSparkConnector_";
 
@@ -69,12 +75,12 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 		this.subjects = NatsSparkUtilities.transformIntoAList(subjects);
 	}
 	
-	protected NatsToSparkConnector(Class<V> type, StorageLevel storageLevel, Collection<String> subjects, Properties properties, String queue, String natsUrl) {
+	protected NatsToSparkConnector(Class<V> type, StorageLevel storageLevel, Collection<String> subjects, Properties properties, String natsQueue, String natsUrl) {
 		super(storageLevel);
 		this.type = type;
 		this.subjects = subjects;
 		this.properties = properties;
-		this.queue = queue;
+		this.natsQueue = natsQueue;
 		this.natsUrl = natsUrl;
 	}
 
@@ -109,6 +115,16 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 		this.natsUrl = natsURL;
 		return (T)this;
 	}	
+	
+	/**
+	 * @param queue, the NATS Queue to subscribe to
+	 * @return the connector itself
+	 */
+	@SuppressWarnings("unchecked")
+	public T withNatsQueue(String natsQueue) {
+		this.natsQueue = natsQueue;
+		return (T)this;
+	}
 	
 	/**
 	 * @param dataDecoder, the Data Decoder to set
@@ -170,11 +186,20 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 			}
 		}.start();
 	}
-
+	
 	@Override
 	public void onStop() {
-		// There is nothing much to do as the thread calling receive()
-		// is designed to stop by itself if CTRL-C is Caught.
+		try {			
+			if (connection != null) {				
+				logger.info("Closing NATS Connection " + connection);
+				connection.close();
+				connection = null;
+			}
+		} catch (IOException | TimeoutException | InterruptedException e) {
+			if (logger.isDebugEnabled()) {
+				logger.error("Exception while unsubscribing " + e.toString());
+			}
+		}
 	}
 
 	/** Create a socket connection and receive data until receiver is stopped 
@@ -182,8 +207,9 @@ public abstract class NatsToSparkConnector<T,R,V> extends Receiver<R> {
 	 **/
 	protected abstract void receive() throws Exception;
 	
-	protected void setQueue() {
-		queue = "NatsToSparkConnector_" + NatsSparkUtilities.generateUniqueID(this) ;
+	protected void setNatsQueue() {
+		if (natsQueue == null )
+			natsQueue = "NatsToSparkConnector_" + NatsSparkUtilities.generateUniqueID(this) ;
 	}
 
 	protected Properties getProperties(){

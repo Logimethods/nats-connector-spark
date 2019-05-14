@@ -7,7 +7,7 @@
  *******************************************************************************/
 package com.logimethods.connector.spark.to_nats.api;
 
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_SERVER_URL;
+import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.NATS_URL;
 
 import java.time.Duration;
 
@@ -20,11 +20,11 @@ import com.logimethods.connector.spark.to_nats.SparkToNatsConnectorPool;
 public class SparkToStandardNatsConnectorLifecycleTest extends AbstractSparkToStandardNatsConnectorLifecycleTest {
 
 	protected void publishToNats(final String subject1, final String subject2, final int partitionsNb) {
-		final JavaDStream<String> lines = ssc.textFileStream(tempDir.getAbsolutePath()).repartition(partitionsNb);		
+		final JavaDStream<String> lines = dataSource.dataStream(ssc).repartition(partitionsNb);
 		
 		SparkToNatsConnectorPool
 			.newPool()
-			.withNatsURL(NATS_SERVER_URL)
+			.withNatsURL(NATS_URL)
 			.withConnectionTimeout(Duration.ofSeconds(2))
 			.withSubjects(DEFAULT_SUBJECT, subject1, subject2)
 			.publishToNats(lines);
