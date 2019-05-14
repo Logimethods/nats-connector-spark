@@ -31,6 +31,7 @@ in favor of more `SubscriptionOptionsBuilder` idiomatic ones:
   * `ackWait(Duration ackWait)`
   * `ackWait(long ackWait, TimeUnit unit)`
   * `manualAcks(boolean manualAcks)`
+- JUnit Tested on a Spark Cluster
 
 ### Version 0.4.0
 	- SubscriptionOptions are now [serializable](https://github.com/nats-io/java-nats-streaming/issues/51)
