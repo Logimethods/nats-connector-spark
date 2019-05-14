@@ -17,14 +17,16 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
   - `nats-streaming-server version 0.11.2`
 - `public T withNatsQueue(String queue)` added
 - [Asynchronous Publishing](https://github.com/nats-io/java-nats-streaming#asynchronous-publishing) for Spark to NATS Streaming
-- The following methods has been @Deprecated
+- The following methods has been `@Deprecated`
   * `withSubscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
   * `setDurableName(String durableName)`
   * `setMaxInFlight(int maxInFlight)`
   * `setAckWait(Duration ackWait)`
   * `setAckWait(long ackWait, TimeUnit unit)`
   * `setManualAcks(boolean manualAcks)`
+  
 in favor of more `SubscriptionOptionsBuilder` idiomatic ones:
+
   * `subscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
   * `durableName(String durableName)`
   * `maxInFlight(int maxInFlight)`
