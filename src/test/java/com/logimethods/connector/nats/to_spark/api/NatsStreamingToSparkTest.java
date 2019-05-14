@@ -28,6 +28,7 @@ import org.apache.spark.streaming.Duration;
 import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.apache.spark.util.LongAccumulator;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
@@ -54,13 +55,11 @@ import io.nats.streaming.SubscriptionOptions;
 import scala.Tuple2;
 
 import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.* ;
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.TestMode.* ;
 
 public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 	private static final String DURABLE_NAME = "durable-foo";
 	protected final static String CLUSTER_ID = "test-cluster";
 	protected final static String CLIENT_ID = "me";
-	private static final String DEFAULT_QUEUE = "my_queue";
 	
 	/**
 	 * @throws java.lang.Exception
@@ -142,13 +141,14 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
     @Test
     // See https://github.com/nats-io/java-nats-streaming/blob/80bf55b327e7e429959ba4cad0089ea846924da9/src/test/java/io/nats/streaming/SubscribeTests.java#L773
     public void testDurableSubscriberCloseVersusUnsub() throws Exception {
-    	if (UnitTestUtilities.TEST_MODE.equals(cluster)) {
+//    	if (UnitTestUtilities.TEST_MODE.equals(cluster)) {
 			// TODO Generalize the usage of NatsStreamingTestServer
-			try (NatsStreamingTestServer srv = new NatsStreamingTestServer(NATS_STREAMING_PORT, CLUSTER_ID, true)) {
+		//	try (NatsStreamingTestServer srv = new NatsStreamingTestServer(NATS_STREAMING_PORT, CLUSTER_ID, true)) {
 				final String subject = "CloseVersusUnsub_SUBJECT_" + NatsSparkUtilities.generateUniqueID(this);
 				final String queue = "CloseVersusUnsub_QUEUE_" + NatsSparkUtilities.generateUniqueID(this);
 
-				Options options = new Options.Builder().natsUrl(srv.getURI()).build();
+//				Options options = new Options.Builder().natsUrl(srv.getURI()).build();
+				Options options = new Options.Builder().natsUrl(NATS_STREAMING_LOCALHOST_URL).build();
 				final StreamingConnection natsSC = NatsStreaming.connect(CLUSTER_ID,
 						CLIENT_ID + NatsSparkUtilities.generateUniqueID(this), options);
 
@@ -156,8 +156,9 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 
 				// Spark Client
 				JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(200));
+				LongAccumulator accum = ssc.sparkContext().sc().longAccumulator();
 
-				setupMessagesReception(ssc, subject, queue, DURABLE_NAME);
+				setupMessagesReception(ssc, subject, queue, DURABLE_NAME, accum);
 				//    		setupMessagesReception(ssc, subject, null, DURABLE_NAME);
 				//    		setupMessagesReception(ssc, subject, queue, null);
 
@@ -181,7 +182,7 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 				ssc.close();
 				sc.stop();
 
-				assertEquals(counter, TOTAL_COUNT.get());
+				assertEquals(counter, accum.sum());
 
 				natsSC.getNatsConnection().flush(java.time.Duration.ofSeconds(2));
 				try {
@@ -213,7 +214,7 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 				sc = new JavaSparkContext(sparkConf);
 				ssc = new JavaStreamingContext(sc, new Duration(200));
 
-				setupMessagesReception(ssc, subject, queue, DURABLE_NAME); // That one should receive the waiting message
+				setupMessagesReception(ssc, subject, queue, DURABLE_NAME, accum); // That one should receive the waiting message
 				//    		setupMessagesReception(ssc, subject, null, DURABLE_NAME); // That one should NOT receive the waiting message
 				//    		setupMessagesReception(ssc, subject, queue, null); // That one should NOT receive the waiting message
 
@@ -226,13 +227,13 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 				}
 				; // get the ack in the queue
 
-				assertEquals(counter, TOTAL_COUNT.get());
+				assertEquals(counter, accum.sum());
 				ssc.close();
-			} // runServer()
-		}
+	//		} // runServer()
+//		}
     }
 
-	protected void setupMessagesReception(JavaStreamingContext ssc, String subject, String queue, String durableName) {
+	protected void setupMessagesReception(JavaStreamingContext ssc, String subject, String queue, String durableName, LongAccumulator accum) {
 		final JavaPairDStream<String, String> messages = 
 				NatsToSparkConnector
 						.receiveFromNatsStreaming(String.class, StorageLevel.MEMORY_ONLY(), CLUSTER_ID)
@@ -251,7 +252,7 @@ public class NatsStreamingToSparkTest extends AbstractNatsToSparkTest {
 		counts.foreachRDD((VoidFunction<JavaPairRDD<String, Integer>>) pairRDD -> {
 			pairRDD.foreach((VoidFunction<Tuple2<String, Integer>>) tuple -> {
 				final long count = tuple._2;        				
-				TOTAL_COUNT.getAndAdd((int) count);
+				accum.add(count);
 			});
 		});
 	}

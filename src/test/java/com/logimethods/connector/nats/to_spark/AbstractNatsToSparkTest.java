@@ -1,21 +1,14 @@
 package com.logimethods.connector.nats.to_spark;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
-import java.io.Serializable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Level;
 import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.Function;
-import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaPairDStream;
@@ -33,14 +26,7 @@ import com.logimethods.connector.nats.spark.test.NatsPublisher;
 import com.logimethods.connector.nats.spark.test.NatsToSparkValidator;
 import com.logimethods.connector.nats.spark.test.TestClient;
 import com.logimethods.connector.nats.spark.test.UnitTestUtilities;
-import com.logimethods.connector.nats.to_spark.NatsToSparkConnector;
 import com.logimethods.connector.nats.to_spark.api.StandardNatsToSparkConnectorTest;
-
-import org.apache.hadoop.security.UserGroupInformation;
-
-import scala.Tuple2;
-
-import static com.logimethods.connector.nats.spark.test.UnitTestUtilities.*;
 
 public abstract class AbstractNatsToSparkTest {
 	
@@ -48,7 +34,7 @@ public abstract class AbstractNatsToSparkTest {
 	protected static int DEFAULT_SUBJECT_INR = 0;
 	protected static String DEFAULT_SUBJECT;
 	protected static JavaSparkContext sc;
-	protected static AtomicInteger TOTAL_COUNT = new AtomicInteger();
+//	protected static AtomicInteger TOTAL_COUNT = new AtomicInteger();
 	protected static Logger logger = null;
 	protected static Boolean rightNumber = true;
 	protected static Boolean atLeastSomeData = false;
