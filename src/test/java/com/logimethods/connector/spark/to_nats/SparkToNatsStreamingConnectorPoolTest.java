@@ -75,7 +75,8 @@ public class SparkToNatsStreamingConnectorPoolTest extends AbstractSparkToNatsCo
             		NatsStreaming.connect(clusterID, getUniqueClientName(), options)) {
                 sc.publish("foo", "Hello World!".getBytes());
             } catch (IOException | TimeoutException | InterruptedException e) {
-                fail(e.getMessage());
+                System.err.println(options);
+            	fail(e.getMessage());
             }
         }
     }

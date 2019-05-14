@@ -71,7 +71,7 @@ public class StandardNatsToSparkWithAttributesTest {
 	 * Test method for {@link com.logimethods.connector.nats.to_spark.NatsToSparkConnector#receiveFromNats(java.lang.String, int, java.lang.String)}.
 	 * @throws Exception 
 	 */
-	@Test(timeout=360000, expected=IOException.class)
+	@Test(timeout=360000, expected=Exception.class)
 	public void testNatsToSparkConnectorWITHOUTSubjects() throws Exception {
 		NatsToSparkConnector.receiveFromNats(String.class, StorageLevel.MEMORY_ONLY()).withNatsURL(NATS_URL).receive();
 	}

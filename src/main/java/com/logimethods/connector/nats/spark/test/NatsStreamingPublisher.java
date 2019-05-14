@@ -66,7 +66,7 @@ public class NatsStreamingPublisher extends NatsPublisher {
 		try {
 			c = NatsStreaming.connect(clusterID, clientID, options);
 		} catch (Exception e) {
-//			logger.error("NatsStreaming.connect({}) PRODUCES {}", clusterID, clientID, ReflectionToStringBuilder.toString(options), e.getMessage());
+			logger.error("NatsStreaming.connect({}) PRODUCES {}", clusterID, clientID, ReflectionToStringBuilder.toString(options), e.getMessage());
 			throw(new IOException(String.format("NatsStreaming.connect(%s, %s, %s)", clusterID, clientID, ReflectionToStringBuilder.toString(options)), e));
 		}
 		

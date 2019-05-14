@@ -68,7 +68,7 @@ public class UnitTestUtilities {
         NATS_PORT = Integer.valueOf(properties.getProperty("nats_port", "4222"));
         
         NATS_STREAMING_SERVER = properties.getProperty("nats_streaming_server", "localhost");
-        NATS_STREAMING_PORT = Integer.valueOf(properties.getProperty("nats_steaming_port", "4222"));
+        NATS_STREAMING_PORT = Integer.valueOf(properties.getProperty("nats_streaming_port", "4222"));
     }
 
 	private static final String ORG_SLF4J_SIMPLE_LOGGER_LOG = "org.slf4j.simpleLogger.log.";

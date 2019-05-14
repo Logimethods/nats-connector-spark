@@ -557,6 +557,7 @@ You have then first to start those servers:
 ```Shell
 gnatsd -p 4221&
 nats-streaming-server -p 4223&
+nc -lk 9998 | nc -lk 9999 &
 ````
 Then call Maven:
 ```Shell
