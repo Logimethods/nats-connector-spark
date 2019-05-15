@@ -23,10 +23,8 @@ That library provides an [Apache Spark](http://spark.apache.org/) (a fast and ge
   * `setMaxInFlight(int maxInFlight)`
   * `setAckWait(Duration ackWait)`
   * `setAckWait(long ackWait, TimeUnit unit)`
-  * `setManualAcks(boolean manualAcks)`
-  
-in favor of more `SubscriptionOptionsBuilder` idiomatic ones:
-
+  * `setManualAcks(boolean manualAcks)` 
+- in favor of more `SubscriptionOptionsBuilder` idiomatic ones:
   * `subscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
   * `durableName(String durableName)`
   * `maxInFlight(int maxInFlight)`
