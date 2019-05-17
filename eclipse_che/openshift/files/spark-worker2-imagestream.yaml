@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: redis-template
+  annotations:
+    description: "Description"
+    iconClass: "icon-redis"
+    tags: "database,nosql"
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: spark-worker2
+    name: spark-worker2
+  spec:
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: gettyimages/spark:2.3.1-hadoop-3.0
+      generation: null
+      importPolicy: {}
+      name: 2.3.1-hadoop-3.0
+  status:
+    dockerImageRepository: ""

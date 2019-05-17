@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: redis-template
+  annotations:
+    description: "Description"
+    iconClass: "icon-redis"
+    tags: "database,nosql"
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: netcat
+    name: netcat
+  spec:
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: subfuzion/netcat
+      generation: null
+      importPolicy: {}
+      name: latest
+  status:
+    dockerImageRepository: ""

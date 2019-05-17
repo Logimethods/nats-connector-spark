@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose -f docker-compose.yml convert
+    kompose.version: 1.18.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: nats-main
+  name: nats-main
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: nats-main
+    spec:
+      containers:
+      - image: nats
+        name: nats-main
+        ports:
+        - containerPort: 4222
+        - containerPort: 8222
+        - containerPort: 6222
+        resources: {}
+      hostname: nats-main
+      restartPolicy: Always
+status: {}

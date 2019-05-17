@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: redis-template
+  annotations:
+    description: "Description"
+    iconClass: "icon-redis"
+    tags: "database,nosql"
+objects:
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      kompose.cmd: kompose --provider openshift -f docker-compose.yml convert
+      kompose.version: 1.18.0 ()
+    creationTimestamp: null
+    labels:
+      io.kompose.service: spark-master
+    name: spark-master
+  spec:
+    replicas: 1
+    selector:
+      io.kompose.service: spark-master
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: spark-master
+      spec:
+        containers:
+        - args:
+          - bin/spark-class
+          - org.apache.spark.deploy.master.Master
+          - -h
+          - spark-master
+          env:
+          - name: MASTER
+            value: spark://master:7077
+          - name: SPARK_CONF_DIR
+            value: /conf
+          - name: SPARK_PUBLIC_DNS
+            value: localhost
+          image: ' '
+          name: spark-master
+          ports:
+          - containerPort: 7001
+          - containerPort: 7002
+          - containerPort: 7003
+          - containerPort: 7004
+          - containerPort: 7005
+          - containerPort: 6066
+          - containerPort: 7077
+          - containerPort: 8080
+          resources: {}
+        restartPolicy: Always
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - spark-master
+        from:
+          kind: ImageStreamTag
+          name: spark-master:2.3.1-hadoop-3.0
+      type: ImageChange
+  status: {}
