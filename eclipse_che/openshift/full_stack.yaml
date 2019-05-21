@@ -1,0 +1,35 @@
+# https://docs.openshift.com/container-platform/3.11/dev_guide/templates.html
+kind: List
+items:
+ -
+  apiVersion: v1
+  kind: Pod
+  metadata:
+   name: nats-connector-spark
+  spec:
+   containers:
+    -
+      image: quay.io/openshiftio/che-centos_jdk8
+      name: main
+      ports:
+      -
+        containerPort: 8080
+        protocol: TCP
+      resources:
+      limits:
+        memory: 1536Mi
+    -
+      image: gettyimages/spark:2.3.1-hadoop-3.0
+      name: spark-master
+      command: ['bin/spark-class', 'org.apache.spark.deploy.master.Master', '-h', 'spark-master']
+      env:
+        -
+          name: MASTER
+          value: spark://master:7077
+        -
+          name: SPARK_CONF_DIR
+          value: /conf
+        -
+          name: SPARK_PUBLIC_DNS
+          value: localhost
+

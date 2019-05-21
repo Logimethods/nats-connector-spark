@@ -1,916 +1,692 @@
-{
-    "kind": "Template",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "redis-template",
-        "creationTimestamp": null,
-        "annotations": {
-            "description": "Description",
-            "iconClass": "icon-redis",
-            "tags": "database,nosql"
-        }
-    },
-    "objects": [
-        {
-            "kind": "DeploymentConfig",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "nats-main",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "nats-main"
-                },
-                "annotations": {
-                    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert",
-                    "kompose.version": "1.18.0 ()"
-                }
-            },
-            "spec": {
-                "strategy": {
-                    "type": "Rolling",
-                    "rollingParams": {
-                        "updatePeriodSeconds": 1,
-                        "intervalSeconds": 1,
-                        "timeoutSeconds": 600,
-                        "maxUnavailable": "25%",
-                        "maxSurge": "25%"
-                    },
-                    "resources": {}
-                },
-                "triggers": [
-                    {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "ImageChange",
-                        "imageChangeParams": {
-                            "automatic": true,
-                            "containerNames": [
-                                "nats-main"
-                            ],
-                            "from": {
-                                "kind": "ImageStreamTag",
-                                "name": "nats-main:latest"
-                            }
-                        }
-                    }
-                ],
-                "replicas": 1,
-                "test": false,
-                "selector": {
-                    "io.kompose.service": "nats-main"
-                },
-                "template": {
-                    "metadata": {
-                        "creationTimestamp": null,
-                        "labels": {
-                            "io.kompose.service": "nats-main"
-                        }
-                    },
-                    "spec": {
-                        "containers": [
-                            {
-                                "name": "nats-main",
-                                "image": " ",
-                                "ports": [
-                                    {
-                                        "containerPort": 4222,
-                                        "protocol": "TCP"
-                                    },
-                                    {
-                                        "containerPort": 8222,
-                                        "protocol": "TCP"
-                                    },
-                                    {
-                                        "containerPort": 6222,
-                                        "protocol": "TCP"
-                                    }
-                                ],
-                                "resources": {},
-                                "terminationMessagePath": "/dev/termination-log",
-                                "imagePullPolicy": "IfNotPresent"
-                            }
-                        ],
-                        "restartPolicy": "Always",
-                        "terminationGracePeriodSeconds": 30,
-                        "dnsPolicy": "ClusterFirst",
-                        "securityContext": {},
-                        "hostname": "nats-main"
-                    }
-                }
-            },
-            "status": {}
-        },
-        {
-            "kind": "ImageStream",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "nats-main",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "nats-main"
-                }
-            },
-            "spec": {
-                "tags": [
-                    {
-                        "name": "latest",
-                        "annotations": null,
-                        "from": {
-                            "kind": "DockerImage",
-                            "name": "nats"
-                        },
-                        "generation": null,
-                        "importPolicy": {}
-                    }
-                ]
-            },
-            "status": {
-                "dockerImageRepository": ""
-            }
-        },
-        {
-            "kind": "Service",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "nats-main",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "nats-main"
-                },
-                "annotations": {
-                    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert",
-                    "kompose.version": "1.18.0 ()"
-                }
-            },
-            "spec": {
-                "ports": [
-                    {
-                        "name": "4222",
-                        "protocol": "TCP",
-                        "port": 4222,
-                        "targetPort": 4222
-                    },
-                    {
-                        "name": "8222",
-                        "protocol": "TCP",
-                        "port": 8222,
-                        "targetPort": 8222
-                    },
-                    {
-                        "name": "6222",
-                        "protocol": "TCP",
-                        "port": 6222,
-                        "targetPort": 6222
-                    }
-                ],
-                "selector": {
-                    "io.kompose.service": "nats-main"
-                },
-                "type": "ClusterIP",
-                "sessionAffinity": "None"
-            },
-            "status": {
-                "loadBalancer": {}
-            }
-        },
-        {
-            "kind": "DeploymentConfig",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "netcat",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "netcat"
-                },
-                "annotations": {
-                    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert",
-                    "kompose.version": "1.18.0 ()"
-                }
-            },
-            "spec": {
-                "strategy": {
-                    "type": "Rolling",
-                    "rollingParams": {
-                        "updatePeriodSeconds": 1,
-                        "intervalSeconds": 1,
-                        "timeoutSeconds": 600,
-                        "maxUnavailable": "25%",
-                        "maxSurge": "25%"
-                    },
-                    "resources": {}
-                },
-                "triggers": [
-                    {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "ImageChange",
-                        "imageChangeParams": {
-                            "automatic": true,
-                            "containerNames": [
-                                "netcat"
-                            ],
-                            "from": {
-                                "kind": "ImageStreamTag",
-                                "name": "netcat:latest"
-                            }
-                        }
-                    }
-                ],
-                "replicas": 1,
-                "test": false,
-                "selector": {
-                    "io.kompose.service": "netcat"
-                },
-                "template": {
-                    "metadata": {
-                        "creationTimestamp": null,
-                        "labels": {
-                            "io.kompose.service": "netcat"
-                        }
-                    },
-                    "spec": {
-                        "containers": [
-                            {
-                                "name": "netcat",
-                                "image": " ",
-                                "command": [
-                                    "sh",
-                                    "-c",
-                                    "nc -lk 9988 | nc -lk 9989"
-                                ],
-                                "ports": [
-                                    {
-                                        "containerPort": 9988,
-                                        "protocol": "TCP"
-                                    },
-                                    {
-                                        "containerPort": 9989,
-                                        "protocol": "TCP"
-                                    }
-                                ],
-                                "resources": {},
-                                "terminationMessagePath": "/dev/termination-log",
-                                "imagePullPolicy": "IfNotPresent"
-                            }
-                        ],
-                        "restartPolicy": "Always",
-                        "terminationGracePeriodSeconds": 30,
-                        "dnsPolicy": "ClusterFirst",
-                        "securityContext": {},
-                        "hostname": "netcat"
-                    }
-                }
-            },
-            "status": {}
-        },
-        {
-            "kind": "ImageStream",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "netcat",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "netcat"
-                }
-            },
-            "spec": {
-                "tags": [
-                    {
-                        "name": "latest",
-                        "annotations": null,
-                        "from": {
-                            "kind": "DockerImage",
-                            "name": "subfuzion/netcat"
-                        },
-                        "generation": null,
-                        "importPolicy": {}
-                    }
-                ]
-            },
-            "status": {
-                "dockerImageRepository": ""
-            }
-        },
-        {
-            "kind": "Service",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "netcat",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "netcat"
-                },
-                "annotations": {
-                    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert",
-                    "kompose.version": "1.18.0 ()"
-                }
-            },
-            "spec": {
-                "ports": [
-                    {
-                        "name": "9988",
-                        "protocol": "TCP",
-                        "port": 9988,
-                        "targetPort": 9988
-                    },
-                    {
-                        "name": "9989",
-                        "protocol": "TCP",
-                        "port": 9989,
-                        "targetPort": 9989
-                    }
-                ],
-                "selector": {
-                    "io.kompose.service": "netcat"
-                },
-                "type": "ClusterIP",
-                "sessionAffinity": "None"
-            },
-            "status": {
-                "loadBalancer": {}
-            }
-        },
-        {
-            "kind": "DeploymentConfig",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "spark-master",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "spark-master"
-                },
-                "annotations": {
-                    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert",
-                    "kompose.version": "1.18.0 ()"
-                }
-            },
-            "spec": {
-                "strategy": {
-                    "type": "Rolling",
-                    "rollingParams": {
-                        "updatePeriodSeconds": 1,
-                        "intervalSeconds": 1,
-                        "timeoutSeconds": 600,
-                        "maxUnavailable": "25%",
-                        "maxSurge": "25%"
-                    },
-                    "resources": {}
-                },
-                "triggers": [
-                    {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "ImageChange",
-                        "imageChangeParams": {
-                            "automatic": true,
-                            "containerNames": [
-                                "spark-master"
-                            ],
-                            "from": {
-                                "kind": "ImageStreamTag",
-                                "name": "spark-master:2.3.1-hadoop-3.0"
-                            }
-                        }
-                    }
-                ],
-                "replicas": 1,
-                "test": false,
-                "selector": {
-                    "io.kompose.service": "spark-master"
-                },
-                "template": {
-                    "metadata": {
-                        "creationTimestamp": null,
-                        "labels": {
-                            "io.kompose.service": "spark-master"
-                        }
-                    },
-                    "spec": {
-                        "containers": [
-                            {
-                                "name": "spark-master",
-                                "image": " ",
-                                "args": [
-                                    "bin/spark-class",
-                                    "org.apache.spark.deploy.master.Master",
-                                    "-h",
-                                    "spark-master"
-                                ],
-                                "ports": [
-                                    {
-                                        "containerPort": 7001,
-                                        "protocol": "TCP"
-                                    },
-                                    {
-                                        "containerPort": 7002,
-                                        "protocol": "TCP"
-                                    },
-                                    {
-                                        "containerPort": 7003,
-                                        "protocol": "TCP"
-                                    },
-                                    {
-                                        "containerPort": 7004,
-                                        "protocol": "TCP"
-                                    },
-                                    {
-                                        "containerPort": 7005,
-                                        "protocol": "TCP"
-                                    },
-                                    {
-                                        "containerPort": 6066,
-                                        "protocol": "TCP"
-                                    },
-                                    {
-                                        "containerPort": 7077,
-                                        "protocol": "TCP"
-                                    },
-                                    {
-                                        "containerPort": 8080,
-                                        "protocol": "TCP"
-                                    }
-                                ],
-                                "env": [
-                                    {
-                                        "name": "MASTER",
-                                        "value": "spark://master:7077"
-                                    },
-                                    {
-                                        "name": "SPARK_CONF_DIR",
-                                        "value": "/conf"
-                                    },
-                                    {
-                                        "name": "SPARK_PUBLIC_DNS",
-                                        "value": "localhost"
-                                    }
-                                ],
-                                "resources": {},
-                                "terminationMessagePath": "/dev/termination-log",
-                                "imagePullPolicy": "IfNotPresent"
-                            }
-                        ],
-                        "restartPolicy": "Always",
-                        "terminationGracePeriodSeconds": 30,
-                        "dnsPolicy": "ClusterFirst",
-                        "securityContext": {}
-                    }
-                }
-            },
-            "status": {}
-        },
-        {
-            "kind": "ImageStream",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "spark-master",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "spark-master"
-                }
-            },
-            "spec": {
-                "tags": [
-                    {
-                        "name": "2.3.1-hadoop-3.0",
-                        "annotations": null,
-                        "from": {
-                            "kind": "DockerImage",
-                            "name": "gettyimages/spark:2.3.1-hadoop-3.0"
-                        },
-                        "generation": null,
-                        "importPolicy": {}
-                    }
-                ]
-            },
-            "status": {
-                "dockerImageRepository": ""
-            }
-        },
-        {
-            "kind": "Service",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "spark-master",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "spark-master"
-                },
-                "annotations": {
-                    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert",
-                    "kompose.version": "1.18.0 ()"
-                }
-            },
-            "spec": {
-                "ports": [
-                    {
-                        "name": "7001",
-                        "protocol": "TCP",
-                        "port": 7001,
-                        "targetPort": 7001
-                    },
-                    {
-                        "name": "7002",
-                        "protocol": "TCP",
-                        "port": 7002,
-                        "targetPort": 7002
-                    },
-                    {
-                        "name": "7003",
-                        "protocol": "TCP",
-                        "port": 7003,
-                        "targetPort": 7003
-                    },
-                    {
-                        "name": "7004",
-                        "protocol": "TCP",
-                        "port": 7004,
-                        "targetPort": 7004
-                    },
-                    {
-                        "name": "7005",
-                        "protocol": "TCP",
-                        "port": 7005,
-                        "targetPort": 7005
-                    },
-                    {
-                        "name": "6066",
-                        "protocol": "TCP",
-                        "port": 6066,
-                        "targetPort": 6066
-                    },
-                    {
-                        "name": "7077",
-                        "protocol": "TCP",
-                        "port": 7077,
-                        "targetPort": 7077
-                    },
-                    {
-                        "name": "8080",
-                        "protocol": "TCP",
-                        "port": 8080,
-                        "targetPort": 8080
-                    }
-                ],
-                "selector": {
-                    "io.kompose.service": "spark-master"
-                },
-                "type": "ClusterIP",
-                "sessionAffinity": "None"
-            },
-            "status": {
-                "loadBalancer": {}
-            }
-        },
-        {
-            "kind": "DeploymentConfig",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "spark-worker1",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "spark-worker1"
-                },
-                "annotations": {
-                    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert",
-                    "kompose.version": "1.18.0 ()"
-                }
-            },
-            "spec": {
-                "strategy": {
-                    "type": "Rolling",
-                    "rollingParams": {
-                        "updatePeriodSeconds": 1,
-                        "intervalSeconds": 1,
-                        "timeoutSeconds": 600,
-                        "maxUnavailable": "25%",
-                        "maxSurge": "25%"
-                    },
-                    "resources": {}
-                },
-                "triggers": [
-                    {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "ImageChange",
-                        "imageChangeParams": {
-                            "automatic": true,
-                            "containerNames": [
-                                "spark-worker1"
-                            ],
-                            "from": {
-                                "kind": "ImageStreamTag",
-                                "name": "spark-worker1:2.3.1-hadoop-3.0"
-                            }
-                        }
-                    }
-                ],
-                "replicas": 1,
-                "test": false,
-                "selector": {
-                    "io.kompose.service": "spark-worker1"
-                },
-                "template": {
-                    "metadata": {
-                        "creationTimestamp": null,
-                        "labels": {
-                            "io.kompose.service": "spark-worker1"
-                        }
-                    },
-                    "spec": {
-                        "containers": [
-                            {
-                                "name": "spark-worker1",
-                                "image": " ",
-                                "args": [
-                                    "bin/spark-class",
-                                    "org.apache.spark.deploy.worker.Worker",
-                                    "spark://spark-master:7077"
-                                ],
-                                "ports": [
-                                    {
-                                        "containerPort": 8081,
-                                        "protocol": "TCP"
-                                    }
-                                ],
-                                "env": [
-                                    {
-                                        "name": "SPARK_CONF_DIR",
-                                        "value": "/conf"
-                                    },
-                                    {
-                                        "name": "SPARK_PUBLIC_DNS",
-                                        "value": "localhost"
-                                    },
-                                    {
-                                        "name": "SPARK_WORKER_CORES",
-                                        "value": "1"
-                                    },
-                                    {
-                                        "name": "SPARK_WORKER_MEMORY",
-                                        "value": "1g"
-                                    },
-                                    {
-                                        "name": "SPARK_WORKER_PORT",
-                                        "value": "8881"
-                                    },
-                                    {
-                                        "name": "SPARK_WORKER_WEBUI_PORT",
-                                        "value": "8081"
-                                    }
-                                ],
-                                "resources": {},
-                                "terminationMessagePath": "/dev/termination-log",
-                                "imagePullPolicy": "IfNotPresent"
-                            }
-                        ],
-                        "restartPolicy": "Always",
-                        "terminationGracePeriodSeconds": 30,
-                        "dnsPolicy": "ClusterFirst",
-                        "securityContext": {},
-                        "hostname": "spark-worker1"
-                    }
-                }
-            },
-            "status": {}
-        },
-        {
-            "kind": "ImageStream",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "spark-worker1",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "spark-worker1"
-                }
-            },
-            "spec": {
-                "tags": [
-                    {
-                        "name": "2.3.1-hadoop-3.0",
-                        "annotations": null,
-                        "from": {
-                            "kind": "DockerImage",
-                            "name": "gettyimages/spark:2.3.1-hadoop-3.0"
-                        },
-                        "generation": null,
-                        "importPolicy": {}
-                    }
-                ]
-            },
-            "status": {
-                "dockerImageRepository": ""
-            }
-        },
-        {
-            "kind": "Service",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "spark-worker1",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "spark-worker1"
-                },
-                "annotations": {
-                    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert",
-                    "kompose.version": "1.18.0 ()"
-                }
-            },
-            "spec": {
-                "ports": [
-                    {
-                        "name": "8081",
-                        "protocol": "TCP",
-                        "port": 8081,
-                        "targetPort": 8081
-                    }
-                ],
-                "selector": {
-                    "io.kompose.service": "spark-worker1"
-                },
-                "type": "ClusterIP",
-                "sessionAffinity": "None"
-            },
-            "status": {
-                "loadBalancer": {}
-            }
-        },
-        {
-            "kind": "DeploymentConfig",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "spark-worker2",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "spark-worker2"
-                },
-                "annotations": {
-                    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert",
-                    "kompose.version": "1.18.0 ()"
-                }
-            },
-            "spec": {
-                "strategy": {
-                    "type": "Rolling",
-                    "rollingParams": {
-                        "updatePeriodSeconds": 1,
-                        "intervalSeconds": 1,
-                        "timeoutSeconds": 600,
-                        "maxUnavailable": "25%",
-                        "maxSurge": "25%"
-                    },
-                    "resources": {}
-                },
-                "triggers": [
-                    {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "ImageChange",
-                        "imageChangeParams": {
-                            "automatic": true,
-                            "containerNames": [
-                                "spark-worker2"
-                            ],
-                            "from": {
-                                "kind": "ImageStreamTag",
-                                "name": "spark-worker2:2.3.1-hadoop-3.0"
-                            }
-                        }
-                    }
-                ],
-                "replicas": 1,
-                "test": false,
-                "selector": {
-                    "io.kompose.service": "spark-worker2"
-                },
-                "template": {
-                    "metadata": {
-                        "creationTimestamp": null,
-                        "labels": {
-                            "io.kompose.service": "spark-worker2"
-                        }
-                    },
-                    "spec": {
-                        "containers": [
-                            {
-                                "name": "spark-worker2",
-                                "image": " ",
-                                "args": [
-                                    "bin/spark-class",
-                                    "org.apache.spark.deploy.worker.Worker",
-                                    "spark://spark-master:7077"
-                                ],
-                                "ports": [
-                                    {
-                                        "containerPort": 8081,
-                                        "protocol": "TCP"
-                                    }
-                                ],
-                                "env": [
-                                    {
-                                        "name": "SPARK_CONF_DIR",
-                                        "value": "/conf"
-                                    },
-                                    {
-                                        "name": "SPARK_PUBLIC_DNS",
-                                        "value": "localhost"
-                                    },
-                                    {
-                                        "name": "SPARK_WORKER_CORES",
-                                        "value": "1"
-                                    },
-                                    {
-                                        "name": "SPARK_WORKER_MEMORY",
-                                        "value": "1g"
-                                    },
-                                    {
-                                        "name": "SPARK_WORKER_PORT",
-                                        "value": "8881"
-                                    },
-                                    {
-                                        "name": "SPARK_WORKER_WEBUI_PORT",
-                                        "value": "8081"
-                                    }
-                                ],
-                                "resources": {},
-                                "terminationMessagePath": "/dev/termination-log",
-                                "imagePullPolicy": "IfNotPresent"
-                            }
-                        ],
-                        "restartPolicy": "Always",
-                        "terminationGracePeriodSeconds": 30,
-                        "dnsPolicy": "ClusterFirst",
-                        "securityContext": {},
-                        "hostname": "spark-worker2"
-                    }
-                }
-            },
-            "status": {}
-        },
-        {
-            "kind": "ImageStream",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "spark-worker2",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "spark-worker2"
-                }
-            },
-            "spec": {
-                "tags": [
-                    {
-                        "name": "2.3.1-hadoop-3.0",
-                        "annotations": null,
-                        "from": {
-                            "kind": "DockerImage",
-                            "name": "gettyimages/spark:2.3.1-hadoop-3.0"
-                        },
-                        "generation": null,
-                        "importPolicy": {}
-                    }
-                ]
-            },
-            "status": {
-                "dockerImageRepository": ""
-            }
-        },
-        {
-            "kind": "Service",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "spark-worker2",
-                "creationTimestamp": null,
-                "labels": {
-                    "io.kompose.service": "spark-worker2"
-                },
-                "annotations": {
-                    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert",
-                    "kompose.version": "1.18.0 ()"
-                }
-            },
-            "spec": {
-                "ports": [
-                    {
-                        "name": "8082",
-                        "protocol": "TCP",
-                        "port": 8082,
-                        "targetPort": 8081
-                    }
-                ],
-                "selector": {
-                    "io.kompose.service": "spark-worker2"
-                },
-                "type": "ClusterIP",
-                "sessionAffinity": "None"
-            },
-            "status": {
-                "loadBalancer": {}
-            }
-        }
-    ]
-}
+kind: Template
+apiVersion: v1
+metadata:
+ name: "redis-template"
+ creationTimestamp: null
+ annotations:
+  description: Description
+  iconClass: "icon-redis"
+  tags: "database,nosql"
+objects:
+ -
+   kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+   name: "nats-main"
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": "nats-main"
+   annotations:
+    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert"
+    "kompose.version": "1.18.0 ()"
+  spec:
+   strategy:
+    type: Rolling
+    rollingParams:
+     updatePeriodSeconds: 1
+     intervalSeconds: 1
+     timeoutSeconds: 600
+     maxUnavailable: "25%"
+     maxSurge: "25%"
+    resources:
+   triggers:
+    -
+   type: ConfigChange
+    -
+   type: ImageChange
+     imageChangeParams:
+      automatic: true
+      containerNames:
+       -
+   "nats-main"
+      from:
+       kind: ImageStreamTag
+       name: "nats-main:latest"
+   replicas: 1
+   test: false
+   selector:
+    "io.kompose.service": "nats-main"
+   template:
+    metadata:
+     creationTimestamp: null
+     labels:
+      "io.kompose.service": "nats-main"
+    spec:
+     containers:
+      -
+   name: "nats-main"
+       image: " "
+       ports:
+        -
+   containerPort: 4222
+         protocol: TCP
+        -
+   containerPort: 8222
+         protocol: TCP
+        -
+   containerPort: 6222
+         protocol: TCP
+       resources:
+       terminationMessagePath: "/dev/termination-log"
+       imagePullPolicy: IfNotPresent
+     restartPolicy: Always
+     terminationGracePeriodSeconds: 30
+     dnsPolicy: ClusterFirst
+     securityContext:
+     hostname: "nats-main"
+  status:
+ -
+   kind: ImageStream
+  apiVersion: v1
+  metadata:
+   name: "nats-main"
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": "nats-main"
+  spec:
+   tags:
+    -
+   name: latest
+     annotations: null
+     from:
+      kind: DockerImage
+      name: nats
+     generation: null
+     importPolicy:
+  status:
+   dockerImageRepository: ""
+ -
+   kind: Service
+  apiVersion: v1
+  metadata:
+   name: "nats-main"
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": "nats-main"
+   annotations:
+    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert"
+    "kompose.version": "1.18.0 ()"
+  spec:
+   ports:
+    -
+   name: 4222
+     protocol: TCP
+     port: 4222
+     targetPort: 4222
+    -
+   name: 8222
+     protocol: TCP
+     port: 8222
+     targetPort: 8222
+    -
+   name: 6222
+     protocol: TCP
+     port: 6222
+     targetPort: 6222
+   selector:
+    "io.kompose.service": "nats-main"
+   type: ClusterIP
+   sessionAffinity: None
+  status:
+   loadBalancer:
+ -
+   kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+   name: netcat
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": netcat
+   annotations:
+    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert"
+    "kompose.version": "1.18.0 ()"
+  spec:
+   strategy:
+    type: Rolling
+    rollingParams:
+     updatePeriodSeconds: 1
+     intervalSeconds: 1
+     timeoutSeconds: 600
+     maxUnavailable: "25%"
+     maxSurge: "25%"
+    resources:
+   triggers:
+    -
+   type: ConfigChange
+    -
+   type: ImageChange
+     imageChangeParams:
+      automatic: true
+      containerNames:
+       -
+   netcat
+      from:
+       kind: ImageStreamTag
+       name: "netcat:latest"
+   replicas: 1
+   test: false
+   selector:
+    "io.kompose.service": netcat
+   template:
+    metadata:
+     creationTimestamp: null
+     labels:
+      "io.kompose.service": netcat
+    spec:
+     containers:
+      -
+   name: netcat
+       image: " "
+       command:
+        -
+   sh
+        -
+   "-c"
+        -
+   "nc -lk 9988 | nc -lk 9989"
+       ports:
+        -
+   containerPort: 9988
+         protocol: TCP
+        -
+   containerPort: 9989
+         protocol: TCP
+       resources:
+       terminationMessagePath: "/dev/termination-log"
+       imagePullPolicy: IfNotPresent
+     restartPolicy: Always
+     terminationGracePeriodSeconds: 30
+     dnsPolicy: ClusterFirst
+     securityContext:
+     hostname: netcat
+  status:
+ -
+   kind: ImageStream
+  apiVersion: v1
+  metadata:
+   name: netcat
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": netcat
+  spec:
+   tags:
+    -
+   name: latest
+     annotations: null
+     from:
+      kind: DockerImage
+      name: "subfuzion/netcat"
+     generation: null
+     importPolicy:
+  status:
+   dockerImageRepository: ""
+ -
+   kind: Service
+  apiVersion: v1
+  metadata:
+   name: netcat
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": netcat
+   annotations:
+    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert"
+    "kompose.version": "1.18.0 ()"
+  spec:
+   ports:
+    -
+   name: 9988
+     protocol: TCP
+     port: 9988
+     targetPort: 9988
+    -
+   name: 9989
+     protocol: TCP
+     port: 9989
+     targetPort: 9989
+   selector:
+    "io.kompose.service": netcat
+   type: ClusterIP
+   sessionAffinity: None
+  status:
+   loadBalancer:
+ -
+   kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+   name: "spark-master"
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": "spark-master"
+   annotations:
+    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert"
+    "kompose.version": "1.18.0 ()"
+  spec:
+   strategy:
+    type: Rolling
+    rollingParams:
+     updatePeriodSeconds: 1
+     intervalSeconds: 1
+     timeoutSeconds: 600
+     maxUnavailable: "25%"
+     maxSurge: "25%"
+    resources:
+   triggers:
+    -
+   type: ConfigChange
+    -
+   type: ImageChange
+     imageChangeParams:
+      automatic: true
+      containerNames:
+       -
+   "spark-master"
+      from:
+       kind: ImageStreamTag
+       name: "spark-master:2.3.1-hadoop-3.0"
+   replicas: 1
+   test: false
+   selector:
+    "io.kompose.service": "spark-master"
+   template:
+    metadata:
+     creationTimestamp: null
+     labels:
+      "io.kompose.service": "spark-master"
+    spec:
+     containers:
+      -
+   name: "spark-master"
+       image: " "
+       args:
+        -
+   "bin/spark-class"
+        -
+   "org.apache.spark.deploy.master.Master"
+        -
+   "-h"
+        -
+   "spark-master"
+       ports:
+        -
+   containerPort: 7001
+         protocol: TCP
+        -
+   containerPort: 7002
+         protocol: TCP
+        -
+   containerPort: 7003
+         protocol: TCP
+        -
+   containerPort: 7004
+         protocol: TCP
+        -
+   containerPort: 7005
+         protocol: TCP
+        -
+   containerPort: 6066
+         protocol: TCP
+        -
+   containerPort: 7077
+         protocol: TCP
+        -
+   containerPort: 8080
+         protocol: TCP
+       env:
+        -
+   name: MASTER
+         value: "spark://master:7077"
+        -
+   name: SPARK_CONF_DIR
+         value: "/conf"
+        -
+   name: SPARK_PUBLIC_DNS
+         value: localhost
+       resources:
+       terminationMessagePath: "/dev/termination-log"
+       imagePullPolicy: IfNotPresent
+     restartPolicy: Always
+     terminationGracePeriodSeconds: 30
+     dnsPolicy: ClusterFirst
+     securityContext:
+  status:
+ -
+   kind: ImageStream
+  apiVersion: v1
+  metadata:
+   name: "spark-master"
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": "spark-master"
+  spec:
+   tags:
+    -
+   name: "2.3.1-hadoop-3.0"
+     annotations: null
+     from:
+      kind: DockerImage
+      name: "gettyimages/spark:2.3.1-hadoop-3.0"
+     generation: null
+     importPolicy:
+  status:
+   dockerImageRepository: ""
+ -
+   kind: Service
+  apiVersion: v1
+  metadata:
+   name: "spark-master"
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": "spark-master"
+   annotations:
+    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert"
+    "kompose.version": "1.18.0 ()"
+  spec:
+   ports:
+    -
+   name: 7001
+     protocol: TCP
+     port: 7001
+     targetPort: 7001
+    -
+   name: 7002
+     protocol: TCP
+     port: 7002
+     targetPort: 7002
+    -
+   name: 7003
+     protocol: TCP
+     port: 7003
+     targetPort: 7003
+    -
+   name: 7004
+     protocol: TCP
+     port: 7004
+     targetPort: 7004
+    -
+   name: 7005
+     protocol: TCP
+     port: 7005
+     targetPort: 7005
+    -
+   name: 6066
+     protocol: TCP
+     port: 6066
+     targetPort: 6066
+    -
+   name: 7077
+     protocol: TCP
+     port: 7077
+     targetPort: 7077
+    -
+   name: 8080
+     protocol: TCP
+     port: 8080
+     targetPort: 8080
+   selector:
+    "io.kompose.service": "spark-master"
+   type: ClusterIP
+   sessionAffinity: None
+  status:
+   loadBalancer:
+ -
+   kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+   name: "spark-worker1"
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": "spark-worker1"
+   annotations:
+    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert"
+    "kompose.version": "1.18.0 ()"
+  spec:
+   strategy:
+    type: Rolling
+    rollingParams:
+     updatePeriodSeconds: 1
+     intervalSeconds: 1
+     timeoutSeconds: 600
+     maxUnavailable: "25%"
+     maxSurge: "25%"
+    resources:
+   triggers:
+    -
+   type: ConfigChange
+    -
+   type: ImageChange
+     imageChangeParams:
+      automatic: true
+      containerNames:
+       -
+   "spark-worker1"
+      from:
+       kind: ImageStreamTag
+       name: "spark-worker1:2.3.1-hadoop-3.0"
+   replicas: 1
+   test: false
+   selector:
+    "io.kompose.service": "spark-worker1"
+   template:
+    metadata:
+     creationTimestamp: null
+     labels:
+      "io.kompose.service": "spark-worker1"
+    spec:
+     containers:
+      -
+   name: "spark-worker1"
+       image: " "
+       args:
+        -
+   "bin/spark-class"
+        -
+   "org.apache.spark.deploy.worker.Worker"
+        -
+   "spark://spark-master:7077"
+       ports:
+        -
+   containerPort: 8081
+         protocol: TCP
+       env:
+        -
+   name: SPARK_CONF_DIR
+         value: "/conf"
+        -
+   name: SPARK_PUBLIC_DNS
+         value: localhost
+        -
+   name: SPARK_WORKER_CORES
+         value: 1
+        -
+   name: SPARK_WORKER_MEMORY
+         value: 1g
+        -
+   name: SPARK_WORKER_PORT
+         value: 8881
+        -
+   name: SPARK_WORKER_WEBUI_PORT
+         value: 8081
+       resources:
+       terminationMessagePath: "/dev/termination-log"
+       imagePullPolicy: IfNotPresent
+     restartPolicy: Always
+     terminationGracePeriodSeconds: 30
+     dnsPolicy: ClusterFirst
+     securityContext:
+     hostname: "spark-worker1"
+  status:
+ -
+   kind: ImageStream
+  apiVersion: v1
+  metadata:
+   name: "spark-worker1"
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": "spark-worker1"
+  spec:
+   tags:
+    -
+   name: "2.3.1-hadoop-3.0"
+     annotations: null
+     from:
+      kind: DockerImage
+      name: "gettyimages/spark:2.3.1-hadoop-3.0"
+     generation: null
+     importPolicy:
+  status:
+   dockerImageRepository: ""
+ -
+   kind: Service
+  apiVersion: v1
+  metadata:
+   name: "spark-worker1"
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": "spark-worker1"
+   annotations:
+    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert"
+    "kompose.version": "1.18.0 ()"
+  spec:
+   ports:
+    -
+   name: 8081
+     protocol: TCP
+     port: 8081
+     targetPort: 8081
+   selector:
+    "io.kompose.service": "spark-worker1"
+   type: ClusterIP
+   sessionAffinity: None
+  status:
+   loadBalancer:
+ -
+   kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+   name: "spark-worker2"
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": "spark-worker2"
+   annotations:
+    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert"
+    "kompose.version": "1.18.0 ()"
+  spec:
+   strategy:
+    type: Rolling
+    rollingParams:
+     updatePeriodSeconds: 1
+     intervalSeconds: 1
+     timeoutSeconds: 600
+     maxUnavailable: "25%"
+     maxSurge: "25%"
+    resources:
+   triggers:
+    -
+   type: ConfigChange
+    -
+   type: ImageChange
+     imageChangeParams:
+      automatic: true
+      containerNames:
+       -
+   "spark-worker2"
+      from:
+       kind: ImageStreamTag
+       name: "spark-worker2:2.3.1-hadoop-3.0"
+   replicas: 1
+   test: false
+   selector:
+    "io.kompose.service": "spark-worker2"
+   template:
+    metadata:
+     creationTimestamp: null
+     labels:
+      "io.kompose.service": "spark-worker2"
+    spec:
+     containers:
+      -
+   name: "spark-worker2"
+       image: " "
+       args:
+        -
+   "bin/spark-class"
+        -
+   "org.apache.spark.deploy.worker.Worker"
+        -
+   "spark://spark-master:7077"
+       ports:
+        -
+   containerPort: 8081
+         protocol: TCP
+       env:
+        -
+   name: SPARK_CONF_DIR
+         value: "/conf"
+        -
+   name: SPARK_PUBLIC_DNS
+         value: localhost
+        -
+   name: SPARK_WORKER_CORES
+         value: 1
+        -
+   name: SPARK_WORKER_MEMORY
+         value: 1g
+        -
+   name: SPARK_WORKER_PORT
+         value: 8881
+        -
+   name: SPARK_WORKER_WEBUI_PORT
+         value: 8081
+       resources:
+       terminationMessagePath: "/dev/termination-log"
+       imagePullPolicy: IfNotPresent
+     restartPolicy: Always
+     terminationGracePeriodSeconds: 30
+     dnsPolicy: ClusterFirst
+     securityContext:
+     hostname: "spark-worker2"
+  status:
+ -
+   kind: ImageStream
+  apiVersion: v1
+  metadata:
+   name: "spark-worker2"
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": "spark-worker2"
+  spec:
+   tags:
+    -
+   name: "2.3.1-hadoop-3.0"
+     annotations: null
+     from:
+      kind: DockerImage
+      name: "gettyimages/spark:2.3.1-hadoop-3.0"
+     generation: null
+     importPolicy:
+  status:
+   dockerImageRepository: ""
+ -
+   kind: Service
+  apiVersion: v1
+  metadata:
+   name: "spark-worker2"
+   creationTimestamp: null
+   labels:
+    "io.kompose.service": "spark-worker2"
+   annotations:
+    "kompose.cmd": "kompose --provider openshift -f docker-compose.yml convert"
+    "kompose.version": "1.18.0 ()"
+  spec:
+   ports:
+    -
+   name: 8082
+     protocol: TCP
+     port: 8082
+     targetPort: 8081
+   selector:
+    "io.kompose.service": "spark-worker2"
+   type: ClusterIP
+   sessionAffinity: None
+  status:
+   loadBalancer: 

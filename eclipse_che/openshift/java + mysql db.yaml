@@ -1,0 +1,59 @@
+kind: List
+items:
+ -
+  apiVersion: v1
+  kind: Pod
+  metadata:
+   name: web
+   labels:
+    type: db
+  spec:
+   containers:
+    -
+     image: quay.io/openshiftio/che-centos_jdk8
+     name: main
+     ports:
+      -
+       containerPort: 8080
+       protocol: TCP
+     resources:
+      limits:
+       memory: 1536Mi
+    -
+     image: centos/mysql-57-centos7
+     name: mysql
+     ports:
+      -
+       name: mysql
+       containerPort: 3306
+       protocol: TCP
+     env:
+      -
+       name: MYSQL_USER
+       value: petclinic
+      -
+       name: MYSQL_ROOT_PASSWORD
+       value: password
+      -
+       name: MYSQL_PASSWORD
+       value: password
+      -
+       name: MYSQL_DATABASE
+       value: petclinic
+     resources:
+      limits:
+       memory: 512Mi
+ -
+  apiVersion: v1
+  kind: Service
+  metadata:
+   name: db
+  spec:
+   selector:
+    type: db
+   ports:
+    -
+     name: mysql
+     port: 3306
+     protocol: TCP
+     targetPort: mysql
