@@ -1,0 +1,52 @@
+{
+  "defaultEnv": "default",
+  "environments": {
+    "default": {
+      "machines": {
+        "nats-connector-spark/main": {
+          "attributes": {
+            "memoryLimitBytes": "1503238554"
+          },
+          "servers": {},
+          "volumes": {},
+          "installers": [
+            "org.eclipse.che.exec",
+            "org.eclipse.che.terminal",
+            "org.eclipse.che.ws-agent",
+            "org.eclipse.che.ls.java",
+            "com.redhat.bayesian.lsp",
+            "com.redhat.oc-login"
+          ],
+          "env": {}
+        },
+        "nats-connector-spark/spark-master": {
+          "attributes": {
+            "memoryLimitBytes": "1073741824"
+          },
+          "servers": {},
+          "volumes": {},
+          "installers": [
+            "org.eclipse.che.exec",
+            "org.eclipse.che.terminal",
+            "org.eclipse.che.ls.java",
+            "com.redhat.bayesian.lsp",
+            "com.redhat.oc-login"
+          ],
+          "env": {}
+        }
+      },
+      "recipe": {
+        "type": "openshift",
+        "content": "kind: List\nitems:\n - \n  apiVersion: v1\n  kind: Pod\n  metadata:\n   name: nats-connector-spark\n  spec:\n   containers:\n    - \n     image: quay.io/openshiftio/che-centos_jdk8\n     name: main\n     ports:\n      - \n       containerPort: 8080\n       protocol: TCP\n     resources:\n      limits:\n       memory: 1433.6000003814697Mi\n     limits:\n      memory: 1536Mi\n    - \n     image: 'gettyimages/spark:2.3.1-hadoop-3.0'\n     name: spark-master\n     command:\n      - bin/spark-class\n      - org.apache.spark.deploy.master.Master\n      - '-h'\n      - spark-master\n     env:\n      - \n       name: MASTER\n       value: 'spark://master:7077'\n      - \n       name: SPARK_CONF_DIR\n       value: /conf\n      - \n       name: SPARK_PUBLIC_DNS\n       value: localhost\n     resources:\n      limits:\n       memory: 1024Mi\n",
+        "contentType": "text/x-yaml"
+      }
+    }
+  },
+  "projects": [],
+  "name": "SparkM-3",
+  "attributes": {
+    "persistVolumes": "false"
+  },
+  "commands": [],
+  "links": []
+}
