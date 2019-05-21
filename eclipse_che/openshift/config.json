@@ -25,13 +25,7 @@
           },
           "servers": {},
           "volumes": {},
-          "installers": [
-            "org.eclipse.che.exec",
-            "org.eclipse.che.terminal",
-            "org.eclipse.che.ls.java",
-            "com.redhat.bayesian.lsp",
-            "com.redhat.oc-login"
-          ],
+          "installers": [],
           "env": {}
         }
       },
