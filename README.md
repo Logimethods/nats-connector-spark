@@ -19,7 +19,7 @@ For a Scala version of this library, have a look at the [nats-connector-spark-sc
   - `nats-streaming-server version 0.11.2`
 - `public T withNatsQueue(String queue)` added
 - [Asynchronous Publishing](https://github.com/nats-io/java-nats-streaming#asynchronous-publishing) for Spark to NATS Streaming
-- The following methods has been `@Deprecated`
+- The following methods have been `@Deprecated`
   * `withSubscriptionOptionsBuilder(io.nats.stan.SubscriptionOptions.Builder optsBuilder)`
   * `setDurableName(String durableName)`
   * `setMaxInFlight(int maxInFlight)`
