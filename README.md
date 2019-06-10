@@ -34,6 +34,7 @@ For a Scala version of this library, have a look at the [nats-connector-spark-sc
   * `ackWait(long ackWait, TimeUnit unit)`
   * `manualAcks(boolean manualAcks)`
 - JUnit Tested on a Spark Cluster
+- Published as a [Spark Package](https://spark-packages.org/package/Logimethods/nats-connector-spark)
 
 ### Version 0.4.0
 	- SubscriptionOptions are now [serializable](https://github.com/nats-io/java-nats-streaming/issues/51)
@@ -71,6 +72,13 @@ networks:
 - **For an accurate documentation regarding that version, please follow the [0.1.0 branch](https://github.com/Logimethods/nats-connector-spark/tree/version_0.1.0)**.
 
 ## Installation
+
+### Spark Package
+Include this package in your Spark Applications (`spark-shell`, `pyspark`, or `spark-submit`) using:
+
+```Shell
+> $SPARK_HOME/bin/spark-shell --packages com.logimethods:nats-connector-spark:1.0.0
+```
 
 ### Maven Central
 
