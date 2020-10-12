@@ -25,7 +25,7 @@
 		<!-- 1.6.1 is not compatible with a docker-compose made cluster -->
 		<!-- https://forums.docker.com/t/underscore-in-domain-names/12584/2 -->
 		<spark.version>2.3.1</spark.version>
-		<junit-version>4.11</junit-version>
+		<junit-version>4.13.1</junit-version>
 		<github.global.server>github</github.global.server>
 		<!-- http://stackoverflow.com/questions/26144541/why-am-i-getting-maven-error-unable-to-determine-if-resource-x-exists-in-http -->
 		<dependency.locations.enabled>false</dependency.locations.enabled>
